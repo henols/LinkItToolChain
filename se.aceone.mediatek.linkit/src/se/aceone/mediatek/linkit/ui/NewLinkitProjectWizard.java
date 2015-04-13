@@ -1,7 +1,12 @@
 package se.aceone.mediatek.linkit.ui;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.util.Properties;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.envvar.EnvironmentVariable;
@@ -255,8 +260,26 @@ public class NewLinkitProjectWizard extends Wizard implements INewWizard, IExecu
 			IContributedEnvironment contribEnv = envManager.getContributedEnvironment();
 			contribEnv.addVariable(new EnvironmentVariable(LinkItConst.ENV_KEY_JANTJE_WARNING_LEVEL, LinkItConst.ENV_KEY_WARNING_LEVEL_ON), cfgd.getConfiguration());
 			
-			contribEnv.addVariable(new EnvironmentVariable("LinkItSDK20",System.getProperty("LinkItSDK20")), cfgd.getConfiguration());
-			contribEnv.addVariable(new EnvironmentVariable("LinkItCompiler","gcc-arm-none-eabi-4_9-2014q4-20141203-win32"), cfgd.getConfiguration());
+			String linkitEnv = System.getenv().get("LinkItSDK20");
+			File sysini = new File(linkitEnv, "/tools/sys.ini");
+			Properties prop = new Properties();
+			try {
+				prop.load(new FileInputStream(sysini));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			for (Object keyString : prop.keySet()) {
+				String key = (String)keyString;
+				if(!key.startsWith("[")){
+					String value = prop.getProperty(key);
+					System.out.println(key+ " - "+value);
+					contribEnv.addVariable(new EnvironmentVariable(key ,value), cfgd.getConfiguration());
+				}
+			}
 
 			prjDesc.setActiveConfiguration(defaultConfigDescription);
 			prjDesc.setCdtProjectCreated();
