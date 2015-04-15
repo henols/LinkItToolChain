@@ -86,7 +86,7 @@ public class LinkItHelpers extends Common {
 	 * @see addLibraryDependency
 	 *      {@link #addLibraryDependency(IProject, IProject)}
 	 */
-	private static void addIncludeFolder(ICConfigurationDescription configurationDescription, IPath includePath) {
+	public static void addIncludeFolder(ICConfigurationDescription configurationDescription, IPath includePath) {
 		// find all languages
 		ICFolderDescription folderDescription = configurationDescription.getRootFolderDescription();
 		ICLanguageSetting[] settings = folderDescription.getLanguageSettings();
@@ -168,20 +168,9 @@ public class LinkItHelpers extends Common {
 	 * @see addLibraryDependency
 	 *      {@link #addLibraryDependency(IProject, IProject)}
 	 */
-	public static void addIncludeFolder(IProject project, IPath includePath) {
-		// find all languages
-//		ICProjectDescriptionManager mngr = CoreModel.getDefault().getProjectDescriptionManager();
-		ICProjectDescription projectDescription = CoreModel.getDefault().getProjectDescription(project, true);
+	public static void addIncludeFolder(ICProjectDescription projectDescription, IPath includePath) {
 		ICConfigurationDescription configurationDescription = projectDescription.getDefaultSettingConfiguration();
 		addIncludeFolder(configurationDescription, includePath);
-
-		projectDescription.setActiveConfiguration(configurationDescription);
-		projectDescription.setCdtProjectCreated();
-		try {
-			CoreModel.getDefault().setProjectDescription(project, projectDescription, true, null);
-		} catch (CoreException e) {
-			Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Could not add folder " + includePath.toOSString() + " to includepoth in project" + project.getName(), e));
-		}
 
 	}
 

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
-import java.util.Map;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.envvar.EnvironmentVariable;
@@ -20,21 +19,10 @@ import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.cdt.core.settings.model.ICResourceDescription;
 import org.eclipse.cdt.core.settings.model.ICSettingEntry;
 import org.eclipse.cdt.core.settings.model.ICSourceEntry;
-import org.eclipse.core.resources.FileInfoMatcherDescription;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceFilterDescription;
-import org.eclipse.core.resources.IResourceProxy;
-import org.eclipse.core.resources.IResourceProxyVisitor;
-import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -44,10 +32,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -66,7 +52,7 @@ import se.aceone.mediatek.linkit.tools.LinkItHelpers;
 
 public class NewLinkitProjectWizard extends Wizard implements INewWizard, IExecutableExtension {
 
-	private static final String LINK_IT_SDK20 = "LinkItSDK20".toUpperCase();
+	private static final String LINK_IT_SDK20 = "LinkItSDK20";
 	private WizardNewProjectCreationPage mWizardPage; // first page of the
 														// dialog
 	private IConfigurationElement mConfig;
@@ -86,9 +72,9 @@ public class NewLinkitProjectWizard extends Wizard implements INewWizard, IExecu
 		// create each page and fill in the title and description
 		// first page to fill in the project name
 		//
-		mWizardPage = new WizardNewProjectCreationPage("New Arduino sketch");
-		mWizardPage.setDescription("Create a new Arduino sketch.");
-		mWizardPage.setTitle("New Arduino sketch");
+		mWizardPage = new WizardNewProjectCreationPage("New LinkIt Tool Chain Project");
+		mWizardPage.setDescription("Create a new LinkIt Tool Chain Project.");
+		mWizardPage.setTitle("New LinkIt Tool Chain Project");
 		//
 		// /
 		addPage(mWizardPage);
@@ -217,7 +203,7 @@ public class NewLinkitProjectWizard extends Wizard implements INewWizard, IExecu
 			// Set the environment variables
 			ICProjectDescription prjDesc = CoreModel.getDefault().getProjectDescription(project);
 
-			ICConfigurationDescription configurationDescription = prjDesc.getConfigurationByName(name);
+//			ICConfigurationDescription configurationDescription = prjDesc.getConfigurationByName(name);
 //				mArduinoPage.saveAllSelections(configurationDescription);
 //				ArduinoHelpers.setTheEnvironmentVariables(project, configurationDescription, false);
 
@@ -270,9 +256,12 @@ public class NewLinkitProjectWizard extends Wizard implements INewWizard, IExecu
 			contribEnv.addVariable(new EnvironmentVariable(LinkItConst.ENV_KEY_JANTJE_WARNING_LEVEL, LinkItConst.ENV_KEY_WARNING_LEVEL_ON), cfgd.getConfiguration());
 
 			String linkitEnv = System.getenv().get(LINK_IT_SDK20);
+			if(linkitEnv == null){
+				linkitEnv = System.getenv().get(LINK_IT_SDK20.toUpperCase());
+			}
 			linkitEnv = linkitEnv.replace('\\', '/');
 			System.out.println(LINK_IT_SDK20 + "=" + linkitEnv);
-			contribEnv.addVariable(new EnvironmentVariable(LINK_IT_SDK20, linkitEnv), cfgd.getConfiguration());
+			contribEnv.addVariable(new EnvironmentVariable(LINK_IT_SDK20.toUpperCase(), linkitEnv), cfgd.getConfiguration());
 			File sysini = new File(linkitEnv, "/tools/sys.ini");
 			try {
 
@@ -299,16 +288,17 @@ public class NewLinkitProjectWizard extends Wizard implements INewWizard, IExecu
 				throw new OperationCanceledException();
 			}
 			
-//			String fullPath = "C:\\henrik\\mtk_eclipse_64\\LINKIT_SDK\\tools\\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\\lib\\gcc\\arm-none-eabi\\4.9.3\\include";
-//			File f = new File(fullPath);
-//			System.out.println(f.exists());
-//			IPath path = new Path(fullPath);
-			IFolder path = project.getFolder("arduino");
-			LinkItHelpers.addIncludeFolder(project, path.getFullPath());
+			String fullPath = linkitEnv+"\\tools\\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\\lib\\gcc\\arm-none-eabi\\4.9.3\\include";
+			File f = new File(fullPath);
+			System.out.println(f.exists());
+			IPath path = new Path(fullPath);
+			
+			LinkItHelpers.addIncludeFolder(prjDesc, path);
 
 			prjDesc.setActiveConfiguration(defaultConfigDescription);
 			prjDesc.setCdtProjectCreated();
 			CoreModel.getDefault().getProjectDescriptionManager().setProjectDescription(project, prjDesc, true, null);
+
 			monitor.done();
 
 		} catch (CoreException e) {

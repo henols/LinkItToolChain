@@ -12,13 +12,23 @@
 	        class="se.aceone.mediatek.linkit.ui.NewLinkitProjectWizard"
 	        name="New LinkIt Project"
 	        icon="icons/new.png"
-	        finalPerspective ="se.aceone.mediatek.linkit.perspective"
+	        finalPerspective ="org.eclipse.cdt.ui.CPerspective"
 	        project="true">
          <description>
             %wizard.description
          </description>	        
 		</wizard>
 	</extension>
+<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
+<provider
+      class="org.eclipse.cdt.core.language.settings.providers.LanguageSettingsGenericProvider"
+      id="it.se.aceone.mediatek.linkit.languageSettingsProvider"
+      name="LinkIt Compiler Settings"
+      prefer-non-shared="true">
+<language-scope id="org.eclipse.cdt.core.gcc"/>
+<language-scope id="org.eclipse.cdt.core.g++"/>
+</provider>
+</extension>
 
    <extension
          id="se.aceone.mediatek.linkit.buildDefinitions"
@@ -58,12 +68,14 @@
                artifactExtension="vxp"
                cleanCommand="rm -f"
                id="se.aceone.mediatek.linkit.configuration1"
+languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider"
                name="Default">
         <toolChain
               archList="all"
               id="se.aceone.mediatek.linkit.toolChain.default"
               isAbstract="false"
               name="LinkIt Tool Chain"
+languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider"
               osList="all"
               targetTool="se.aceone.mediatek.linkit.tool.size">
            <targetPlatform
@@ -94,15 +106,15 @@
                  natureFilter="both">
               <optionCategory
                     id="se.aceone.mediatek.linkit.cpp.optionCategory.includePaths"
-                    name="C++ Include Name">
+                    name="Include Path">
               </optionCategory>
               <option
                     browseType="directory"
                     category="se.aceone.mediatek.linkit.cpp.optionCategory.includePaths"
                     command="-I"
                     id="se.aceone.mediatek.linkit.compiler.cpp.option.incpath"
-                    name="C++ Include Path Name"
-                    resourceFilter="project"
+                    name="C++ Include Path"
+                    resourceFilter="all"
                     valueType="includePath">
               </option>
               <inputType
@@ -141,15 +153,15 @@
                  natureFilter="both">
               <optionCategory
                     id="se.aceone.mediatek.linkit.c.optionCategory.includePaths"
-                    name="C Include Name">
+                    name="Include Path">
               </optionCategory>
               <option
                     browseType="directory"
                     category="se.aceone.mediatek.linkit.c.optionCategory.includePaths"
                     command="-I"
                     id="se.aceone.mediatek.linkit.compiler.c.option.incpath"
-                    name="C Include Path Name"
-                    resourceFilter="project"
+                    name="C Include Path"
+                    resourceFilter="all"
                     valueType="includePath">
               </option>
               <inputType
