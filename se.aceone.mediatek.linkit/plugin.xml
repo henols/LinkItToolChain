@@ -64,7 +64,8 @@
               id="se.aceone.mediatek.linkit.toolChain.default"
               isAbstract="false"
               name="LinkIt Tool Chain"
-              osList="all">
+              osList="all"
+              targetTool="se.aceone.mediatek.linkit.tool.size">
            <targetPlatform
                  archList="all"
                  binaryParser="org.eclipse.cdt.core.ELF"
@@ -85,21 +86,22 @@
            </optionCategory>
            <tool
                  announcement="Starting C++ compile"
-                 command="${LinkItSDK20}\tools\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\bin\arm-none-eabi-g++"
+                 command="${LINKITSDK20}${GCCLOCATION}/${GCCCPPCOMPILER}"
+                 commandLinePattern=" ${COMMAND}  ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
                  errorParsers="org.eclipse.cdt.core.GCCErrorParser"
                  id="se.aceone.mediatek.linkit.compiler.cpp"
                  name="C++ Compiler"
                  natureFilter="both">
               <optionCategory
                     id="se.aceone.mediatek.linkit.cpp.optionCategory.includePaths"
-                    name="%optionCategory.include.name">
+                    name="C++ Include Name">
               </optionCategory>
               <option
                     browseType="directory"
                     category="se.aceone.mediatek.linkit.cpp.optionCategory.includePaths"
                     command="-I"
                     id="se.aceone.mediatek.linkit.compiler.cpp.option.incpath"
-                    name="%option.include.path.name"
+                    name="C++ Include Path Name"
                     resourceFilter="project"
                     valueType="includePath">
               </option>
@@ -108,14 +110,14 @@
                     dependencyCalculator="se.aceone.mediatek.linkit.toolchain.LinkItDependencyCalculator"
                     dependencyContentType="org.eclipse.cdt.core.cxxHeader"
                     id="se.aceone.mediatek.linkit.input"
-                    name="%inputType.CPP.name"
+                    name="C++ Source"
                     primaryInput="true"
                     sourceContentType="org.eclipse.cdt.core.cxxSource">
               </inputType>
               <outputType
                     buildVariable="LINK_OBJ"
                     id="se.aceone.mediatek.linkit.link.output"
-                    name="%outputType.CPP.link.name"
+                    name="C++ Link Object"
                     nameProvider="se.aceone.mediatek.linkit.toolchain.LinkNameProvider"
                     outputs="o"
                     primaryOutput="true">
@@ -123,7 +125,7 @@
               <outputType
                     buildVariable="AR_OBJ"
                     id="se.aceone.mediatek.linkit.compiler.cpp.ar.output"
-                    name="%outputType.CPP.AR.name"
+                    name="C++ AR Object"
                     nameProvider="se.aceone.mediatek.linkit.ArchiveNameProvider"
                     outputs="o"
                     primaryOutput="true">
@@ -131,21 +133,22 @@
            </tool>
            <tool
                  announcement="Starting C compile"
-                 command="${LinkItSDK20}\tools\${LinkItCompiler}\bin\arm-none-eabi-gcc"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCCCOMPILER}"
+                 commandLinePattern=" ${COMMAND} ${GCCCOMPILER} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
                  errorParsers="org.eclipse.cdt.core.GCCErrorParser"
                  id="se.aceone.mediatek.linkit.compiler.c"
                  name="C Compiler"
                  natureFilter="both">
               <optionCategory
                     id="se.aceone.mediatek.linkit.c.optionCategory.includePaths"
-                    name="%optionCategory.include.name">
+                    name="C Include Name">
               </optionCategory>
               <option
                     browseType="directory"
                     category="se.aceone.mediatek.linkit.c.optionCategory.includePaths"
                     command="-I"
                     id="se.aceone.mediatek.linkit.compiler.c.option.incpath"
-                    name="%option.include.path.name"
+                    name="C Include Path Name"
                     resourceFilter="project"
                     valueType="includePath">
               </option>
@@ -155,14 +158,14 @@
                     dependencyContentType="org.eclipse.cdt.core.cHeader"
                     id="se.aceone.mediatek.linkit.compiler.c.input"
                     multipleOfType="false"
-                    name="%inputType.C.name"
+                    name="C Source"
                     primaryInput="true"
                     sourceContentType="org.eclipse.cdt.core.cSource">
               </inputType>
               <outputType
                     buildVariable="LINK_OBJ"
                     id="se.aceone.mediatek.linkit.compiler.c.link.output"
-                    name="%outputType.C.link.name"
+                    name="C Link Object"
                     nameProvider="se.aceone.mediatek.linkit.toolchain.LinkNameProvider"
                     outputs="o"
                     primaryOutput="true">
@@ -170,15 +173,17 @@
               <outputType
                     buildVariable="AR_OBJ"
                     id="se.aceone.mediatek.linkit.compiler.c.ar.output"
-                    name="%outputType.C.AR.name"
+                    name="C AR Object"
                     nameProvider="se.aceone.mediatek.linkit.toolchain.ArchiveNameProvider"
                     outputs="o"
                     primaryOutput="true">
               </outputType>
            </tool>
+           <!-- 
            <tool
                  announcement="Starting ASM compile"
-                 command="${LinkItSDK20}\tools\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\bin\arm-none-eabi-as"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${ARMARGCC}"
+                 commandLinePattern=" ${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} ${OUTPUT} ${INPUTS}"
                  errorParsers="org.eclipse.cdt.core.GCCErrorParser"
                  id="se.aceone.mediatek.linkit.compiler.s"
                  name="ASM Compiler"
@@ -188,14 +193,14 @@
                     dependencyCalculator="se.aceone.mediatek.linkit.toolchain.ArduinoDependencyCalculator"
                     dependencyContentType="org.eclipse.cdt.core.cxxHeader"
                     id="se.aceone.mediatek.linkit.compiler.S.sketch.input"
-                    name="%inputType.Asembly.name"
+                    name="ASM Source"
                     primaryInput="true"
                     sourceContentType="org.eclipse.cdt.core.asmSource">
               </inputType>
               <outputType
                     buildVariable="LINK_OBJ"
                     id="se.aceone.mediatek.linkit.compiler.S.sketch.link.output"
-                    name="%outputType.S.link.name"
+                    name="ASM Link Object"
                     nameProvider="se.aceone.mediatek.linkit.toolchain.LinkNameProvider"
                     outputs="o"
                     primaryOutput="true">
@@ -203,23 +208,24 @@
               <outputType
                     buildVariable="AR_OBJ"
                     id="se.aceone.mediatek.linkit.compiler.S.ar.output"
-                    name="%outputType.S.AR.name"
+                    name="ASM AR Object"
                     nameProvider="se.aceone.mediatek.linkit.toolchain.ArchiveNameProvider"
                     outputs="o"
                     primaryOutput="true">
               </outputType>
            </tool>
+           -->
            <tool
                  announcement="Starting archiver"
-                 command="${A.RECIPE.AR.PATTERN}"
-                 commandLinePattern="${A.RECIPE.AR.PATTERN.1} ${FLAGS} ${INPUTS} ${A.RECIPE.AR.PATTERN.2} ${A.RECIPE.AR.PATTERN.3}"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${ARMARGCC}"
+                 commandLinePattern="${COMMAND} ${FLAGS} ${INPUTS} ${A.RECIPE.AR.PATTERN.2} ${A.RECIPE.AR.PATTERN.3}"
                  errorParsers="org.eclipse.cdt.core.GLDErrorParser"
-                 id="it.baeyens.arduino.tool.ar"
-                 name="%tool.name.1">
+                 id="se.aceone.mediatek.linkit.tool.ar"
+                 name="Archiver">
               <outputType
                     buildVariable="AR"
                     id="it.baeyens.arduino.tool.archiver.output"
-                    name="%outputType.name.3"
+                    name="Archiver output"
                     outputNames="${A.ARCHIVE_FILE}"
                     outputs="ar"
                     primaryOutput="true">
@@ -229,23 +235,23 @@
                     buildVariable="AR_OBJ"
                     id="it.baeyens.arduino.tool.archiver.input"
                     multipleOfType="true"
-                    name="%inputType.name.1"
+                    name="Archiver input"
                     primaryInput="false"
                     sources="o">
               </inputType>
            </tool>
            <tool
                  announcement="Starting Combiner"
-                 command="${A.RECIPE.C.COMBINE.PATTERN}"
-                 commandLinePattern="${A.RECIPE.C.COMBINE.PATTERN.1} ${FLAGS} ${INPUTS} ${A.RECIPE.C.COMBINE.PATTERN.2} ${A.RECIPE.C.COMBINE.PATTERN.3}"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCLINK}"
+                 commandLinePattern="${COMMAND} ${FLAGS} ${INPUTS} ${A.RECIPE.C.COMBINE.PATTERN.2} ${A.RECIPE.C.COMBINE.PATTERN.3}"
                  errorParsers="org.eclipse.cdt.core.GLDErrorParser"
-                 id="it.baeyens.arduino.tool.combine"
-                 name="%tool.name.2"
+                 id="se.aceone.mediatek.linkit.tool.combine"
+                 name="Linker"
                  natureFilter="both">
               <outputType
                     buildVariable="ELF"
                     id="it.baeyens.arduino.tool.combiner.output"
-                    name="%outputType.name.4"
+                    name="Linker output"
                     outputNames="${ProjName}.elf"
                     outputs="elf"
                     primaryOutput="true">
@@ -254,7 +260,7 @@
                     buildVariable="LINK_OBJ"
                     id="it.baeyens.arduino.tool.combiner.ob.input"
                     multipleOfType="true"
-                    name="%inputType.name.2"
+                    name="Linker input"
                     primaryInput="true"
                     sources="O">
               </inputType>
@@ -270,16 +276,16 @@
                  announcement="Create eeprom image"
                  command="${A.RECIPE.OBJCOPY.EEP.PATTERN} "
                  commandLinePattern="${COMMAND}"
-                 id="it.baeyens.arduino.tool.objcopy.eep"
+                 id="se.aceone.mediatek.linkit.tool.objcopy.eep"
                  isAbstract="false"
-                 name="%tool.name.3"
+                 name="Eeprom image"
                  natureFilter="both">
               <inputType
                     buildVariable="ELF"
                     dependencyExtensions="elf"
                     id="it.baeyens.arduino.tool.objcopy.eep.input"
                     multipleOfType="true"
-                    name="%inputType.name.3"
+                    name="Eeprom image input"
                     primaryInput="true"
                     sourceContentType="it.baeyens.arduino.tool.combiner.output"
                     sources="elf">
@@ -288,7 +294,7 @@
                     buildVariable="EEP"
                     id="it.baeyens.arduino.tool.objcopy.eep.output"
                     multipleOfType="false"
-                    name="%outputType.name.5"
+                    name="Eeprom image output"
                     outputNames="${ProjName}.eep"
                     outputs="eep">
               </outputType>
@@ -297,16 +303,16 @@
                  announcement="Create Flash image (ihex format)"
                  command="${A.RECIPE.OBJCOPY.HEX.PATTERN} "
                  commandLinePattern="${COMMAND}"
-                 id="it.baeyens.arduino.tool.objcopy.flash"
+                 id="se.aceone.mediatek.linkit.tool.objcopy.flash"
                  isAbstract="false"
-                 name="%tool.name.4"
+                 name="Flash image"
                  natureFilter="both">
               <inputType
                     buildVariable="EEP"
                     dependencyExtensions="eep"
                     id="it.baeyens.arduino.tool.objcopy.flash.input"
                     multipleOfType="true"
-                    name="%inputType.name.4"
+                    name="Flash image input"
                     primaryInput="true"
                     sourceContentType="it.baeyens.arduino.tool.eep.output"
                     sources="eep">
@@ -315,11 +321,37 @@
                     buildVariable="FLASH_IMAGE"
                     id="it.baeyens.arduino.tool.objcopy.flash.output"
                     multipleOfType="false"
-                    name="%outputType.name.6"
+                    name="Flash image output"
                     nameProvider="it.baeyens.arduino.toolchain.hexNameProvider"
                     outputs="hex,bin">
               </outputType>
            </tool>
+                <tool
+                 announcement="%tool.announcement.5"
+                 command="${JANTJE.SIZE.SWITCH} "
+                 commandLinePattern="${COMMAND}"
+                 id="se.aceone.mediatek.linkit.tool.size"
+                 name="Size">
+              <inputType
+                    buildVariable="FLASH_IMAGE"
+                    dependencyExtensions="hex"
+                    id="it.baeyens.arduino.tool.size.input"
+                    multipleOfType="true"
+                    name="Size input"
+                    primaryInput="true"
+                    sourceContentType="it.baeyens.arduino.tool.objcopy.flash.output">
+              </inputType>
+              <outputType
+                    buildVariable="SIZEDUMMY"
+                    id="it.baeyens.arduino.tool.size.output"
+                    multipleOfType="false"
+                    name="Size output"
+                    outputNames="sizedummy"
+                    outputs="${project}.size"
+                    primaryOutput="true">
+              </outputType>
+           </tool>
+           
         </toolChain>
          </configuration>
       </projectType>

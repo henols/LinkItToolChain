@@ -18,6 +18,8 @@ import org.eclipse.cdt.core.envvar.IContributedEnvironment;
 import org.eclipse.cdt.core.envvar.IEnvironmentVariable;
 import org.eclipse.cdt.core.language.settings.providers.ILanguageSettingsProvider;
 import org.eclipse.cdt.core.language.settings.providers.ILanguageSettingsProvidersKeeper;
+import org.eclipse.cdt.core.language.settings.providers.LanguageSettingsManager;
+import org.eclipse.cdt.core.language.settings.providers.ScannerDiscoveryLegacySupport;
 import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.settings.model.CIncludePathEntry;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
@@ -28,13 +30,13 @@ import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.cdt.core.settings.model.ICProjectDescriptionManager;
 import org.eclipse.cdt.core.settings.model.ICSettingEntry;
 import org.eclipse.cdt.core.settings.model.extension.CConfigurationData;
+import org.eclipse.cdt.core.settings.model.util.CDataUtil;
 import org.eclipse.cdt.managedbuilder.core.IBuilder;
 import org.eclipse.cdt.managedbuilder.core.IConfiguration;
 import org.eclipse.cdt.managedbuilder.core.IManagedBuildInfo;
 import org.eclipse.cdt.managedbuilder.core.IToolChain;
 import org.eclipse.cdt.managedbuilder.core.ManagedBuildManager;
 import org.eclipse.cdt.managedbuilder.internal.core.Configuration;
-import org.eclipse.cdt.managedbuilder.internal.core.ManagedBuildInfo;
 import org.eclipse.cdt.managedbuilder.internal.core.ManagedProject;
 import org.eclipse.cdt.managedbuilder.internal.core.ToolChain;
 import org.eclipse.cdt.managedbuilder.language.settings.providers.AbstractBuiltinSpecsDetector;
@@ -79,28 +81,31 @@ public class LinkItHelpers extends Common {
 	 * 
 	 * @param configurationDescription
 	 *            The configuration description of the project to add it to
-	 * @param IncludePath
+	 * @param includePath
 	 *            The path to add to the include folders
 	 * @see addLibraryDependency
 	 *      {@link #addLibraryDependency(IProject, IProject)}
 	 */
-	private static void addIncludeFolder(ICConfigurationDescription configurationDescription, IPath IncludePath) {
+	private static void addIncludeFolder(ICConfigurationDescription configurationDescription, IPath includePath) {
 		// find all languages
 		ICFolderDescription folderDescription = configurationDescription.getRootFolderDescription();
-		ICLanguageSetting[] languageSettings = folderDescription.getLanguageSettings();
+		ICLanguageSetting[] settings = folderDescription.getLanguageSettings();
 
 		// Add include path to all languages
-		for(int idx = 0; idx < languageSettings.length; idx++) {
-			ICLanguageSetting lang = languageSettings[idx];
-			String LangID = lang.getLanguageId();
-			if (LangID != null) {
-				if (LangID.startsWith("org.eclipse.cdt.")) { //$NON-NLS-1$
-					ICLanguageSettingEntry[] OrgIncludeEntries = lang.getSettingEntries(ICSettingEntry.INCLUDE_PATH);
-					ICLanguageSettingEntry[] IncludeEntries = new ICLanguageSettingEntry[OrgIncludeEntries.length + 1];
-					System.arraycopy(OrgIncludeEntries, 0, IncludeEntries, 0, OrgIncludeEntries.length);
-					IncludeEntries[OrgIncludeEntries.length] = new CIncludePathEntry(IncludePath, ICSettingEntry.VALUE_WORKSPACE_PATH); // (location.toString());
-					lang.setSettingEntries(ICSettingEntry.INCLUDE_PATH, IncludeEntries);
-				}
+		for(ICLanguageSetting setting: settings) {
+			String langId = setting.getLanguageId();
+			if (langId != null && langId.startsWith("org.eclipse.cdt.")) { //$NON-NLS-1$
+				List<ICLanguageSettingEntry> includes = new ArrayList<ICLanguageSettingEntry>();
+				includes.addAll(setting.getSettingEntriesList(ICSettingEntry.INCLUDE_PATH));
+				includes.add(new CIncludePathEntry(includePath, ICSettingEntry.LOCAL));
+				setting.setSettingEntries(ICSettingEntry.INCLUDE_PATH, includes);
+
+//					ICLanguageSettingEntry[] orgIncludeEntries = setting.getSettingEntries(ICSettingEntry.INCLUDE_PATH);
+//					ICLanguageSettingEntry[] includeEntries = new ICLanguageSettingEntry[orgIncludeEntries.length + 1];
+//					System.arraycopy(orgIncludeEntries, 0, includeEntries, 0, orgIncludeEntries.length);
+//					includeEntries[orgIncludeEntries.length] = CDataUtil.getPooledEntry(new CIncludePathEntry(includePath, ICSettingEntry.VALUE_WORKSPACE_PATH));
+////					includeEntries[orgIncludeEntries.length] = new CIncludePathEntry(includePath, ICSettingEntry.VALUE_WORKSPACE_PATH); // (location.toString());
+//					setting.setSettingEntries(ICSettingEntry.INCLUDE_PATH, includeEntries);
 			}
 		}
 	}
@@ -158,24 +163,24 @@ public class LinkItHelpers extends Common {
 	 * 
 	 * @param project
 	 *            The project to add it to
-	 * @param IncludePath
+	 * @param includePath
 	 *            The path to add to the include folders
 	 * @see addLibraryDependency
 	 *      {@link #addLibraryDependency(IProject, IProject)}
 	 */
-	public static void addIncludeFolder(IProject project, IPath IncludePath) {
+	public static void addIncludeFolder(IProject project, IPath includePath) {
 		// find all languages
-		ICProjectDescriptionManager mngr = CoreModel.getDefault().getProjectDescriptionManager();
-		ICProjectDescription projectDescription = mngr.getProjectDescription(project, true);
+//		ICProjectDescriptionManager mngr = CoreModel.getDefault().getProjectDescriptionManager();
+		ICProjectDescription projectDescription = CoreModel.getDefault().getProjectDescription(project, true);
 		ICConfigurationDescription configurationDescription = projectDescription.getDefaultSettingConfiguration();
-		addIncludeFolder(configurationDescription, IncludePath);
+		addIncludeFolder(configurationDescription, includePath);
 
 		projectDescription.setActiveConfiguration(configurationDescription);
 		projectDescription.setCdtProjectCreated();
 		try {
-			mngr.setProjectDescription(project, projectDescription, true, null);
+			CoreModel.getDefault().setProjectDescription(project, projectDescription, true, null);
 		} catch (CoreException e) {
-			Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Could not add folder " + IncludePath.toOSString() + " to includepoth in project" + project.getName(), e));
+			Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Could not add folder " + includePath.toOSString() + " to includepoth in project" + project.getName(), e));
 		}
 
 	}
@@ -854,9 +859,51 @@ public class LinkItHelpers extends Common {
 		CConfigurationData data = cfg.getConfigurationData();
 		ICConfigurationDescription cfgDes = des.createConfiguration(ManagedBuildManager.CFG_DATA_PROVIDER_ID, data);
 
+		setDefaultLanguageSettingsProviders(project, toolChainId, cfg, cfgDes);
+
 		monitor.worked(50);
 		mngr.setProjectDescription(project, des);
 
+	}
+
+	private static void setDefaultLanguageSettingsProviders(IProject project, String toolChainId, IConfiguration cfg, ICConfigurationDescription cfgDescription) {
+		// propagate the preference to project properties
+		boolean isPreferenceEnabled = ScannerDiscoveryLegacySupport.isLanguageSettingsProvidersFunctionalityEnabled(null);
+		ScannerDiscoveryLegacySupport.setLanguageSettingsProvidersFunctionalityEnabled(project, isPreferenceEnabled);
+
+		if (cfgDescription instanceof ILanguageSettingsProvidersKeeper) {
+			ILanguageSettingsProvidersKeeper lspk = (ILanguageSettingsProvidersKeeper)cfgDescription;
+
+			lspk.setDefaultLanguageSettingsProvidersIds(new String[]{ toolChainId });
+
+			List<ILanguageSettingsProvider> providers = getDefaultLanguageSettingsProviders(cfg, cfgDescription);
+			lspk.setLanguageSettingProviders(providers);
+		}
+	}
+
+	private static List<ILanguageSettingsProvider> getDefaultLanguageSettingsProviders(IConfiguration cfg, ICConfigurationDescription cfgDescription) {
+		List<ILanguageSettingsProvider> providers = new ArrayList<ILanguageSettingsProvider>();
+		String[] ids = cfg != null ? cfg.getDefaultLanguageSettingsProviderIds() : null;
+
+		if (ids == null) {
+			// Try with legacy providers
+			ids = ScannerDiscoveryLegacySupport.getDefaultProviderIdsLegacy(cfgDescription);
+		}
+
+		if (ids != null) {
+			for(String id : ids) {
+				ILanguageSettingsProvider provider = null;
+				if (!LanguageSettingsManager.isPreferShared(id)) {
+					provider = LanguageSettingsManager.getExtensionProviderCopy(id, false);
+				}
+				if (provider == null) {
+					provider = LanguageSettingsManager.getWorkspaceProvider(id);
+				}
+				providers.add(provider);
+			}
+		}
+
+		return providers;
 	}
 
 }

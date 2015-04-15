@@ -1,0 +1,154 @@
+11:52:02(INFO) Project path:C:/henrik/mtk_eclipse_64/wsx
+11:52:02(INFO) Project name:test
+11:52:02(INFO) c file list:C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c
+11:52:02(INFO) version---40
+11:52:02(INFO) font---12
+11:52:02(INFO) imageList---null
+11:52:02(INFO) iconPath---
+11:52:02(INFO) subversion40---WEARABLE
+11:52:02(INFO) CTVvalueHex---65535
+11:52:02(INFO) ["C:\henrik\mtk_eclipse_64\LINKIT_SDK\\tools\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\bin\arm-none-eabi-gcc", -mthumb-interwork, -c, -g, -fpic, -mcpu=arm7tdmi-s, -fvisibility=hidden, -mthumb, -mlittle-endian, -O2, -D__COMPILER_GCC__, -fno-exceptions, -fno-non-call-exceptions, -I, "C:/henrik/mtk_eclipse_64/wsx/test/ARM", -I, "C:/henrik/mtk_eclipse_64/wsx/test/ResID", -I, "C:/henrik/mtk_eclipse_64/wsx/test/res", -I, "C:\henrik\mtk_eclipse_64\LINKIT_SDK\include", -D, __HDK_LINKIT_ONE_V1__, -c, "C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c", -o, "C:/henrik/mtk_eclipse_64/wsx/test/ARM/HTTPS.o"]
+11:52:02(INFO) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c: In function 'https_send_request_set_channel_rsp_cb':
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:53:9: warning: incompatible implicit declaration of built-in function 'strlen'
+11:52:02(INFO)          strlen(VMHTTPS_TEST_URL),           /* The request URL length */
+11:52:02(INFO)          ^
+11:52:02(INFO) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c: In function 'https_send_request':
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:145:10: warning: initialization from incompatible pointer type
+11:52:02(INFO)           https_send_request_set_channel_rsp_cb,
+11:52:02(INFO)           ^
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:145:10: warning: (near initialization for 'callbacks.set_channel_callback')
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:146:10: warning: initialization from incompatible pointer type
+11:52:02(INFO)           https_unset_channel_rsp_cb,
+11:52:02(INFO)           ^
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:146:10: warning: (near initialization for 'callbacks.unset_channel_callback')
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:147:10: warning: initialization from incompatible pointer type
+11:52:02(INFO)           https_send_release_all_req_rsp_cb,
+11:52:02(INFO)           ^
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:147:10: warning: (near initialization for 'callbacks.release_all_request_callback')
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:149:10: warning: initialization from incompatible pointer type
+11:52:02(INFO)           https_send_read_request_rsp_cb,
+11:52:02(INFO)           ^
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:149:10: warning: (near initialization for 'callbacks.send_callback')
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:150:10: warning: initialization from incompatible pointer type
+11:52:02(INFO)           https_send_read_read_content_rsp_cb,
+11:52:02(INFO)           ^
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:150:10: warning: (near initialization for 'callbacks.read_content_callback')
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:151:10: warning: initialization from incompatible pointer type
+11:52:02(INFO)           https_send_cancel_rsp_cb,
+11:52:02(INFO)           ^
+11:52:02(WARNING) C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c:151:10: warning: (near initialization for 'callbacks.cancel_callback')
+11:52:02(INFO) Action Thread end.
+11:52:02(INFO) Successed to compiled C:/henrik/mtk_eclipse_64/wsx/test/HTTPS.c to obj file.
+11:52:02(INFO) ["C:\henrik\mtk_eclipse_64\LINKIT_SDK\\tools\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\bin\arm-none-eabi-gcc", -mthumb-interwork, -c, -g, -fpic, -mcpu=arm7tdmi-s, -fvisibility=hidden, -mthumb, -mlittle-endian, -O2, -D__COMPILER_GCC__, -fno-exceptions, -fno-non-call-exceptions, -I, "C:/henrik/mtk_eclipse_64/wsx/test/ARM", -I, "C:/henrik/mtk_eclipse_64/wsx/test/ResID", -I, "C:/henrik/mtk_eclipse_64/wsx/test/res", -I, "C:\henrik\mtk_eclipse_64\LINKIT_SDK\include", -D, __HDK_LINKIT_ONE_V1__, -c, "C:\henrik\mtk_eclipse_64\LINKIT_SDK\lib\LINKIT10\src\gccmain.c", -o, "C:/henrik/mtk_eclipse_64/wsx/test/ARM/gccmain.o"]
+11:52:03(INFO) Action Thread end.
+11:52:03(INFO) Successed to compiled gccmain.c to obj file.
+11:52:03(INFO) ["C:\henrik\mtk_eclipse_64\LINKIT_SDK\\tools\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\bin\arm-none-eabi-gcc", -o, "C:/henrik/mtk_eclipse_64/wsx/test\arm\test.axf", "C:/henrik/mtk_eclipse_64/wsx/test/ARM/HTTPS.o", "C:/henrik/mtk_eclipse_64/wsx/test/ARM/gccmain.o", -T, "C:\henrik\mtk_eclipse_64\LINKIT_SDK\lib\LINKIT10\armgcc_t\scat.ld", -Wl,--gc-sections, -fpic, -pie, --specs=nosys.specs, -B, "C:\henrik\mtk_eclipse_64\LINKIT_SDK\\tools\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\arm-none-eabi\lib\thumb", "C:\henrik\mtk_eclipse_64\LINKIT_SDK\lib\LINKIT10\armgcc\percommon.a"]
+11:52:03(INFO) Action Thread end.
+11:52:03(INFO) Successed to Link obj to axf file.
+11:52:03(INFO) ["C:\henrik\mtk_eclipse_64\LINKIT_SDK\\tools\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\bin\arm-none-eabi-objcopy", -g, -R, .comment, "C:/henrik/mtk_eclipse_64/wsx/test\ARM\testtemp.axf", "C:/henrik/mtk_eclipse_64/wsx/test\ARM\testout.axf"]
+11:52:03(INFO) Action Thread end.
+11:52:03(INFO) Successed to generate dbg data file.
+11:52:03(INFO) ["C:\henrik\mtk_eclipse_64\LINKIT_SDK\\tools\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\bin\arm-none-eabi-objcopy", --only-keep-debug, "C:/henrik/mtk_eclipse_64/wsx/test\ARM\testtemp.axf", "C:/henrik/mtk_eclipse_64/wsx/test\ARM\test.dbg"]
+11:52:03(INFO) Action Thread end.
+11:52:03(INFO) Successed to splite the dbg data from axf file.
+11:52:03(INFO) Packing resource...
+
+11:52:03(INFO) Do resource packer:
+11:52:03(INFO) Resource Packer command:
+11:52:03(INFO) "C:\henrik\mtk_eclipse_64\LINKIT_SDK\tools\ResEditor\CmdShell.exe"
+11:52:03(INFO) Packer command parameters:
+11:52:03(INFO) [pack, -silent, -resolution, 128x160, -o, "C:/henrik/mtk_eclipse_64/wsx/test\test.pkd", -e, AXF, -vom, "C:/henrik/mtk_eclipse_64/wsx/test\test.proj", "C:/henrik/mtk_eclipse_64/wsx/test\test.axf"]
+11:52:03(INFO) ["C:\henrik\mtk_eclipse_64\LINKIT_SDK\tools\ResEditor\CmdShell.exe", pack, -silent, -resolution, 128x160, -o, "C:/henrik/mtk_eclipse_64/wsx/test\test.pkd", -e, AXF, -vom, "C:/henrik/mtk_eclipse_64/wsx/test\test.proj", "C:/henrik/mtk_eclipse_64/wsx/test\test.axf"]
+11:52:03(INFO) Resource Editor Command Shell
+11:52:03(INFO) Loading resource from ".\res\test.res.xml"...
+11:52:03(INFO) Loading strings from ".\res\ref_list_HTTPS.txt"...
+11:52:03(INFO) [test] open - 0 error(s), 0 warning(s)
+11:52:03(INFO) pack resource started
+11:52:03(INFO) construct app icon resource...
+11:52:03(INFO) C:\henrik\mtk_eclipse_64\wsx\test\AppLogo.img
+11:52:03(INFO) [warning] App icon file does not exist in project folder, use default icon
+11:52:03(INFO) construct preview image resource...
+11:52:03(INFO) construct base resource...
+11:52:03(INFO) construct above resource...
+11:52:03(INFO) construct language resource...
+11:52:03(INFO) Language ID: 44
+11:52:03(INFO) Language ID: 86
+11:52:03(INFO) Language ID: 886
+11:52:03(INFO) construct file resource...
+11:52:03(INFO) construct image resource...
+11:52:03(INFO) construct layout resource...
+11:52:03(INFO) there are no any layout xml 
+11:52:03(INFO) construct resource done
+11:52:03(INFO) construct app icon resource...
+11:52:03(INFO) C:\henrik\mtk_eclipse_64\wsx\test\AppLogo.img
+11:52:03(INFO) [warning] App icon file does not exist in project folder, use default icon
+11:52:03(INFO) construct preview image resource...
+11:52:03(INFO) construct base resource...
+11:52:03(INFO) construct above resource...
+11:52:03(INFO) construct language resource...
+11:52:03(INFO) Language ID: 44
+11:52:03(INFO) Language ID: 86
+11:52:03(INFO) Language ID: 886
+11:52:03(INFO) construct file resource...
+11:52:03(INFO) construct image resource...
+11:52:03(INFO) construct layout resource...
+11:52:03(INFO) there are no any layout xml 
+11:52:03(INFO) construct resource done
+11:52:03(INFO) pack resource done, result=0
+11:52:03(INFO) pack done
+11:52:03(INFO) Action Thread end.
+11:52:03(INFO) Pack resource successful.
+
+11:52:03(INFO) Do Digist packer:
+11:52:03(INFO) Pack Digist...
+
+11:52:03(INFO) ["C:\henrik\mtk_eclipse_64\LINKIT_SDK\tools\PackDigist.exe", "C:/henrik/mtk_eclipse_64/wsx/test\test.vcproj", "HTTPS" "2.0.0", "MediaTek Inc", "500", "supportBg", "Not Support rotate", "HTTPS", "HTTPS", "HTTPS", "1234567890", "content", "Audio Call Camera TCP File HTTP Sensor SIM card Record SMS(person) SMS(SP) BitStream Contact LBS MMS ProMng SMSMng Video XML Sec SysStorage Payment BT PUSH UDP SysFile sso ", "vxp", "GCC", "PKD", "UnCompress", "venus", "Adaptable", "8388768", "UnSysMemAble", "100", "prjoectcfg.appid", "false", "prjoectcfg.pushappid", "-1", "UnAutoStart", "TransferImg", "NoIdleShortcut", "prjoectcfg.CTVvalueHex"]
+11:52:03(INFO) Digist Packer Command Shell v3.1329.00
+11:52:03(INFO) shell command arg count: 31
+11:52:03(INFO)   argv[0]: C:\henrik\mtk_eclipse_64\LINKIT_SDK\tools\PackDigist.exe
+11:52:03(INFO)   argv[1]: C:/henrik/mtk_eclipse_64/wsx/test\test.vcproj
+11:52:03(INFO)   argv[2]: HTTPS
+11:52:03(INFO)   argv[3]: 2.0.0
+11:52:03(INFO)   argv[4]: MediaTek Inc
+11:52:03(INFO)   argv[5]: 500
+11:52:03(INFO)   argv[6]: supportBg
+11:52:03(INFO)   argv[7]: Not Support rotate
+11:52:03(INFO)   argv[8]: HTTPS
+11:52:03(INFO)   argv[9]: HTTPS
+11:52:03(INFO)   argv[10]: HTTPS
+11:52:03(INFO)   argv[11]: 1234567890
+11:52:03(INFO)   argv[12]: content
+11:52:03(INFO)   argv[13]: Audio Call Camera TCP File HTTP Sensor SIM card Record SMS(person) SMS(SP) BitStream Contact LBS MMS ProMng SMSMng Video XML Sec SysStorage Payment BT PUSH UDP SysFile sso 
+11:52:03(INFO)   argv[14]: vxp
+11:52:03(INFO)   argv[15]: GCC
+11:52:03(INFO)   argv[16]: PKD
+11:52:03(INFO)   argv[17]: UnCompress
+11:52:03(INFO)   argv[18]: venus
+11:52:03(INFO)   argv[19]: Adaptable
+11:52:03(INFO)   argv[20]: 8388768
+11:52:03(INFO)   argv[21]: UnSysMemAble
+11:52:03(INFO)   argv[22]: 100
+11:52:03(INFO)   argv[23]: prjoectcfg.appid
+11:52:03(INFO)   argv[24]: false
+11:52:03(INFO)   argv[25]: prjoectcfg.pushappid
+11:52:03(INFO)   argv[26]: -1
+11:52:03(INFO)   argv[27]: UnAutoStart
+11:52:03(INFO)   argv[28]: TransferImg
+11:52:03(INFO)   argv[29]: NoIdleShortcut
+11:52:03(INFO)   argv[30]: prjoectcfg.CTVvalueHex
+11:52:03(INFO) adaptable = 1
+11:52:03(INFO) Action Thread end.
+11:52:03(INFO) Pack digist Done.
+
+11:52:03(INFO) Begin to upload application.
+
+11:52:03(INFO) ["C:\henrik\mtk_eclipse_64\LINKIT_SDK\tools\PushCmdShell.exe", "C:/henrik/mtk_eclipse_64/wsx/test\test.vxp"]
+11:52:03(INFO) Error Number:1001
+11:52:03(INFO) Failed to Uplaod lib to device.
+
+11:52:03(INFO) Cannot found device or failed to push app
+
+g++ -c -g -O2 -fvisibility=hidden -fpic -mthumb -mlittle-endian -nostdlib -fno-non-call-exceptions -fno-rtti -fno-exceptions -Dprintf=iprintf -mcpu=arm7tdmi-s -DF_CPU=84000000L -DARDUINO=156-r2 -DARDUINO_MTK_ONE -DARDUINO_ARCH_MTK
+gcc -c -g -O2 -fvisibility=hidden -fpic -mthumb -mlittle-endian -nostdlib -nostdlib                                          -Dprintf=iprintf -mcpu=arm7tdmi-s -DF_CPU=84000000L -DARDUINO=156-r2 -DARDUINO_MTK_ONE -DARDUINO_ARCH_MTK
+gcc -mthumb-interwork -c -g -fpic -mcpu=arm7tdmi-s -fvisibility=hidden -mthumb -mlittle-endian -O2 -D__COMPILER_GCC__ -fno-exceptions -fno-non-call-exceptions
+   
