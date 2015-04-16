@@ -1,11 +1,13 @@
 package se.aceone.mediatek.linkit.ui;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.envvar.EnvironmentVariable;
@@ -19,6 +21,8 @@ import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.cdt.core.settings.model.ICResourceDescription;
 import org.eclipse.cdt.core.settings.model.ICSettingEntry;
 import org.eclipse.cdt.core.settings.model.ICSourceEntry;
+import org.eclipse.core.filesystem.URIUtil;
+import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -50,9 +54,8 @@ import se.aceone.mediatek.linkit.tools.Common;
 import se.aceone.mediatek.linkit.tools.LinkItConst;
 import se.aceone.mediatek.linkit.tools.LinkItHelpers;
 
-public class NewLinkitProjectWizard extends Wizard implements INewWizard, IExecutableExtension {
+public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewWizard, IExecutableExtension {
 
-	private static final String LINK_IT_SDK20 = "LinkItSDK20";
 	private WizardNewProjectCreationPage mWizardPage; // first page of the
 														// dialog
 	private IConfigurationElement mConfig;
@@ -178,6 +181,16 @@ public class NewLinkitProjectWizard extends Wizard implements INewWizard, IExecu
 
 		monitor.beginTask("", 2000);
 		try {
+			if (!LinkItHelpers.checkEnvironment()) {
+				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, "Enviroment are not configuerd."));
+				throw new OperationCanceledException("Enviroment are not configuerd.");
+			}
+
+			IPathVariableManager manager = project.getWorkspace().getPathVariableManager();
+			if (manager.getURIValue(LINK_IT_SDK20) == null) {
+				manager.setURIValue(LINK_IT_SDK20, URIUtil.toURI(LinkItHelpers.getEnvironmentPath()));
+			}
+
 			project.create(description, new SubProgressMonitor(monitor, 1000));
 
 			if (monitor.isCanceled()) {
@@ -196,9 +209,6 @@ public class NewLinkitProjectWizard extends Wizard implements INewWizard, IExecu
 
 			// Add the C C++ AVR and other needed Natures to the project
 			LinkItHelpers.addTheNatures(project);
-
-			// Add the Arduino folder
-			LinkItHelpers.createNewFolder(project, "arduino", null);
 
 			// Set the environment variables
 			ICProjectDescription prjDesc = CoreModel.getDefault().getProjectDescription(project);
@@ -251,49 +261,24 @@ public class NewLinkitProjectWizard extends Wizard implements INewWizard, IExecu
 			}
 
 			// set warning levels default on
-			IEnvironmentVariableManager envManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
-			IContributedEnvironment contribEnv = envManager.getContributedEnvironment();
-			contribEnv.addVariable(new EnvironmentVariable(LinkItConst.ENV_KEY_JANTJE_WARNING_LEVEL, LinkItConst.ENV_KEY_WARNING_LEVEL_ON), cfgd.getConfiguration());
-
-			String linkitEnv = System.getenv().get(LINK_IT_SDK20);
-			if(linkitEnv == null){
-				linkitEnv = System.getenv().get(LINK_IT_SDK20.toUpperCase());
-			}
-			linkitEnv = linkitEnv.replace('\\', '/');
-			System.out.println(LINK_IT_SDK20 + "=" + linkitEnv);
-			contribEnv.addVariable(new EnvironmentVariable(LINK_IT_SDK20.toUpperCase(), linkitEnv), cfgd.getConfiguration());
-			File sysini = new File(linkitEnv, "/tools/sys.ini");
 			try {
-
-				LineNumberReader numberReader = new LineNumberReader(new FileReader(sysini));
-				String line;
-				while ((line = numberReader.readLine()) != null) {
-					if (!line.trim().isEmpty() && !line.startsWith("[")) {
-						int i = line.indexOf("=");
-						if (i > 0) {
-							String key = line.substring(0, i).trim().toUpperCase();
-							String value = line.substring(i + 1).trim();
-							if (value.startsWith("\"") && value.endsWith("\"")) {
-								value = value.substring(1, value.length() - 1).trim();
-							}
-							value = value.replace('\\', '/');
-							System.out.println(key + "=" + value);
-							contribEnv.addVariable(new EnvironmentVariable(key, value), cfgd.getConfiguration());
-						}
-					}
-				}
-				numberReader.close();
+				LinkItHelpers.setEnvironmentVariables(cfgd);
 			} catch (IOException e) {
-				Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Failed to create project " + project.getName(), e));
-				throw new OperationCanceledException();
+				String message = "Failed to set environmet variables " + project.getName();
+				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, message, e));
+				throw new OperationCanceledException(message);
 			}
-			
-			String fullPath = linkitEnv+"\\tools\\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\\lib\\gcc\\arm-none-eabi\\4.9.3\\include";
-			File f = new File(fullPath);
-			System.out.println(f.exists());
-			IPath path = new Path(fullPath);
-			
-			LinkItHelpers.addIncludeFolder(prjDesc, path);
+
+//			IPathVariableManager pathMan = project.getPathVariableManager();
+//			URI ArduinoLibraryURI = pathMan.resolveURI(pathMan.getURIValue(ArduinoConst.WORKSPACE_PATH_VARIABLE_NAME_ARDUINO_LIB));
+
+			LinkItHelpers.setIncludePaths(prjDesc, cfgd);
+
+			LinkItHelpers.buildPathVariables(project, cfgd);
+
+			IPathVariableManager pathMan = project.getPathVariableManager();
+			URI uri = pathMan.resolveURI(pathMan.getURIValue(LINKIT10));
+			LinkItHelpers.createNewFolder(project, "LinkIt", URIUtil.toURI(new Path(uri.getPath()).append("src")));
 
 			prjDesc.setActiveConfiguration(defaultConfigDescription);
 			prjDesc.setCdtProjectCreated();
@@ -302,8 +287,9 @@ public class NewLinkitProjectWizard extends Wizard implements INewWizard, IExecu
 			monitor.done();
 
 		} catch (CoreException e) {
-			Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Failed to create project " + project.getName(), e));
-			throw new OperationCanceledException();
+			String message = "Failed to create project " + project.getName();
+			Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, message, e));
+			throw new OperationCanceledException(message);
 		}
 
 	}

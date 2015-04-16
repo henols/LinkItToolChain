@@ -35,7 +35,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import se.aceone.mediatek.linkit.Activator;
 
-public class Common extends LinkItConst {
+public class Common implements LinkItConst {
 
 	/**
 	 * This method makes sure that a string can be used as a file or folder name<br/>
@@ -161,19 +161,6 @@ public class Common extends LinkItConst {
 
 	}
 
-	/**
-	 * This method returns the avrdude upload port prefix which is dependent on
-	 * the platform
-	 * 
-	 * @return avrdude upload port prefix
-	 */
-	public static String UploadPortPrefix() {
-		if (Platform.getOS().equals(Platform.OS_WIN32)) return UploadPortPrefix_WIN;
-		if (Platform.getOS().equals(Platform.OS_LINUX)) return UploadPortPrefix_LINUX;
-		if (Platform.getOS().equals(Platform.OS_MACOSX)) return UploadPortPrefix_MAC;
-		Common.log(new Status(IStatus.WARNING, LinkItConst.CORE_PLUGIN_ID, "Unsupported operating system", null));
-		return UploadPortPrefix_WIN;
-	}
 
 	/**
 	 * ToInt converts a string to a integer in a save way
@@ -443,12 +430,10 @@ public class Common extends LinkItConst {
 	 * @return The expanded build environment variable
 	 */
 	static public String getBuildEnvironmentVariable(ICConfigurationDescription configurationDescription, String EnvName, String defaultvalue) {
-
 		return getBuildEnvironmentVariable(configurationDescription, EnvName, defaultvalue, true);
 	}
 
 	static public String getBuildEnvironmentVariable(ICConfigurationDescription configurationDescription, String EnvName, String defaultvalue, boolean expanded) {
-
 		IEnvironmentVariableManager envManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		try {
 			return envManager.getVariable(EnvName, configurationDescription, expanded).getValue();
@@ -457,34 +442,7 @@ public class Common extends LinkItConst {
 		return defaultvalue;
 	}
 
-	static private String[] getArduinoIdeSuffix() {
-		if (Platform.getOS().equals(Platform.OS_WIN32)) return ArduinoIdeSuffix_WIN;
-		if (Platform.getOS().equals(Platform.OS_LINUX)) return ArduinoIdeSuffix_LINUX;
-		if (Platform.getOS().equals(Platform.OS_MACOSX)) return ArduinoIdeSuffix_MAC;
-		Common.log(new Status(IStatus.WARNING, LinkItConst.CORE_PLUGIN_ID, "Unsupported operating system", null));
-		return ArduinoIdeSuffix_WIN;
-	}
 
-	/**
-	 * Method only needed for MAC for now as there seems to be a wierd subfolder
-	 * Implemented for all supported os's for compatibility reasons
-	 * As in mac the folder changed I do I have a list of possible options per
-	 * OS and I select the first folder that exist.
-	 * 
-	 * @param SelectedFolder
-	 *            the folder the user thinks is the root
-	 * @return the root of arduino which is the same for all os's
-	 */
-	static public IPath getArduinoIDEPathFromUserSelection(String SelectedFolder) {
-		String[] suffixes = getArduinoIdeSuffix();
-		Path root = new Path(SelectedFolder);
-		for(String suffix : suffixes) {
-			if (root.append(suffix).toFile().exists()) {
-				return root.append(suffix);
-			}
-		}
-		return root.append(suffixes[0]);
-	}
 
 	/**
 	 * Arduino has the default libraries in the user home directory in subfolder

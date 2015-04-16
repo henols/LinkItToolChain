@@ -61,13 +61,13 @@
         variableFormat="${=}">
   </builder>
       <projectType
-            id="se.aceone.mediatek.linkit.projectType1"
+            id="se.aceone.mediatek.linkit.projectType"
             isAbstract="false"
             name="Mediatek LinkIt">
          <configuration
                artifactExtension="vxp"
                cleanCommand="rm -f"
-               id="se.aceone.mediatek.linkit.configuration1"
+               id="se.aceone.mediatek.linkit.configuration"
 languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider"
                name="Default">
         <toolChain
@@ -98,8 +98,8 @@ languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider
            </optionCategory>
            <tool
                  announcement="Starting C++ compile"
-                 command="${LINKITSDK20}${GCCLOCATION}/${GCCCPPCOMPILER}"
-                 commandLinePattern=" ${COMMAND}  ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCCPPCOMPILER}"
+                 commandLinePattern="${COMMAND} ${GCCTCCCOMPILER} -D${DEV_BOARD} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
                  errorParsers="org.eclipse.cdt.core.GCCErrorParser"
                  id="se.aceone.mediatek.linkit.compiler.cpp"
                  name="C++ Compiler"
@@ -146,7 +146,7 @@ languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider
            <tool
                  announcement="Starting C compile"
                  command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCCCOMPILER}"
-                 commandLinePattern=" ${COMMAND} ${GCCCOMPILER} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
+                 commandLinePattern="${COMMAND} ${GCCCOMPILER} -D${DEV_BOARD}  ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
                  errorParsers="org.eclipse.cdt.core.GCCErrorParser"
                  id="se.aceone.mediatek.linkit.compiler.c"
                  name="C Compiler"
@@ -253,18 +253,18 @@ languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider
               </inputType>
            </tool>
            <tool
-                 announcement="Starting Combiner"
+                 announcement="Starting Linker"
                  command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCLINK}"
-                 commandLinePattern="${COMMAND} ${FLAGS} ${INPUTS} ${A.RECIPE.C.COMBINE.PATTERN.2} ${A.RECIPE.C.COMBINE.PATTERN.3}"
+                 commandLinePattern="${COMMAND} ${GCCLINKER} -B ${ARMNONEEABITHUMB} -T ${LINKIT10}/${GCCTCCLIB}/scat.ld -o ${OUTPUT} ${INPUTS} ${LINKIT10}/${GCCLIB}/${COMMONLIB}"
                  errorParsers="org.eclipse.cdt.core.GLDErrorParser"
-                 id="se.aceone.mediatek.linkit.tool.combine"
+                 id="se.aceone.mediatek.linkit.tool.linker"
                  name="Linker"
                  natureFilter="both">
               <outputType
                     buildVariable="ELF"
                     id="it.baeyens.arduino.tool.combiner.output"
                     name="Linker output"
-                    outputNames="${ProjName}.elf"
+                    outputNames="${ProjName}.axf"
                     outputs="elf"
                     primaryOutput="true">
               </outputType>
