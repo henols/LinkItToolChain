@@ -19,16 +19,6 @@
          </description>	        
 		</wizard>
 	</extension>
-<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
-<provider
-      class="org.eclipse.cdt.core.language.settings.providers.LanguageSettingsGenericProvider"
-      id="it.se.aceone.mediatek.linkit.languageSettingsProvider"
-      name="LinkIt Compiler Settings"
-      prefer-non-shared="true">
-<language-scope id="org.eclipse.cdt.core.gcc"/>
-<language-scope id="org.eclipse.cdt.core.g++"/>
-</provider>
-</extension>
 
    <extension
          id="se.aceone.mediatek.linkit.buildDefinitions"
@@ -68,14 +58,12 @@
                artifactExtension="vxp"
                cleanCommand="rm -f"
                id="se.aceone.mediatek.linkit.configuration"
-languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider"
                name="Default">
         <toolChain
               archList="all"
               id="se.aceone.mediatek.linkit.toolChain.default"
               isAbstract="false"
               name="LinkIt Tool Chain"
-languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider"
               osList="all"
               targetTool="se.aceone.mediatek.linkit.tool.size">
            <targetPlatform
@@ -114,8 +102,21 @@ languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider
                     command="-I"
                     id="se.aceone.mediatek.linkit.compiler.cpp.option.incpath"
                     name="C++ Include Path"
-                    resourceFilter="all"
+                    resourceFilter="project"
                     valueType="includePath">
+              </option>
+              <optionCategory
+                    id="se.aceone.mediatek.linkit.cpp.optionCategory.macros"
+                    name="Macros">
+              </optionCategory>
+              <option
+                    browseType="none"
+                    category="se.aceone.mediatek.linkit.cpp.optionCategory.macros"
+                    command="-D"
+                    id="se.aceone.mediatek.linkit.compiler.cpp.option.macros"
+                    name="C++ Macros"
+                    resourceFilter="project"
+                    valueType="definedSymbols">
               </option>
               <inputType
                     buildVariable="CPP_SKETCH_FILES"
@@ -161,8 +162,21 @@ languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider
                     command="-I"
                     id="se.aceone.mediatek.linkit.compiler.c.option.incpath"
                     name="C Include Path"
-                    resourceFilter="all"
+                    resourceFilter="project"
                     valueType="includePath">
+              </option>
+              <optionCategory
+                    id="se.aceone.mediatek.linkit.c.optionCategory.macros"
+                    name="Macros">
+              </optionCategory>
+              <option
+                    browseType="none"
+                    category="se.aceone.mediatek.linkit.c.optionCategory.macros"
+                    command="-D"
+                    id="se.aceone.mediatek.linkit.compiler.c.option.macros"
+                    name="C Macros"
+                    resourceFilter="project"
+                    valueType="definedSymbols">
               </option>
               <inputType
                     buildVariable="C_SKETCH_FILES"
@@ -230,7 +244,6 @@ languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider
            <tool
                  announcement="Starting archiver"
                  command="${LINKITSDK20}${GCCLOCATION}/bin/${ARMARGCC}"
-                 commandLinePattern="${COMMAND} ${FLAGS} ${INPUTS} ${A.RECIPE.AR.PATTERN.2} ${A.RECIPE.AR.PATTERN.3}"
                  errorParsers="org.eclipse.cdt.core.GLDErrorParser"
                  id="se.aceone.mediatek.linkit.tool.ar"
                  name="Archiver">
@@ -287,7 +300,6 @@ languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider
            <tool
                  announcement="Create eeprom image"
                  command="${A.RECIPE.OBJCOPY.EEP.PATTERN} "
-                 commandLinePattern="${COMMAND}"
                  id="se.aceone.mediatek.linkit.tool.objcopy.eep"
                  isAbstract="false"
                  name="Eeprom image"
@@ -314,7 +326,6 @@ languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider
            <tool
                  announcement="Create Flash image (ihex format)"
                  command="${A.RECIPE.OBJCOPY.HEX.PATTERN} "
-                 commandLinePattern="${COMMAND}"
                  id="se.aceone.mediatek.linkit.tool.objcopy.flash"
                  isAbstract="false"
                  name="Flash image"
@@ -341,7 +352,6 @@ languageSettingsProviders="it.se.aceone.mediatek.linkit.languageSettingsProvider
                 <tool
                  announcement="%tool.announcement.5"
                  command="${JANTJE.SIZE.SWITCH} "
-                 commandLinePattern="${COMMAND}"
                  id="se.aceone.mediatek.linkit.tool.size"
                  name="Size">
               <inputType

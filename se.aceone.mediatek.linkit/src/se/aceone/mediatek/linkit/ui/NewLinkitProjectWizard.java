@@ -199,9 +199,6 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 
 			project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1000));
 
-			// Get the Build Configurations (names and toolchain IDs) from the
-			// property page
-//			ArrayList<ConfigurationDescriptor> cfgNamesAndTCIds = mBuildCfgPage.getBuildConfigurationDescriptors();
 			String name = "Default";
 			String toolChainId = "se.aceone.mediatek.linkit.toolChain.default";
 			// Creates the .cproject file with the configurations
@@ -211,34 +208,10 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 			LinkItHelpers.addTheNatures(project);
 
 			// Set the environment variables
-			ICProjectDescription prjDesc = CoreModel.getDefault().getProjectDescription(project);
+			ICProjectDescription projectDescription = CoreModel.getDefault().getProjectDescription(project);
 
-//			ICConfigurationDescription configurationDescription = prjDesc.getConfigurationByName(name);
-//				mArduinoPage.saveAllSelections(configurationDescription);
-//				ArduinoHelpers.setTheEnvironmentVariables(project, configurationDescription, false);
-
-			// Set the path variables
-//			ArduinoHelpers.setProjectPathVariables(project, mArduinoPage.getPlatformFolder());
-
-			// Intermediately save or the adding code will fail
-			// Release is the active config (as that is the "IDE" Arduino
-			// type....)
-			ICConfigurationDescription defaultConfigDescription = prjDesc.getConfigurationByName(name);
-			prjDesc.setActiveConfiguration(defaultConfigDescription);
-
-			// Insert The Arduino Code
-			// NOTE: Not duplicated for debug (the release reference is just to
-			// get at some environment variables)
-//			LinkItHelpers.addArduinoCodeToProject(project, defaultConfigDescription);
-
-			//
-			// add the correct files to the project
-			//
-//			mNewArduinoSketchWizardCodeSelectionPage.createFiles(project, monitor);
-			//
-			// add the libraries to the project if needed
-			//
-//			mNewArduinoSketchWizardCodeSelectionPage.importLibraries(project, prjDesc.getConfigurations());
+			ICConfigurationDescription defaultConfigDescription = projectDescription.getConfigurationByName(name);
+			projectDescription.setActiveConfiguration(defaultConfigDescription);
 
 			ICResourceDescription cfgd = defaultConfigDescription.getResourceDescription(new Path(""), true);
 			ICExclusionPatternPathEntry[] entries = cfgd.getConfiguration().getSourceEntries();
@@ -269,10 +242,12 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 				throw new OperationCanceledException(message);
 			}
 
-//			IPathVariableManager pathMan = project.getPathVariableManager();
-//			URI ArduinoLibraryURI = pathMan.resolveURI(pathMan.getURIValue(ArduinoConst.WORKSPACE_PATH_VARIABLE_NAME_ARDUINO_LIB));
 
-			LinkItHelpers.setIncludePaths(prjDesc, cfgd);
+			LinkItHelpers.setIncludePaths(projectDescription, cfgd);
+
+			LinkItHelpers.addMacro(projectDescription, "__GNUC__", null);
+			LinkItHelpers.addMacro(projectDescription, HDK_LINKIT_ONE_V1, null);
+//			LinkItHelpers.addMacro(defaultConfigDescription, "__GNUC__", "1");
 
 			LinkItHelpers.buildPathVariables(project, cfgd);
 
@@ -280,9 +255,9 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 			URI uri = pathMan.resolveURI(pathMan.getURIValue(LINKIT10));
 			LinkItHelpers.createNewFolder(project, "LinkIt", URIUtil.toURI(new Path(uri.getPath()).append("src")));
 
-			prjDesc.setActiveConfiguration(defaultConfigDescription);
-			prjDesc.setCdtProjectCreated();
-			CoreModel.getDefault().getProjectDescriptionManager().setProjectDescription(project, prjDesc, true, null);
+			projectDescription.setActiveConfiguration(defaultConfigDescription);
+			projectDescription.setCdtProjectCreated();
+			CoreModel.getDefault().getProjectDescriptionManager().setProjectDescription(project, projectDescription, true, null);
 
 			monitor.done();
 

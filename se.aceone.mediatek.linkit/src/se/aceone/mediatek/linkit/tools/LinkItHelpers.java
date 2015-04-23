@@ -20,6 +20,7 @@ import org.eclipse.cdt.core.language.settings.providers.LanguageSettingsManager;
 import org.eclipse.cdt.core.language.settings.providers.ScannerDiscoveryLegacySupport;
 import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.settings.model.CIncludePathEntry;
+import org.eclipse.cdt.core.settings.model.CMacroEntry;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.core.settings.model.ICFolderDescription;
 import org.eclipse.cdt.core.settings.model.ICLanguageSetting;
@@ -66,8 +67,6 @@ import org.eclipse.ui.console.MessageConsole;
  */
 public class LinkItHelpers extends Common {
 
-
-
 	public static boolean checkEnvironment() {
 		return getEnvironmentPath() != null;
 	}
@@ -78,34 +77,6 @@ public class LinkItHelpers extends Common {
 			linkitEnv = System.getenv().get(LINK_IT_SDK20);
 		}
 		return linkitEnv;
-	}
-
-	/**
-	 * This method is the internal working class that adds the provided
-	 * includepath to all configurations and languages.
-	 * 
-	 * @param configurationDescription
-	 *            The configuration description of the project to add it to
-	 * @param includePath
-	 *            The path to add to the include folders
-	 * @see addLibraryDependency
-	 *      {@link #addLibraryDependency(IProject, IProject)}
-	 */
-	public static void addIncludeFolder(ICConfigurationDescription configurationDescription, IPath includePath) {
-		// find all languages
-		ICFolderDescription folderDescription = configurationDescription.getRootFolderDescription();
-		ICLanguageSetting[] settings = folderDescription.getLanguageSettings();
-
-		// Add include path to all languages
-		for(ICLanguageSetting setting : settings) {
-			String langId = setting.getLanguageId();
-			if (langId != null && langId.startsWith("org.eclipse.cdt.")) { //$NON-NLS-1$
-				List<ICLanguageSettingEntry> includes = new ArrayList<ICLanguageSettingEntry>();
-				includes.addAll(setting.getSettingEntriesList(ICSettingEntry.INCLUDE_PATH));
-				includes.add(new CIncludePathEntry(includePath, ICSettingEntry.LOCAL));
-				setting.setSettingEntries(ICSettingEntry.INCLUDE_PATH, includes);
-			}
-		}
 	}
 
 	/**
@@ -156,24 +127,6 @@ public class LinkItHelpers extends Common {
 	}
 
 	/**
-	 * This method adds the provided path to the include path of all
-	 * configurations and languages.
-	 * 
-	 * @param project
-	 *            The project to add it to
-	 * @param includePath
-	 *            The path to add to the include folders
-	 * @see addLibraryDependency
-	 *      {@link #addLibraryDependency(IProject, IProject)}
-	 */
-	public static void addIncludeFolder(ICProjectDescription projectDescription, IPath includePath) {
-		ICConfigurationDescription configurationDescription = projectDescription.getDefaultSettingConfiguration();
-		addIncludeFolder(configurationDescription, includePath);
-
-	}
-
-
-	/**
 	 * Creates a folder and links the folder to an existing folder Parent
 	 * folders of the target folder are created if needed. In case this method
 	 * fails an error is logged.
@@ -204,7 +157,6 @@ public class LinkItHelpers extends Common {
 			Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Could not create folder " + target, e));
 		}
 	}
-
 
 	/**
 	 * addTheNatures replaces all existing natures by the natures needed for a
@@ -264,7 +216,6 @@ public class LinkItHelpers extends Common {
 		}
 	}
 
-
 	public static MessageConsole findConsole(String name) {
 		ConsolePlugin plugin = ConsolePlugin.getDefault();
 		IConsoleManager conMan = plugin.getConsoleManager();
@@ -276,7 +227,6 @@ public class LinkItHelpers extends Common {
 		conMan.addConsoles(new IConsole[]{ myConsole });
 		return myConsole;
 	}
-
 
 	/**
 	 * Creates a new folder resource as a link or local
@@ -303,7 +253,6 @@ public class LinkItHelpers extends Common {
 		}
 
 	}
-
 
 	/**
 	 * Set the project to force a rebuild. This method is called after the
@@ -344,7 +293,6 @@ public class LinkItHelpers extends Common {
 			}
 		}
 	}
-
 
 	private static String makeEnvVar(String string) {
 		return "${" + string + "}";
@@ -404,9 +352,9 @@ public class LinkItHelpers extends Common {
 		monitor.worked(20);
 
 		// Iterate across the configurations
-		IToolChain tcs = ManagedBuildManager.getExtensionToolChain(toolChainId);
+		IToolChain toolChain = ManagedBuildManager.getExtensionToolChain(toolChainId);
 		String childId = ManagedBuildManager.calculateChildId(toolChainId, null);
-		IConfiguration cfg = new Configuration(mProj, (ToolChain)tcs, childId, name);
+		IConfiguration cfg = new Configuration(mProj, (ToolChain)toolChain, childId, name);
 		IBuilder bld = cfg.getEditableBuilder();
 		if (bld != null) {
 			bld.setManagedBuildOn(isManagedBuild);
@@ -464,13 +412,36 @@ public class LinkItHelpers extends Common {
 		return providers;
 	}
 
+	public static void addMacro(ICProjectDescription projectDescription, String macro, String value) {
+		ICConfigurationDescription configurationDescription = projectDescription.getDefaultSettingConfiguration();
+		addMacro(configurationDescription, macro, value);
+	}
+
+	public static void addMacro(ICConfigurationDescription configurationDescription, String macro, String value) {
+		// find all languages
+		for(ICFolderDescription folderDescription : configurationDescription.getFolderDescriptions()) {
+			ICLanguageSetting[] settings = folderDescription.getLanguageSettings();
+
+			// Add include path to all languages
+			for(ICLanguageSetting setting : settings) {
+				String langId = setting.getLanguageId();
+//			if (langId != null && langId.startsWith("org.eclipse.cdt.")) { //$NON-NLS-1$
+				List<ICLanguageSettingEntry> macros = new ArrayList<ICLanguageSettingEntry>();
+				macros.addAll(setting.getSettingEntriesList(ICSettingEntry.MACRO));
+				macros.add(new CMacroEntry(macro, value,  ICSettingEntry.BUILTIN));
+				setting.setSettingEntries(ICSettingEntry.MACRO, macros);
+//			}
+			}
+		}
+	}
+
 	public static void setEnvironmentVariables(ICResourceDescription resourceDescription) throws FileNotFoundException, IOException {
 		IEnvironmentVariableManager envManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		IContributedEnvironment contribEnv = envManager.getContributedEnvironment();
 		ICConfigurationDescription configuration = resourceDescription.getConfiguration();
 
 		contribEnv.addVariable(new EnvironmentVariable(DEV_BOARD, HDK_LINKIT_ONE_V1), configuration);
-		
+
 		Path linkitEnv = new Path(getEnvironmentPath());
 		System.out.println(LINK_IT_SDK20 + "=" + linkitEnv);
 		contribEnv.addVariable(new EnvironmentVariable(LINK_IT_SDK20, linkitEnv.toString()), configuration);
@@ -495,12 +466,12 @@ public class LinkItHelpers extends Common {
 		}
 		numberReader.close();
 	}
-	public static void buildPathVariables(IProject project, ICResourceDescription resourceDescription) throws CoreException{
+
+	public static void buildPathVariables(IProject project, ICResourceDescription resourceDescription) throws CoreException {
 		IPathVariableManager pathMan = project.getPathVariableManager();
-		Path libLink10 = new Path(makeEnvVar(LINK_IT_SDK20)+ "/lib/LINKIT10");
+		Path libLink10 = new Path(makeEnvVar(LINK_IT_SDK20) + "/lib/LINKIT10");
 		pathMan.setURIValue(LINKIT10, URIUtil.toURI(libLink10));
 
-		
 		IEnvironmentVariableManager envManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		IContributedEnvironment contribEnv = envManager.getContributedEnvironment();
 		ICConfigurationDescription configuration = resourceDescription.getConfiguration();
@@ -508,7 +479,51 @@ public class LinkItHelpers extends Common {
 		contribEnv.addVariable(new EnvironmentVariable(LINKIT10, libLink10.toPortableString()), configuration);
 
 	}
-	
+
+	/**
+	 * This method adds the provided path to the include path of all
+	 * configurations and languages.
+	 * 
+	 * @param project
+	 *            The project to add it to
+	 * @param includePath
+	 *            The path to add to the include folders
+	 * @see addLibraryDependency
+	 *      {@link #addLibraryDependency(IProject, IProject)}
+	 */
+	public static void addIncludeFolder(ICProjectDescription projectDescription, IPath includePath) {
+		ICConfigurationDescription configurationDescription = projectDescription.getDefaultSettingConfiguration();
+		addIncludeFolder(configurationDescription, includePath);
+
+	}
+
+	/**
+	 * This method is the internal working class that adds the provided
+	 * includepath to all configurations and languages.
+	 * 
+	 * @param configurationDescription
+	 *            The configuration description of the project to add it to
+	 * @param includePath
+	 *            The path to add to the include folders
+	 * @see addLibraryDependency
+	 *      {@link #addLibraryDependency(IProject, IProject)}
+	 */
+	public static void addIncludeFolder(ICConfigurationDescription configurationDescription, IPath includePath) {
+		// find all languages
+		ICFolderDescription folderDescription = configurationDescription.getRootFolderDescription();
+		ICLanguageSetting[] settings = folderDescription.getLanguageSettings();
+
+		// Add include path to all languages
+		for(ICLanguageSetting setting : settings) {
+			String langId = setting.getLanguageId();
+			if (langId != null && langId.startsWith("org.eclipse.cdt.")) { //$NON-NLS-1$
+				List<ICLanguageSettingEntry> includes = new ArrayList<ICLanguageSettingEntry>();
+				includes.addAll(setting.getSettingEntriesList(ICSettingEntry.INCLUDE_PATH));
+				includes.add(new CIncludePathEntry(includePath, ICSettingEntry.LOCAL));
+				setting.setSettingEntries(ICSettingEntry.INCLUDE_PATH, includes);
+			}
+		}
+	}
 
 	public static void setIncludePaths(ICProjectDescription projectDescriptor, ICResourceDescription resourceDescription) {
 		IEnvironmentVariableManager envManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
@@ -516,25 +531,24 @@ public class LinkItHelpers extends Common {
 		ICConfigurationDescription configuration = resourceDescription.getConfiguration();
 
 		ICConfigurationDescription configurationDescription = projectDescriptor.getDefaultSettingConfiguration();
-		
+
 		IPath env = new Path(getBuildEnvironmentVariable(configurationDescription, LINK_IT_SDK20, null));
-		IPath envInclude = env.append("include"); 
-		LinkItHelpers.addIncludeFolder(projectDescriptor, envInclude);
+		IPath envInclude = env.append("include");
+		addIncludeFolder(projectDescriptor, envInclude);
 		IPath gccLocation = env.append(getBuildEnvironmentVariable(configurationDescription, "GCCLOCATION", null));
-		IPath armIncl = gccLocation.append( "arm-none-eabi/include");
-		LinkItHelpers.addIncludeFolder(projectDescriptor, armIncl);
-		armIncl = armIncl.append( "c++/4.9.3");
-		LinkItHelpers.addIncludeFolder(projectDescriptor, armIncl);
-		IPath armThumb = armIncl.append( "arm-none-eabi/thumb");
-		LinkItHelpers.addIncludeFolder(projectDescriptor, armThumb);
-		
+		IPath armIncl = gccLocation.append("arm-none-eabi/include");
+		addIncludeFolder(projectDescriptor, armIncl);
+		armIncl = armIncl.append("c++/4.9.3");
+		addIncludeFolder(projectDescriptor, armIncl);
+		IPath armThumb = armIncl.append("arm-none-eabi/thumb");
+		addIncludeFolder(projectDescriptor, armThumb);
+
 		contribEnv.addVariable(new EnvironmentVariable(ARM_NONE_EABI_THUMB, armThumb.toPortableString()), configuration);
-		
-		LinkItHelpers.addIncludeFolder(projectDescriptor, armIncl.append( "backward"));
-		IPath libGcc = gccLocation.append( "lib/gcc/arm-none-eabi/4.9.3");
-		LinkItHelpers.addIncludeFolder(projectDescriptor, libGcc.append( "include"));
-		LinkItHelpers.addIncludeFolder(projectDescriptor, libGcc.append( "include-fixed"));
-		
+
+		addIncludeFolder(projectDescriptor, armIncl.append("backward"));
+		IPath libGcc = gccLocation.append("lib/gcc/arm-none-eabi/4.9.3");
+		addIncludeFolder(projectDescriptor, libGcc.append("include"));
+		addIncludeFolder(projectDescriptor, libGcc.append("include-fixed"));
 	}
 
 }
