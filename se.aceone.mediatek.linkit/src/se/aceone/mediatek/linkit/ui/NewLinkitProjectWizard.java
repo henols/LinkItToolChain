@@ -245,9 +245,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 
 			LinkItHelpers.setIncludePaths(projectDescription, cfgd);
 
-			LinkItHelpers.addMacro(projectDescription, "__GNUC__", null);
-			LinkItHelpers.addMacro(projectDescription, HDK_LINKIT_ONE_V1, null);
-//			LinkItHelpers.addMacro(defaultConfigDescription, "__GNUC__", "1");
+			LinkItHelpers.setMacros(projectDescription);
 
 			LinkItHelpers.buildPathVariables(project, cfgd);
 

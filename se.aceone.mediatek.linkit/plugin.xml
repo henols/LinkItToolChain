@@ -11,7 +11,7 @@
 			category="se.aceone.mediatek.linkit.newWizards"
 	        class="se.aceone.mediatek.linkit.ui.NewLinkitProjectWizard"
 	        name="New LinkIt Project"
-	        icon="icons/new.png"
+	        icon="icons/LinkIt.png"
 	        finalPerspective ="org.eclipse.cdt.ui.CPerspective"
 	        project="true">
          <description>
@@ -87,7 +87,7 @@
            <tool
                  announcement="Starting C++ compile"
                  command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCCPPCOMPILER}"
-                 commandLinePattern="${COMMAND} ${GCCTCCCOMPILER} -D${DEV_BOARD} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
+                 commandLinePattern="${COMMAND} ${GCCTCCCOMPILER} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
                  errorParsers="org.eclipse.cdt.core.GCCErrorParser"
                  id="se.aceone.mediatek.linkit.compiler.cpp"
                  name="C++ Compiler"
@@ -135,6 +135,7 @@
                     outputs="o"
                     primaryOutput="true">
               </outputType>
+<!--
               <outputType
                     buildVariable="AR_OBJ"
                     id="se.aceone.mediatek.linkit.compiler.cpp.ar.output"
@@ -143,11 +144,11 @@
                     outputs="o"
                     primaryOutput="true">
               </outputType>
-           </tool>
+    -->       </tool>
            <tool
                  announcement="Starting C compile"
                  command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCCCOMPILER}"
-                 commandLinePattern="${COMMAND} ${GCCCOMPILER} -D${DEV_BOARD}  ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
+                 commandLinePattern="${COMMAND} ${GCCCOMPILER} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
                  errorParsers="org.eclipse.cdt.core.GCCErrorParser"
                  id="se.aceone.mediatek.linkit.compiler.c"
                  name="C Compiler"
@@ -196,6 +197,7 @@
                     outputs="o"
                     primaryOutput="true">
               </outputType>
+              <!--
               <outputType
                     buildVariable="AR_OBJ"
                     id="se.aceone.mediatek.linkit.compiler.c.ar.output"
@@ -204,6 +206,7 @@
                     outputs="o"
                     primaryOutput="true">
               </outputType>
+              -->
            </tool>
            <!-- 
            <tool
@@ -289,27 +292,20 @@
                     primaryInput="true"
                     sources="O">
               </inputType>
-              <inputType
-                    buildVariable="AR"
-                    id="it.baeyens.arduino.tool.combiner.archiver.input"
-                    multipleOfType="true"
-                    sourceContentType="it.baeyens.arduino.tool.archiver.output"
-                    sources="ar">
-              </inputType>
            </tool>
            <tool
-                 announcement="Create eeprom image"
-                 command="${A.RECIPE.OBJCOPY.EEP.PATTERN} "
+                 announcement="Generating debug data file"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${OBJCOPY}"
                  id="se.aceone.mediatek.linkit.tool.objcopy.eep"
                  isAbstract="false"
-                 name="Eeprom image"
+                 name="Debug data file"
                  natureFilter="both">
               <inputType
                     buildVariable="ELF"
                     dependencyExtensions="elf"
                     id="it.baeyens.arduino.tool.objcopy.eep.input"
                     multipleOfType="true"
-                    name="Eeprom image input"
+                    name="Debug data file input"
                     primaryInput="true"
                     sourceContentType="it.baeyens.arduino.tool.combiner.output"
                     sources="elf">
@@ -318,9 +314,9 @@
                     buildVariable="EEP"
                     id="it.baeyens.arduino.tool.objcopy.eep.output"
                     multipleOfType="false"
-                    name="Eeprom image output"
-                    outputNames="${ProjName}.eep"
-                    outputs="eep">
+                    name="Debug data file output"
+                    outputNames="${ProjName}out.axf"
+                    outputs="afx">
               </outputType>
            </tool>
            <tool
