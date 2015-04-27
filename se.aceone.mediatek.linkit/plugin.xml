@@ -366,7 +366,7 @@
            <tool
                  announcement="Resource Packer"
                  command="${LINKITSDK20}/tools/${RESEDITOR}"
-                 commandLinePattern="${COMMAND} pack -silent -resolution 128x160 -o ${OUTPUT} -e AXF -vom ../${ProjName}.proj  ${INPUTS}"
+                 commandLinePattern="${COMMAND} pack -silent -resolution 128x160 -o ${OUTPUT} -e AXF -vom ${workspace_loc}/${ProjName}/${ProjName}.proj  ${INPUTS}"
                  id="se.aceone.mediatek.linkit.tool.objcopy.flash"
                  isAbstract="false"
                  name="Resource Packer"
