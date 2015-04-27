@@ -11,7 +11,7 @@
               <xs:element type="xs:string" name="developer"/>
               <xs:element type="xs:string" name="appname"/>
               <xs:element type="xs:string" name="appversion"/>
-              <xs:element type="xs:byte" name="appid"/>
+              <xs:element type="xs:integer" name="appid"/>
               <xs:element type="xs:string" name="iconName"/>
             </xs:sequence>
           </xs:complexType>
@@ -27,7 +27,7 @@
         <xs:element name="targetconfig">
           <xs:complexType>
             <xs:choice maxOccurs="unbounded" minOccurs="0">
-              <xs:element type="xs:short" name="mem"/>
+              <xs:element type="xs:integer" name="mem"/>
               <xs:element type="xs:string" name="supportbg"/>
               <xs:element type="xs:string" name="userfont"/>
               <xs:element type="xs:string" name="screenrotate"/>
@@ -35,7 +35,7 @@
               <xs:element type="xs:string" name="usesysmemory"/>
               <xs:element type="xs:string" name="sysdisk"/>
               <xs:element type="xs:string" name="Push"/>
-              <xs:element type="xs:byte" name="PushID"/>
+              <xs:element type="xs:integer" name="PushID"/>
               <xs:element type="xs:string" name="PushSenderID"/>
               <xs:element type="xs:string" name="autostart"/>
               <xs:element type="xs:string" name="TransferImg"/>
@@ -71,32 +71,32 @@
         <xs:element name="output">
           <xs:complexType>
             <xs:sequence>
-              <xs:element type="xs:byte" name="type"/>
-              <xs:element type="xs:byte" name="device"/>
+              <xs:element type="xs:integer" name="type"/>
+              <xs:element type="xs:integer" name="device"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
         <xs:element name="resolution">
           <xs:complexType>
             <xs:sequence>
-              <xs:element type="xs:short" name="Width"/>
-              <xs:element type="xs:short" name="Height"/>
+              <xs:element type="xs:integer" name="Width"/>
+              <xs:element type="xs:integer" name="Height"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
         <xs:element name="vxp">
           <xs:complexType>
             <xs:sequence>
-              <xs:element type="xs:byte" name="sdkversion"/>
-              <xs:element type="xs:byte" name="venus"/>
-              <xs:element type="xs:byte" name="iot_wearable"/>
+              <xs:element type="xs:integer" name="sdkversion"/>
+              <xs:element type="xs:integer" name="venus"/>
+              <xs:element type="xs:integer" name="iot_wearable"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
         <xs:element name="font">
           <xs:complexType>
             <xs:sequence>
-              <xs:element type="xs:byte" name="size"/>
+              <xs:element type="xs:integer" name="size"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

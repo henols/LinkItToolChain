@@ -248,7 +248,7 @@
                  announcement="Starting archiver"
                  command="${LINKITSDK20}${GCCLOCATION}/bin/${ARMARGCC}"
                  errorParsers="org.eclipse.cdt.core.GLDErrorParser"
-                 id="se.aceone.mediatek.linkit.tool.ar"
+                 id="it.baeyens.arduino.tool.archiver"
                  name="Archiver">
               <outputType
                     buildVariable="AR"
@@ -261,7 +261,7 @@
               <inputType
                     assignToOption="A.OBJECT_FILE"
                     buildVariable="AR_OBJ"
-                    id="it.baeyens.arduino.tool.archiver.input"
+                    id="it.baeyens.arduino.tool.archiver.inpu14t"
                     multipleOfType="true"
                     name="Archiver input"
                     primaryInput="false"
@@ -276,6 +276,22 @@
                  id="se.aceone.mediatek.linkit.tool.linker"
                  name="Linker"
                  natureFilter="both">
+              <outputType
+                    buildVariable="DBG_DATA"
+                    id="it.baeyens.arduino.tool.combiner.dbgdata.output"
+                    name="Linker output"
+                    outputNames="${ProjName}.axf"
+                    outputs="axf"
+                    primaryOutput="true">
+              </outputType>
+              <outputType
+                    buildVariable="DBG"
+                    id="it.baeyens.arduino.tool.combiner.dbg.output"
+                    name="Linker output"
+                    outputNames="${ProjName}.axf"
+                    outputs="axf"
+                    primaryOutput="true">
+              </outputType>
               <outputType
                     buildVariable="ELF"
                     id="it.baeyens.arduino.tool.combiner.output"
@@ -296,23 +312,24 @@
            <tool
                  announcement="Generating debug data file"
                  command="${LINKITSDK20}${GCCLOCATION}/bin/${OBJCOPY}"
-                 id="se.aceone.mediatek.linkit.tool.objcopy.eep"
+                 commandLinePattern="${COMMAND} -g -R .comment  ${INPUTS}  ${OUTPUT} "
+                 id="se.aceone.mediatek.linkit.tool.objcopy.dbgdata"
                  isAbstract="false"
                  name="Debug data file"
                  natureFilter="both">
               <inputType
-                    buildVariable="ELF"
-                    dependencyExtensions="elf"
-                    id="it.baeyens.arduino.tool.objcopy.eep.input"
+                    buildVariable="DBG_DATA"
+                    dependencyExtensions="axf"
+                    id="it.baeyens.arduino.tool.objcopy.dbgdata.input"
                     multipleOfType="true"
                     name="Debug data file input"
                     primaryInput="true"
-                    sourceContentType="it.baeyens.arduino.tool.combiner.output"
-                    sources="elf">
+                    sourceContentType="it.baeyens.arduino.tool.combiner.dbgdata.output"
+                    sources="axf">
               </inputType>
               <outputType
-                    buildVariable="EEP"
-                    id="it.baeyens.arduino.tool.objcopy.eep.output"
+                    buildVariable="DBG_DATA_AXF"
+                    id="it.baeyens.arduino.tool.objcopy.dbgdata.output"
                     multipleOfType="false"
                     name="Debug data file output"
                     outputNames="${ProjName}out.axf"
@@ -320,29 +337,59 @@
               </outputType>
            </tool>
            <tool
-                 announcement="Create Flash image (ihex format)"
-                 command="${A.RECIPE.OBJCOPY.HEX.PATTERN} "
-                 id="se.aceone.mediatek.linkit.tool.objcopy.flash"
+                 announcement="Splitting the dbg data"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${OBJCOPY}"
+                 commandLinePattern="${COMMAND} --only-keep-debug ${INPUTS}  ${OUTPUT} "
+                 id="se.aceone.mediatek.linkit.tool.objcopy.dbg"
                  isAbstract="false"
-                 name="Flash image"
+                 name="Debug data file"
                  natureFilter="both">
               <inputType
-                    buildVariable="EEP"
-                    dependencyExtensions="eep"
+                    buildVariable="DBG"
+                    dependencyExtensions="axf"
+                    id="it.baeyens.arduino.tool.objcopy.dbg.input"
+                    multipleOfType="true"
+                    name="Debug data file input"
+                    primaryInput="true"
+                    sourceContentType="it.baeyens.arduino.tool.combiner.dbg.output"
+                    sources="axf">
+              </inputType>
+              <outputType
+                    buildVariable="DBG_DBG"
+                    id="it.baeyens.arduino.tool.objcopy.dbg.output"
+                    multipleOfType="false"
+                    name="Debug data file output"
+                    outputNames="${ProjName}.dbg"
+                    outputs="dbg">
+              </outputType>
+           </tool>
+           <tool
+                 announcement="Resource Packer"
+                 command="${LINKITSDK20}/tools/${RESEDITOR}"
+                 commandLinePattern="${COMMAND} pack -silent -resolution 128x160 -o ${OUTPUT} -e AXF -vom ../${ProjName}.proj  ${INPUTS}"
+                 id="se.aceone.mediatek.linkit.tool.objcopy.flash"
+                 isAbstract="false"
+                 name="Resource Packer"
+                 natureFilter="both">
+              <inputType
+                    buildVariable="ELF"
+                    dependencyExtensions="elf"
                     id="it.baeyens.arduino.tool.objcopy.flash.input"
                     multipleOfType="true"
-                    name="Flash image input"
+                    name="Resource Packer input"
                     primaryInput="true"
-                    sourceContentType="it.baeyens.arduino.tool.eep.output"
+                    sourceContentType="it.baeyens.arduino.tool.combiner.output"
                     sources="eep">
               </inputType>
               <outputType
                     buildVariable="FLASH_IMAGE"
                     id="it.baeyens.arduino.tool.objcopy.flash.output"
                     multipleOfType="false"
-                    name="Flash image output"
+                    name="Resource Packer output"
+                    namePattern="${ProjName}.pkd"
                     nameProvider="it.baeyens.arduino.toolchain.hexNameProvider"
-                    outputs="hex,bin">
+                    outputNames="${ProjName}.pkd"
+                    outputs="pkd">
               </outputType>
            </tool>
                 <tool
@@ -352,7 +399,7 @@
                  name="Size">
               <inputType
                     buildVariable="FLASH_IMAGE"
-                    dependencyExtensions="hex"
+                    dependencyExtensions="pkd"
                     id="it.baeyens.arduino.tool.size.input"
                     multipleOfType="true"
                     name="Size input"

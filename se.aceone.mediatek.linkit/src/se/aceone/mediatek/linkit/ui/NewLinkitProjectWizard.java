@@ -214,24 +214,24 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 			projectDescription.setActiveConfiguration(defaultConfigDescription);
 
 			ICResourceDescription cfgd = defaultConfigDescription.getResourceDescription(new Path(""), true);
-			ICExclusionPatternPathEntry[] entries = cfgd.getConfiguration().getSourceEntries();
-			if (entries.length == 1) {
-				Path exclusionPath[] = new Path[2];
-				exclusionPath[0] = new Path("Libraries/*/?xamples");
-				exclusionPath[1] = new Path("Libraries/*/?xtras");
-				ICExclusionPatternPathEntry newSourceEntry = new CSourceEntry(entries[0].getFullPath(), exclusionPath, ICSettingEntry.VALUE_WORKSPACE_PATH);
-				ICSourceEntry[] out = null;
-				out = new ICSourceEntry[1];
-				out[0] = (ICSourceEntry)newSourceEntry;
-				try {
-					cfgd.getConfiguration().setSourceEntries(out);
-				} catch (CoreException e) {
-					// ignore
-				}
-
-			} else {
-				// this should not happen
-			}
+//			ICExclusionPatternPathEntry[] entries = cfgd.getConfiguration().getSourceEntries();
+//			if (entries.length == 1) {
+//				Path exclusionPath[] = new Path[2];
+//				exclusionPath[0] = new Path("Libraries/*/?xamples");
+//				exclusionPath[1] = new Path("Libraries/*/?xtras");
+//				ICExclusionPatternPathEntry newSourceEntry = new CSourceEntry(entries[0].getFullPath(), exclusionPath, ICSettingEntry.VALUE_WORKSPACE_PATH);
+//				ICSourceEntry[] out = null;
+//				out = new ICSourceEntry[1];
+//				out[0] = (ICSourceEntry)newSourceEntry;
+//				try {
+//					cfgd.getConfiguration().setSourceEntries(out);
+//				} catch (CoreException e) {
+//					// ignore
+//				}
+//
+//			} else {
+//				// this should not happen
+//			}
 
 			// set warning levels default on
 			try {
@@ -242,24 +242,33 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 				throw new OperationCanceledException(message);
 			}
 
-
-			LinkItHelpers.setIncludePaths(projectDescription, cfgd);
-
-			LinkItHelpers.setMacros(projectDescription);
-
 			LinkItHelpers.buildPathVariables(project, cfgd);
+
 
 			IPathVariableManager pathMan = project.getPathVariableManager();
 			URI uri = pathMan.resolveURI(pathMan.getURIValue(LINKIT10));
 			LinkItHelpers.createNewFolder(project, "LinkIt", URIUtil.toURI(new Path(uri.getPath()).append("src")));
 
+			LinkItHelpers.createNewFolder(project, "src", null);
+			
+			LinkItHelpers.createNewFolder(project, "res", null);
+			LinkItHelpers.createNewFolder(project, "ResID", null);
+			
+			LinkItHelpers.setIncludePaths(projectDescription, cfgd);
+
+			LinkItHelpers.setMacros(projectDescription);
+
+			LinkItHelpers.setSourcePaths(projectDescription);
+			
+			LinkItHelpers.copyProjectResources(projectDescription, monitor);
+			
 			projectDescription.setActiveConfiguration(defaultConfigDescription);
 			projectDescription.setCdtProjectCreated();
 			CoreModel.getDefault().getProjectDescriptionManager().setProjectDescription(project, projectDescription, true, null);
 
 			monitor.done();
 
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			String message = "Failed to create project " + project.getName();
 			Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, message, e));
 			throw new OperationCanceledException(message);
