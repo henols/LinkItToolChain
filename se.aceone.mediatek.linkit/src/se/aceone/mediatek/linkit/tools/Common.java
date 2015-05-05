@@ -37,40 +37,7 @@ import se.aceone.mediatek.linkit.Activator;
 
 public class Common implements LinkItConst {
 
-	/**
-	 * This method makes sure that a string can be used as a file or folder name<br/>
-	 * To do this it replaces all unacceptable characters with underscores.<br/>
-	 * Currently it replaces (based on http://en.wikipedia.org/wiki/Filename ) /
-	 * slash used as a path name component separator in Unix-like, Windows,
-	 * and Amiga systems. (The MS-DOS command.com shell would consume it as a
-	 * switch character, but Windows itself always accepts it as a
-	 * separator.[6][vague]) \ backslash Also used as a path name component
-	 * separator in MS-DOS, OS/2 and Windows (where there are few differences
-	 * between slash and backslash); allowed in Unix filenames, see Note 1 ?
-	 * question mark used as a wildcard in Unix, Windows and AmigaOS; marks a
-	 * single character. Allowed in Unix filenames, see Note 1 % percent used as
-	 * a wildcard in RT-11; marks a single character. asterisk or star used
-	 * as a wildcard in Unix, MS-DOS, RT-11, VMS and Windows. Marks any sequence
-	 * of characters (Unix, Windows, later versions of MS-DOS) or any
-	 * sequence of characters in either the basename or extension (thus "*.*" in
-	 * early versions of MS-DOS means "all files". Allowed in Unix
-	 * filenames, see note 1 : colon used to determine the mount point / drive
-	 * on Windows; used to determine the virtual device or physical device
-	 * such as a drive on AmigaOS, RT-11 and VMS; used as a pathname separator
-	 * in classic Mac OS. Doubled after a name on VMS, indicates the DECnet
-	 * nodename (equivalent to a NetBIOS (Windows networking) hostname preceded
-	 * by "\\".) | vertical bar or pipe designates software pipelining in
-	 * Unix and Windows; allowed in Unix filenames, see Note 1 " quote used to
-	 * mark beginning and end of filenames containing spaces in Windows, see
-	 * Note 1 < less than used to redirect input, allowed in Unix filenames, see
-	 * Note 1 > greater than used to redirect output, allowed in Unix
-	 * filenames, see Note 1 . period or dot
-	 * 
-	 * @param Name
-	 *            the string that needs to be checked
-	 * @return a name safe to create files or folders
-	 */
-	public static String MakeNameCompileSafe(String Name) {
+	public static String makeNameCompileSafe(String Name) {
 		return Name.trim().replace(" ", "_").replace("/", "_").replace("\\", "_").replace("(", "_").replace(")", "_").replace("*", "_").replace("?", "_").replace("%", "_").replace(".", "_").replace(":", "_").replace("|", "_").replace("<", "_").replace(">", "_").replace(",", "_").replace("\"", "_").replace("-", "_");
 	}
 
@@ -132,7 +99,7 @@ public class Common implements LinkItConst {
 			// downwards
 			// compatibility
 		} catch (CoreException e) {
-			IStatus status = new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Failed to write arduino properties", e);
+			IStatus status = new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Failed to write properties", e);
 			Common.log(status);
 
 		}
@@ -444,26 +411,5 @@ public class Common implements LinkItConst {
 
 
 
-	/**
-	 * Arduino has the default libraries in the user home directory in subfolder
-	 * Arduino/libraries. As the home directory is platform dependent
-	 * getting the value is resolved by this method
-	 * 
-	 * @return the folder where Arduino puts the libraries by default.
-	 */
-	public static String getDefaultPrivateLibraryPath() {
-		IPath homPath = new Path(System.getProperty("user.home"));
-		return homPath.append("Arduino").append("libraries").toString();
-	}
-
-	/**
-	 * same as getDefaultLibPath but for the hardware folder
-	 * 
-	 * @return
-	 */
-	public static String getDefaultPrivateHardwarePath() {
-		IPath homPath = new Path(System.getProperty("user.home"));
-		return homPath.append("Arduino").append("hardware").toString();
-	}
-
+	
 }

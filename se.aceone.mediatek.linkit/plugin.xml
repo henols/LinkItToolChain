@@ -248,11 +248,11 @@
                  announcement="Starting archiver"
                  command="${LINKITSDK20}${GCCLOCATION}/bin/${ARMARGCC}"
                  errorParsers="org.eclipse.cdt.core.GLDErrorParser"
-                 id="it.baeyens.arduino.tool.archiver"
+                 id="se.aceone.mediatek.linkit.tool.archiver"
                  name="Archiver">
               <outputType
                     buildVariable="AR"
-                    id="it.baeyens.arduino.tool.archiver.output"
+                    id="se.aceone.mediatek.linkit.tool.archiver.output"
                     name="Archiver output"
                     outputNames="${A.ARCHIVE_FILE}"
                     outputs="ar"
@@ -261,7 +261,7 @@
               <inputType
                     assignToOption="A.OBJECT_FILE"
                     buildVariable="AR_OBJ"
-                    id="it.baeyens.arduino.tool.archiver.inpu14t"
+                    id="se.aceone.mediatek.linkit.tool.archiver.input"
                     multipleOfType="true"
                     name="Archiver input"
                     primaryInput="false"
@@ -278,7 +278,7 @@
                  natureFilter="both">
               <outputType
                     buildVariable="DBG_DATA"
-                    id="it.baeyens.arduino.tool.combiner.dbgdata.output"
+                    id="se.aceone.mediatek.linkit.tool.linker.dbgdata.output"
                     name="Linker output"
                     outputNames="${ProjName}.axf"
                     outputs="axf"
@@ -286,7 +286,7 @@
               </outputType>
               <outputType
                     buildVariable="DBG"
-                    id="it.baeyens.arduino.tool.combiner.dbg.output"
+                    id="se.aceone.mediatek.linkit.tool.linker.dbg.output"
                     name="Linker output"
                     outputNames="${ProjName}.axf"
                     outputs="axf"
@@ -294,7 +294,7 @@
               </outputType>
               <outputType
                     buildVariable="ELF"
-                    id="it.baeyens.arduino.tool.combiner.output"
+                    id="se.aceone.mediatek.linkit.tool.linker.output"
                     name="Linker output"
                     outputNames="${ProjName}.axf"
                     outputs="elf"
@@ -302,7 +302,7 @@
               </outputType>
               <inputType
                     buildVariable="LINK_OBJ"
-                    id="it.baeyens.arduino.tool.combiner.ob.input"
+                    id="se.aceone.mediatek.linkit.tool.linker.ob.input"
                     multipleOfType="true"
                     name="Linker input"
                     primaryInput="true"
@@ -320,16 +320,16 @@
               <inputType
                     buildVariable="DBG_DATA"
                     dependencyExtensions="axf"
-                    id="it.baeyens.arduino.tool.objcopy.dbgdata.input"
+                    id="se.aceone.mediatek.linkit.tool.objcopy.dbgdata.input"
                     multipleOfType="true"
                     name="Debug data file input"
                     primaryInput="true"
-                    sourceContentType="it.baeyens.arduino.tool.combiner.dbgdata.output"
+                    sourceContentType="se.aceone.mediatek.linkit.tool.linker.dbgdata.output"
                     sources="axf">
               </inputType>
               <outputType
                     buildVariable="DBG_DATA_AXF"
-                    id="it.baeyens.arduino.tool.objcopy.dbgdata.output"
+                    id="se.aceone.mediatek.linkit.tool.objcopy.dbgdata.output"
                     multipleOfType="false"
                     name="Debug data file output"
                     outputNames="${ProjName}out.axf"
@@ -347,16 +347,16 @@
               <inputType
                     buildVariable="DBG"
                     dependencyExtensions="axf"
-                    id="it.baeyens.arduino.tool.objcopy.dbg.input"
+                    id="se.aceone.mediatek.linkit.tool.objcopy.dbg.input"
                     multipleOfType="true"
                     name="Debug data file input"
                     primaryInput="true"
-                    sourceContentType="it.baeyens.arduino.tool.combiner.dbg.output"
+                    sourceContentType="se.aceone.mediatek.linkit.tool.linker.dbg.output"
                     sources="axf">
               </inputType>
               <outputType
                     buildVariable="DBG_DBG"
-                    id="it.baeyens.arduino.tool.objcopy.dbg.output"
+                    id="se.aceone.mediatek.linkit.tool.objcopy.dbg.output"
                     multipleOfType="false"
                     name="Debug data file output"
                     outputNames="${ProjName}.dbg"
@@ -367,48 +367,47 @@
                  announcement="Resource Packer"
                  command="${LINKITSDK20}/tools/${RESEDITOR}"
                  commandLinePattern="${COMMAND} pack -silent -resolution 128x160 -o ${OUTPUT} -e AXF -vom ${workspace_loc}/${ProjName}/${ProjName}.proj  ${INPUTS}"
-                 id="se.aceone.mediatek.linkit.tool.objcopy.flash"
+                 id="se.aceone.mediatek.linkit.tool.packer"
                  isAbstract="false"
                  name="Resource Packer"
                  natureFilter="both">
               <inputType
                     buildVariable="ELF"
                     dependencyExtensions="elf"
-                    id="it.baeyens.arduino.tool.objcopy.flash.input"
+                    id="se.aceone.mediatek.linkit.tool.packer.input"
                     multipleOfType="true"
                     name="Resource Packer input"
                     primaryInput="true"
-                    sourceContentType="it.baeyens.arduino.tool.combiner.output"
+                    sourceContentType="se.aceone.mediatek.linkit.tool.linker.output"
                     sources="eep">
               </inputType>
               <outputType
-                    buildVariable="FLASH_IMAGE"
-                    id="it.baeyens.arduino.tool.objcopy.flash.output"
+                    buildVariable="RES_PKD"
+                    id="se.aceone.mediatek.linkit.tool.packer.output"
                     multipleOfType="false"
                     name="Resource Packer output"
                     namePattern="${ProjName}.pkd"
-                    nameProvider="it.baeyens.arduino.toolchain.hexNameProvider"
                     outputNames="${ProjName}.pkd"
                     outputs="pkd">
               </outputType>
            </tool>
                 <tool
-                 announcement="%tool.announcement.5"
+                 announcement="Size command"
                  command="${JANTJE.SIZE.SWITCH} "
                  id="se.aceone.mediatek.linkit.tool.size"
                  name="Size">
               <inputType
-                    buildVariable="FLASH_IMAGE"
+                    buildVariable="RES_PKD"
                     dependencyExtensions="pkd"
-                    id="it.baeyens.arduino.tool.size.input"
+                    id="se.aceone.mediatek.linkit.tool.size.input"
                     multipleOfType="true"
                     name="Size input"
                     primaryInput="true"
-                    sourceContentType="it.baeyens.arduino.tool.objcopy.flash.output">
+                    sourceContentType="se.aceone.mediatek.linkit.tool.packer.output">
               </inputType>
               <outputType
                     buildVariable="SIZEDUMMY"
-                    id="it.baeyens.arduino.tool.size.output"
+                    id="se.aceone.mediatek.linkit.tool.size.output"
                     multipleOfType="false"
                     name="Size output"
                     outputNames="sizedummy"

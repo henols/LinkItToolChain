@@ -83,11 +83,6 @@ import se.aceone.mediatek.linkit.xml.config.Packageinfo.Namelist;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Output;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Userinfo;
 
-/**
- * ArduinoHelpers is a static class containing general purpose functions
- * 
- * @author Jan Baeyens
- */
 public class LinkItHelpers extends Common {
 
 	public static boolean checkEnvironment() {
@@ -181,14 +176,6 @@ public class LinkItHelpers extends Common {
 		}
 	}
 
-	/**
-	 * addTheNatures replaces all existing natures by the natures needed for a
-	 * arduino project
-	 * 
-	 * @param project
-	 *            The project where the natures need to be added to
-	 * @throws CoreException
-	 */
 	public static void addTheNatures(IProject project) throws CoreException {
 		IProjectDescription description = project.getDescription();
 
@@ -197,7 +184,7 @@ public class LinkItHelpers extends Common {
 		newnatures[1] = LinkItConst.CCnatureid;
 		newnatures[2] = LinkItConst.Buildnatureid;
 		newnatures[3] = LinkItConst.Scannernatureid;
-//		newnatures[4] = ArduinoConst.LinkItNatureID;
+//		newnatures[4] = LinkItConst.LinkItNatureID;
 		description.setNatureIds(newnatures);
 		project.setDescription(description, new NullProgressMonitor());
 	}
@@ -225,20 +212,7 @@ public class LinkItHelpers extends Common {
 
 	}
 
-	public static void setProjectPathVariables(IProject project, IPath platformPath) {
-		IPath PinPath = platformPath.append(LinkItConst.VARIANTS_FOLDER);
-		IPath arduinoHardwareLibraryPath = platformPath.append(LinkItConst.LIBRARY_PATH_SUFFIX);
-		IPathVariableManager pathMan = project.getPathVariableManager();
-		try {
-			pathMan.setURIValue(LinkItConst.WORKSPACE_PATH_VARIABLE_NAME_HARDWARE_LIB, URIUtil.toURI(arduinoHardwareLibraryPath));
-			pathMan.setURIValue(LinkItConst.PATH_VARIABLE_NAME_ARDUINO_PLATFORM, URIUtil.toURI(platformPath));
-			pathMan.setURIValue(LinkItConst.PATH_VARIABLE_NAME_ARDUINO_PINS, URIUtil.toURI(PinPath));
-		} catch (CoreException e) {
-			Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Failed to create the path variable variables. The setup will not work properly", e));
-			e.printStackTrace();
-		}
-	}
-
+	
 	public static MessageConsole findConsole(String name) {
 		ConsolePlugin plugin = ConsolePlugin.getDefault();
 		IConsoleManager conMan = plugin.getConsoleManager();
@@ -277,15 +251,6 @@ public class LinkItHelpers extends Common {
 
 	}
 
-	/**
-	 * Set the project to force a rebuild. This method is called after the
-	 * arduino settings have been updated. Note the only way I found I could get
-	 * this to work is by deleting the build folder Still then the "indexer
-	 * needs to recheck his includes from the language provider which still is
-	 * not working
-	 * 
-	 * @param project
-	 */
 	public static void setDirtyFlag(IProject project, ICConfigurationDescription cfgDescription) {
 		IManagedBuildInfo buildInfo = ManagedBuildManager.getBuildInfo(project);
 		if (buildInfo == null) {
@@ -319,20 +284,6 @@ public class LinkItHelpers extends Common {
 
 	private static String makeEnvVar(String string) {
 		return "${" + string + "}";
-	}
-
-	/**
-	 * Give the string entered in the com port try to extract a host. If no host
-	 * is found return null yun at xxx.yyy.zzz (arduino yun) returns
-	 * yun.local
-	 * 
-	 * @param mComPort
-	 * @return
-	 */
-	public static String getHostFromComPort(String mComPort) {
-		String host = mComPort.split(" ")[0];
-		if (host.equals(mComPort)) return null;
-		return host;
 	}
 
 	/**
