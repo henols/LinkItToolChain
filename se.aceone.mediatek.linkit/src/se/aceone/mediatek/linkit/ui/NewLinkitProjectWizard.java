@@ -25,22 +25,28 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
+import se.aceone.mediatek.linkit.Activator;
 import se.aceone.mediatek.linkit.tools.Common;
 import se.aceone.mediatek.linkit.tools.LinkItConst;
 import se.aceone.mediatek.linkit.tools.LinkItHelpers;
 
-public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewWizard, IExecutableExtension {
+public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
+		INewWizard, IExecutableExtension {
 
 	private WizardNewProjectCreationPage mWizardPage; // first page of the
 														// dialog
@@ -61,9 +67,15 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 		// create each page and fill in the title and description
 		// first page to fill in the project name
 		//
-		mWizardPage = new WizardNewProjectCreationPage("New LinkIt Tool Chain Project");
+		mWizardPage = new WizardNewProjectCreationPage(
+				"New LinkIt Tool Chain Project");
 		mWizardPage.setDescription("Create a new LinkIt Tool Chain Project.");
 		mWizardPage.setTitle("New LinkIt Tool Chain Project");
+		AbstractUIPlugin plugin = Activator.getDefault();
+		ImageRegistry imageRegistry = plugin.getImageRegistry();
+		Image myImage = imageRegistry.get(Activator.CPU_64PX);
+		ImageDescriptor image = ImageDescriptor.createFromImage(myImage);
+		mWizardPage.setImageDescriptor(image);
 		//
 		// /
 		addPage(mWizardPage);
@@ -84,7 +96,8 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 		//
 		// get an IProject handle to our project
 		//
-		final IProject projectHandle = ResourcesPlugin.getWorkspace().getRoot().getProject((mWizardPage.getProjectName()));
+		final IProject projectHandle = ResourcesPlugin.getWorkspace().getRoot()
+				.getProject((mWizardPage.getProjectName()));
 		//
 		// let's validate it
 		//
@@ -94,7 +107,8 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 			// "use defaults" is checked
 			// or not
 			//
-			URI projectURI = (!mWizardPage.useDefaults()) ? mWizardPage.getLocationURI() : null;
+			URI projectURI = (!mWizardPage.useDefaults()) ? mWizardPage
+					.getLocationURI() : null;
 			//
 			// get the workspace name
 			//
@@ -102,7 +116,8 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 			//
 			// the project descriptions is set equal to the name of the project
 			//
-			final IProjectDescription desc = workspace.newProjectDescription(projectHandle.getName());
+			final IProjectDescription desc = workspace
+					.newProjectDescription(projectHandle.getName());
 			//
 			// get our workspace location
 			//
@@ -114,7 +129,8 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 			 */
 			WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 				@Override
-				protected void execute(IProgressMonitor monitor) throws CoreException {
+				protected void execute(IProgressMonitor monitor)
+						throws CoreException {
 					//
 					// actually create the project
 					//
@@ -132,7 +148,8 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 			return false;
 		} catch (InvocationTargetException e) {
 			Throwable realException = e.getTargetException();
-			MessageDialog.openError(getShell(), "Error", realException.getMessage());
+			MessageDialog.openError(getShell(), "Error",
+					realException.getMessage());
 			return false;
 		}
 		//
@@ -149,7 +166,8 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 		// project
 		//
 		BasicNewProjectResourceWizard.updatePerspective(mConfig);
-		IWorkbenchWindow TheWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IWorkbenchWindow TheWindow = PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow();
 		BasicNewResourceWizard.selectAndReveal(mProject, TheWindow);
 
 		return true;
@@ -163,18 +181,23 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 	 * @param monitor
 	 * @throws OperationCanceledException
 	 */
-	void createProject(IProjectDescription description, IProject project, IProgressMonitor monitor) throws OperationCanceledException {
+	void createProject(IProjectDescription description, IProject project,
+			IProgressMonitor monitor) throws OperationCanceledException {
 
 		monitor.beginTask("", 2000);
 		try {
 			if (!LinkItHelpers.checkEnvironment()) {
-				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, "Enviroment are not configuerd."));
-				throw new OperationCanceledException("Enviroment are not configuerd.");
+				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID,
+						"Enviroment are not configuerd."));
+				throw new OperationCanceledException(
+						"Enviroment are not configuerd.");
 			}
 
-			IPathVariableManager manager = project.getWorkspace().getPathVariableManager();
+			IPathVariableManager manager = project.getWorkspace()
+					.getPathVariableManager();
 			if (manager.getURIValue(LINK_IT_SDK20) == null) {
-				manager.setURIValue(LINK_IT_SDK20, URIUtil.toURI(LinkItHelpers.getEnvironmentPath()));
+				manager.setURIValue(LINK_IT_SDK20,
+						URIUtil.toURI(LinkItHelpers.getEnvironmentPath()));
 			}
 
 			project.create(description, new SubProgressMonitor(monitor, 1000));
@@ -183,74 +206,87 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 				throw new OperationCanceledException();
 			}
 
-			project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1000));
+			project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(
+					monitor, 1000));
 
 			String name = "Default";
 			String toolChainId = "se.aceone.mediatek.linkit.toolChain.default";
 			// Creates the .cproject file with the configurations
-			LinkItHelpers.setCProjectDescription(project, toolChainId, name, true, monitor);
+			LinkItHelpers.setCProjectDescription(project, toolChainId, name,
+					true, monitor);
 
 			// Add the C C++ AVR and other needed Natures to the project
 			LinkItHelpers.addTheNatures(project);
 
 			// Set the environment variables
-			ICProjectDescription projectDescription = CoreModel.getDefault().getProjectDescription(project);
+			ICProjectDescription projectDescription = CoreModel.getDefault()
+					.getProjectDescription(project);
 
-			ICConfigurationDescription defaultConfigDescription = projectDescription.getConfigurationByName(name);
+			ICConfigurationDescription defaultConfigDescription = projectDescription
+					.getConfigurationByName(name);
 			projectDescription.setActiveConfiguration(defaultConfigDescription);
 
-			ICResourceDescription cfgd = defaultConfigDescription.getResourceDescription(new Path(""), true);
-//			ICExclusionPatternPathEntry[] entries = cfgd.getConfiguration().getSourceEntries();
-//			if (entries.length == 1) {
-//				Path exclusionPath[] = new Path[2];
-//				exclusionPath[0] = new Path("Libraries/*/?xamples");
-//				exclusionPath[1] = new Path("Libraries/*/?xtras");
-//				ICExclusionPatternPathEntry newSourceEntry = new CSourceEntry(entries[0].getFullPath(), exclusionPath, ICSettingEntry.VALUE_WORKSPACE_PATH);
-//				ICSourceEntry[] out = null;
-//				out = new ICSourceEntry[1];
-//				out[0] = (ICSourceEntry)newSourceEntry;
-//				try {
-//					cfgd.getConfiguration().setSourceEntries(out);
-//				} catch (CoreException e) {
-//					// ignore
-//				}
-//
-//			} else {
-//				// this should not happen
-//			}
+			ICResourceDescription cfgd = defaultConfigDescription
+					.getResourceDescription(new Path(""), true);
+			// ICExclusionPatternPathEntry[] entries =
+			// cfgd.getConfiguration().getSourceEntries();
+			// if (entries.length == 1) {
+			// Path exclusionPath[] = new Path[2];
+			// exclusionPath[0] = new Path("Libraries/*/?xamples");
+			// exclusionPath[1] = new Path("Libraries/*/?xtras");
+			// ICExclusionPatternPathEntry newSourceEntry = new
+			// CSourceEntry(entries[0].getFullPath(), exclusionPath,
+			// ICSettingEntry.VALUE_WORKSPACE_PATH);
+			// ICSourceEntry[] out = null;
+			// out = new ICSourceEntry[1];
+			// out[0] = (ICSourceEntry)newSourceEntry;
+			// try {
+			// cfgd.getConfiguration().setSourceEntries(out);
+			// } catch (CoreException e) {
+			// // ignore
+			// }
+			//
+			// } else {
+			// // this should not happen
+			// }
 
 			// set warning levels default on
 			try {
 				LinkItHelpers.setEnvironmentVariables(cfgd);
 			} catch (IOException e) {
-				String message = "Failed to set environmet variables " + project.getName();
+				String message = "Failed to set environmet variables "
+						+ project.getName();
 				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, message, e));
 				throw new OperationCanceledException(message);
 			}
 
 			LinkItHelpers.buildPathVariables(project, cfgd);
 
-
 			IPathVariableManager pathMan = project.getPathVariableManager();
 			URI uri = pathMan.resolveURI(pathMan.getURIValue(LINKIT10));
-			LinkItHelpers.createNewFolder(project, "LinkIt", URIUtil.toURI(new Path(uri.getPath()).append("src")));
+			LinkItHelpers.createNewFolder(project, "LinkIt",
+					URIUtil.toURI(new Path(uri.getPath()).append("src")));
 
 			LinkItHelpers.createNewFolder(project, "src", null);
-			
+
 			LinkItHelpers.createNewFolder(project, "res", null);
 			LinkItHelpers.createNewFolder(project, "ResID", null);
-			
+
 			LinkItHelpers.setIncludePaths(projectDescription, cfgd);
 
 			LinkItHelpers.setMacros(projectDescription);
 
 			LinkItHelpers.setSourcePaths(projectDescription);
-			
+
 			LinkItHelpers.copyProjectResources(projectDescription, monitor);
-			
+
 			projectDescription.setActiveConfiguration(defaultConfigDescription);
 			projectDescription.setCdtProjectCreated();
-			CoreModel.getDefault().getProjectDescriptionManager().setProjectDescription(project, projectDescription, true, null);
+			CoreModel
+					.getDefault()
+					.getProjectDescriptionManager()
+					.setProjectDescription(project, projectDescription, true,
+							null);
 
 			monitor.done();
 
@@ -267,7 +303,8 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 	}
 
 	@Override
-	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) throws CoreException {
+	public void setInitializationData(IConfigurationElement config,
+			String propertyName, Object data) throws CoreException {
 		mConfig = config;
 
 	}

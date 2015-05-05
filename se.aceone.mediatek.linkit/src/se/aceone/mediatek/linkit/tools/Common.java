@@ -37,8 +37,8 @@ import se.aceone.mediatek.linkit.Activator;
 
 public class Common implements LinkItConst {
 
-	public static String makeNameCompileSafe(String Name) {
-		return Name.trim().replace(" ", "_").replace("/", "_").replace("\\", "_").replace("(", "_").replace(")", "_").replace("*", "_").replace("?", "_").replace("%", "_").replace(".", "_").replace(":", "_").replace("|", "_").replace("<", "_").replace(">", "_").replace(",", "_").replace("\"", "_").replace("-", "_");
+	public static String makeNameCompileSafe(String name) {
+		return name.trim().replace(" ", "_").replace("/", "_").replace("\\", "_").replace("(", "_").replace(")", "_").replace("*", "_").replace("?", "_").replace("%", "_").replace(".", "_").replace(":", "_").replace("|", "_").replace("<", "_").replace(">", "_").replace(",", "_").replace("\"", "_").replace("-", "_");
 	}
 
 	/**
@@ -46,37 +46,37 @@ public class Common implements LinkItConst {
 	 * 
 	 * @param project
 	 *            The project for which the property is needed
-	 * @param Tag
+	 * @param tag
 	 *            The tag identifying the property to read
 	 * @return returns the property when found. When not found returns an empty
 	 *         string
 	 */
-	public static String getPersistentProperty(IProject project, String Tag) {
+	public static String getPersistentProperty(IProject project, String tag) {
 		try {
-			String sret = project.getPersistentProperty(new QualifiedName(CORE_PLUGIN_ID, Tag));
+			String sret = project.getPersistentProperty(new QualifiedName(CORE_PLUGIN_ID, tag));
 			if (sret == null) {
-				sret = project.getPersistentProperty(new QualifiedName("", Tag)); // for
+				sret = project.getPersistentProperty(new QualifiedName("", tag)); // for
 				// downwards
 				// compatibility
 				if (sret == null) sret = "";
 			}
 			return sret;
 		} catch (CoreException e) {
-			log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Failed to read persistent setting " + Tag, e));
+			log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Failed to read persistent setting " + tag, e));
 			// e.printStackTrace();
 			return "";
 		}
 	}
 
-	public static int getPersistentPropertyInt(IProject project, String Tag, int defaultValue) {
+	public static int getPersistentPropertyInt(IProject project, String tag, int defaultValue) {
 		try {
-			String sret = project.getPersistentProperty(new QualifiedName(CORE_PLUGIN_ID, Tag));
+			String sret = project.getPersistentProperty(new QualifiedName(CORE_PLUGIN_ID, tag));
 			if (sret == null) {
 				return defaultValue;
 			}
 			return Integer.parseInt(sret);
 		} catch (CoreException e) {
-			log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Failed to read persistent setting " + Tag, e));
+			log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Failed to read persistent setting " + tag, e));
 			// e.printStackTrace();
 			return defaultValue;
 		}
@@ -87,15 +87,15 @@ public class Common implements LinkItConst {
 	 * 
 	 * @param project
 	 *            The project for which the property needs to be set
-	 * @param Tag
+	 * @param tag
 	 *            The tag identifying the property to read
 	 * @return returns the property when found. When not found returns an empty
 	 *         string
 	 */
-	public static void setPersistentProperty(IProject project, String Tag, String Value) {
+	public static void setPersistentProperty(IProject project, String tag, String value) {
 		try {
-			project.setPersistentProperty(new QualifiedName(CORE_PLUGIN_ID, Tag), Value);
-			project.setPersistentProperty(new QualifiedName("", Tag), Value); // for
+			project.setPersistentProperty(new QualifiedName(CORE_PLUGIN_ID, tag), value);
+			project.setPersistentProperty(new QualifiedName("", tag), value); // for
 			// downwards
 			// compatibility
 		} catch (CoreException e) {
@@ -132,7 +132,7 @@ public class Common implements LinkItConst {
 	/**
 	 * ToInt converts a string to a integer in a save way
 	 * 
-	 * @param Number
+	 * @param number
 	 *            is a String that will be converted to an integer. Number can
 	 *            be null or empty and can contain leading and trailing white
 	 *            space
@@ -140,13 +140,13 @@ public class Common implements LinkItConst {
 	 * @see parseInt. After error checking and modifications parseInt is used
 	 *      for the conversion
 	 **/
-	public static int ToInt(String Number) {
-		if (Number == null) return 0;
-		if (Number.equals("")) return 0;
-		return Integer.parseInt(Number.trim());
+	public static int toInt(String number) {
+		if (number == null) return 0;
+		if (number.equals("")) return 0;
+		return Integer.parseInt(number.trim());
 	}
 
-	private static ICConfigurationDescription[] getCfgs(IProject prj) {
+	private static ICConfigurationDescription[] getConfigurations(IProject prj) {
 		ICProjectDescription prjd = CoreModel.getDefault().getProjectDescription(prj, false);
 		if (prjd != null) {
 			ICConfigurationDescription[] cfgs = prjd.getConfigurations();
@@ -239,7 +239,7 @@ public class Common implements LinkItConst {
 						if (!CoreModel.getDefault().isNewStyleProject(project))
 							project = null;
 						else {
-							ICConfigurationDescription[] tmp = getCfgs(project);
+							ICConfigurationDescription[] tmp = getConfigurations(project);
 							if (tmp.length == 0) project = null;
 						}
 					}
@@ -282,13 +282,13 @@ public class Common implements LinkItConst {
 
 		if (!badObject && !fProjects.isEmpty()) {
 			Iterator<IProject> iter = fProjects.iterator();
-			ICConfigurationDescription[] firstConfigs = getCfgs(iter.next());
+			ICConfigurationDescription[] firstConfigs = getConfigurations(iter.next());
 			if (firstConfigs != null) {
 				for(ICConfigurationDescription firstConfig : firstConfigs) {
 					boolean common = true;
 					Iterator<IProject> iter2 = fProjects.iterator();
 					while (iter2.hasNext()) {
-						ICConfigurationDescription[] currentConfigs = getCfgs(iter2.next());
+						ICConfigurationDescription[] currentConfigs = getConfigurations(iter2.next());
 						int j = 0;
 						for(; j < currentConfigs.length; j++) {
 							if (firstConfig.getName().equals(currentConfigs[j].getName())) break;
@@ -323,7 +323,7 @@ public class Common implements LinkItConst {
 			IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 			if (projects != null && projects.length == 1) {
 				IProject project = projects[0];
-				if (CoreModel.getDefault().isNewStyleProject(project) && (getCfgs(project).length > 0)) {
+				if (CoreModel.getDefault().isNewStyleProject(project) && (getConfigurations(project).length > 0)) {
 					getSelectedProjects(new ImaginarySelection(project));
 					return;
 				}
@@ -373,15 +373,15 @@ public class Common implements LinkItConst {
 	 * 
 	 * @param project
 	 *            the project that contains the environment variable
-	 * @param EnvName
+	 * @param envName
 	 *            the key that describes the variable
 	 * @param defaultvalue
 	 *            The return value if the variable is not found.
 	 * @return The expanded build environment variable
 	 */
-	static public String getBuildEnvironmentVariable(IProject project, String configName, String EnvName, String defaultvalue) {
+	static public String getBuildEnvironmentVariable(IProject project, String configName, String envName, String defaultvalue) {
 		ICProjectDescription prjDesc = CoreModel.getDefault().getProjectDescription(project);
-		return getBuildEnvironmentVariable(prjDesc.getConfigurationByName(configName), EnvName, defaultvalue);
+		return getBuildEnvironmentVariable(prjDesc.getConfigurationByName(configName), envName, defaultvalue);
 	}
 
 	/**
@@ -390,26 +390,23 @@ public class Common implements LinkItConst {
 	 * 
 	 * @param project
 	 *            the project that contains the environment variable
-	 * @param EnvName
+	 * @param envName
 	 *            the key that describes the variable
 	 * @param defaultvalue
 	 *            The return value if the variable is not found.
 	 * @return The expanded build environment variable
 	 */
-	static public String getBuildEnvironmentVariable(ICConfigurationDescription configurationDescription, String EnvName, String defaultvalue) {
-		return getBuildEnvironmentVariable(configurationDescription, EnvName, defaultvalue, true);
+	static public String getBuildEnvironmentVariable(ICConfigurationDescription configurationDescription, String envName, String defaultvalue) {
+		return getBuildEnvironmentVariable(configurationDescription, envName, defaultvalue, true);
 	}
 
-	static public String getBuildEnvironmentVariable(ICConfigurationDescription configurationDescription, String EnvName, String defaultvalue, boolean expanded) {
+	static public String getBuildEnvironmentVariable(ICConfigurationDescription configurationDescription, String envName, String defaultvalue, boolean expanded) {
 		IEnvironmentVariableManager envManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		try {
-			return envManager.getVariable(EnvName, configurationDescription, expanded).getValue();
+			return envManager.getVariable(envName, configurationDescription, expanded).getValue();
 		} catch (Exception e) {// ignore all errors and return the default value
 		}
 		return defaultvalue;
 	}
-
-
-
 	
 }

@@ -7,19 +7,19 @@
 			name="Mediatek">
 		</category>
 		<wizard
-			id="se.aceone.mediatek.linkit.NewLinkitProjectWizard"
-			category="se.aceone.mediatek.linkit.newWizards"
-	        class="se.aceone.mediatek.linkit.ui.NewLinkitProjectWizard"
-	        name="New LinkIt Project"
-	        icon="icons/LinkIt.png"
-	        finalPerspective ="org.eclipse.cdt.ui.CPerspective"
-	        project="true">
+        canFinishEarly="false"
+        category="se.aceone.mediatek.linkit.newWizards"
+        class="se.aceone.mediatek.linkit.ui.NewLinkitProjectWizard"
+        finalPerspective="org.eclipse.cdt.ui.CPerspective"
+        icon="icons/16px-Nuvola_devices_ksim_cpu.png"
+        id="se.aceone.mediatek.linkit.NewLinkitProjectWizard"
+        name="New LinkIt Project"
+        project="true">
          <description>
             %wizard.description
          </description>	        
 		</wizard>
 	</extension>
-
    <extension
          id="se.aceone.mediatek.linkit.buildDefinitions"
          name="Mediatek LinkIt Tool Chain"
@@ -420,5 +420,36 @@
          </configuration>
       </projectType>
    </extension>
+  <extension
+       point="org.eclipse.ui.navigator.navigatorContent">
+    <commonWizard
+          associatedExtensionId="org.eclipse.cdt.ui.navigator.content"
+          menuGroupId="org.eclipse.cdt.ui.newProject"
+          type="new"
+          wizardId="se.aceone.mediatek.linkit.NewLinkitProjectWizard">
+       <enablement>
+          <or>
+             <with
+                   variable="activeWorkbenchWindow.activePerspective">
+                <equals
+                      value="org.eclipse.cdt.ui.CPerspective">
+                </equals>
+             </with>
+             <instanceof
+                   value="org.eclipse.cdt.core.model.ICElement">
+             </instanceof>
+             <and>
+                <instanceof
+                      value="org.eclipse.core.resources.IProject">
+                </instanceof>
+                <test
+                      property="org.eclipse.core.resources.projectNature"
+                      value="org.eclipse.cdt.core.cnature">
+                </test>
+             </and>
+          </or>
+       </enablement>
+    </commonWizard>
 
+  </extension>
 </plugin>

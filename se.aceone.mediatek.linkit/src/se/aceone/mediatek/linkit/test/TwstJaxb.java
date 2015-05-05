@@ -1,5 +1,5 @@
 package se.aceone.mediatek.linkit.test;
-
+	
 import java.io.File;
 
 import javax.xml.bind.JAXBContext;
