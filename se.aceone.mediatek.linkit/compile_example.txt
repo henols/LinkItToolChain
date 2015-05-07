@@ -106,3 +106,39 @@
 21:05:34(INFO) ["C:\dev\eclipseMTK\LINKIT_ASSIST_SDK\tools\PushCmdShell.exe" "C:/dev/eclipseMTK/workspace/sometest\ARM\sometest_default.vxp"]
 21:05:35(INFO) Error Number:1001
 21:05:35(INFO) Device not found and failed to push application to the device.
+----------------------------
+
+ASize example
+
+Building target: test
+Printing size:
+"C:/dev/arduino-1.5.5-r2/hardware/tools/g++_arm_none_eabi/bin/arm-none-eabi-size" -A "C:/dev/eclipseArduino/ws/test/Release/test.elf"
+C:/dev/eclipseArduino/ws/test/Release/test.elf  :
+section            size    addr
+.hash                92     212
+.dynsym             288     304
+.dynstr             200     592
+.rel.dyn           3432     792
+.rel.plt             16    4224
+.init                24    4240
+.plt                 52    4264
+.text             38400    4320
+.fini                24   42720
+.rodata            1048   42744
+.interp              17   43792
+.ARM.exidx            8   43812
+.init_array           8   43820
+.fini_array           4   43828
+.jcr                  4   43832
+.data.rel.ro         48   43840
+.dynamic            208   43888
+.got                 48   44096
+.data              2448   44144
+.bss                416   46592
+.comment            860       0
+.ARM.attributes      46       0
+Total             47691
+
+
+Finished building target: test
+ 

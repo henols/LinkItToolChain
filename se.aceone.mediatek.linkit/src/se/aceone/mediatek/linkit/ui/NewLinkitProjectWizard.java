@@ -45,8 +45,7 @@ import se.aceone.mediatek.linkit.tools.Common;
 import se.aceone.mediatek.linkit.tools.LinkItConst;
 import se.aceone.mediatek.linkit.tools.LinkItHelpers;
 
-public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
-		INewWizard, IExecutableExtension {
+public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewWizard, IExecutableExtension {
 
 	private WizardNewProjectCreationPage mWizardPage; // first page of the
 														// dialog
@@ -67,8 +66,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 		// create each page and fill in the title and description
 		// first page to fill in the project name
 		//
-		mWizardPage = new WizardNewProjectCreationPage(
-				"New LinkIt Tool Chain Project");
+		mWizardPage = new WizardNewProjectCreationPage("New LinkIt Tool Chain Project");
 		mWizardPage.setDescription("Create a new LinkIt Tool Chain Project.");
 		mWizardPage.setTitle("New LinkIt Tool Chain Project");
 		AbstractUIPlugin plugin = Activator.getDefault();
@@ -96,8 +94,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 		//
 		// get an IProject handle to our project
 		//
-		final IProject projectHandle = ResourcesPlugin.getWorkspace().getRoot()
-				.getProject((mWizardPage.getProjectName()));
+		final IProject projectHandle = ResourcesPlugin.getWorkspace().getRoot().getProject((mWizardPage.getProjectName()));
 		//
 		// let's validate it
 		//
@@ -107,8 +104,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 			// "use defaults" is checked
 			// or not
 			//
-			URI projectURI = (!mWizardPage.useDefaults()) ? mWizardPage
-					.getLocationURI() : null;
+			URI projectURI = (!mWizardPage.useDefaults()) ? mWizardPage.getLocationURI() : null;
 			//
 			// get the workspace name
 			//
@@ -116,8 +112,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 			//
 			// the project descriptions is set equal to the name of the project
 			//
-			final IProjectDescription desc = workspace
-					.newProjectDescription(projectHandle.getName());
+			final IProjectDescription desc = workspace.newProjectDescription(projectHandle.getName());
 			//
 			// get our workspace location
 			//
@@ -129,8 +124,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 			 */
 			WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 				@Override
-				protected void execute(IProgressMonitor monitor)
-						throws CoreException {
+				protected void execute(IProgressMonitor monitor) throws CoreException {
 					//
 					// actually create the project
 					//
@@ -148,8 +142,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 			return false;
 		} catch (InvocationTargetException e) {
 			Throwable realException = e.getTargetException();
-			MessageDialog.openError(getShell(), "Error",
-					realException.getMessage());
+			MessageDialog.openError(getShell(), "Error", realException.getMessage());
 			return false;
 		}
 		//
@@ -166,8 +159,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 		// project
 		//
 		BasicNewProjectResourceWizard.updatePerspective(mConfig);
-		IWorkbenchWindow TheWindow = PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow();
+		IWorkbenchWindow TheWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		BasicNewResourceWizard.selectAndReveal(mProject, TheWindow);
 
 		return true;
@@ -181,23 +173,18 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 	 * @param monitor
 	 * @throws OperationCanceledException
 	 */
-	void createProject(IProjectDescription description, IProject project,
-			IProgressMonitor monitor) throws OperationCanceledException {
+	void createProject(IProjectDescription description, IProject project, IProgressMonitor monitor) throws OperationCanceledException {
 
 		monitor.beginTask("", 2000);
 		try {
 			if (!LinkItHelpers.checkEnvironment()) {
-				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID,
-						"Enviroment are not configuerd."));
-				throw new OperationCanceledException(
-						"Enviroment are not configuerd.");
+				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, "Enviroment are not configuerd."));
+				throw new OperationCanceledException("Enviroment are not configuerd.");
 			}
 
-			IPathVariableManager manager = project.getWorkspace()
-					.getPathVariableManager();
+			IPathVariableManager manager = project.getWorkspace().getPathVariableManager();
 			if (manager.getURIValue(LINK_IT_SDK20) == null) {
-				manager.setURIValue(LINK_IT_SDK20,
-						URIUtil.toURI(LinkItHelpers.getEnvironmentPath()));
+				manager.setURIValue(LINK_IT_SDK20, URIUtil.toURI(LinkItHelpers.getEnvironmentPath()));
 			}
 
 			project.create(description, new SubProgressMonitor(monitor, 1000));
@@ -206,28 +193,23 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 				throw new OperationCanceledException();
 			}
 
-			project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(
-					monitor, 1000));
+			project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1000));
 
 			String name = "Default";
 			String toolChainId = "se.aceone.mediatek.linkit.toolChain.default";
 			// Creates the .cproject file with the configurations
-			LinkItHelpers.setCProjectDescription(project, toolChainId, name,
-					true, monitor);
+			LinkItHelpers.setCProjectDescription(project, toolChainId, name, true, monitor);
 
 			// Add the C C++ AVR and other needed Natures to the project
 			LinkItHelpers.addTheNatures(project);
 
 			// Set the environment variables
-			ICProjectDescription projectDescription = CoreModel.getDefault()
-					.getProjectDescription(project);
+			ICProjectDescription projectDescription = CoreModel.getDefault().getProjectDescription(project);
 
-			ICConfigurationDescription defaultConfigDescription = projectDescription
-					.getConfigurationByName(name);
+			ICConfigurationDescription defaultConfigDescription = projectDescription.getConfigurationByName(name);
 			projectDescription.setActiveConfiguration(defaultConfigDescription);
 
-			ICResourceDescription cfgd = defaultConfigDescription
-					.getResourceDescription(new Path(""), true);
+			ICResourceDescription cfgd = defaultConfigDescription.getResourceDescription(new Path(""), true);
 			// ICExclusionPatternPathEntry[] entries =
 			// cfgd.getConfiguration().getSourceEntries();
 			// if (entries.length == 1) {
@@ -254,8 +236,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 			try {
 				LinkItHelpers.setEnvironmentVariables(cfgd);
 			} catch (IOException e) {
-				String message = "Failed to set environmet variables "
-						+ project.getName();
+				String message = "Failed to set environmet variables " + project.getName();
 				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, message, e));
 				throw new OperationCanceledException(message);
 			}
@@ -264,8 +245,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 
 			IPathVariableManager pathMan = project.getPathVariableManager();
 			URI uri = pathMan.resolveURI(pathMan.getURIValue(LINKIT10));
-			LinkItHelpers.createNewFolder(project, "LinkIt",
-					URIUtil.toURI(new Path(uri.getPath()).append("src")));
+			LinkItHelpers.createNewFolder(project, "LinkIt", URIUtil.toURI(new Path(uri.getPath()).append("src")));
 
 			LinkItHelpers.createNewFolder(project, "src", null);
 
@@ -282,11 +262,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 
 			projectDescription.setActiveConfiguration(defaultConfigDescription);
 			projectDescription.setCdtProjectCreated();
-			CoreModel
-					.getDefault()
-					.getProjectDescriptionManager()
-					.setProjectDescription(project, projectDescription, true,
-							null);
+			CoreModel.getDefault().getProjectDescriptionManager().setProjectDescription(project, projectDescription, true, null);
 
 			monitor.done();
 
@@ -303,8 +279,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst,
 	}
 
 	@Override
-	public void setInitializationData(IConfigurationElement config,
-			String propertyName, Object data) throws CoreException {
+	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) throws CoreException {
 		mConfig = config;
 
 	}

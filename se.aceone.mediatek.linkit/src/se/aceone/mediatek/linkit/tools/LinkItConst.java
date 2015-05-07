@@ -2,8 +2,17 @@ package se.aceone.mediatek.linkit.tools;
 
 public interface LinkItConst {
 
-	public static final String LINK_IT_SDK20 = "LinkItSDK20".toUpperCase();
+	static final String LINK_IT_SDK20 = "LinkItSDK20".toUpperCase();
+	static final String INCLUDE = "INICLUDE";
+	static final String LIBRARY = "LIBRARY";
+	static final String GCCLOCATION = "GCCLOCATION";
+
+	static final String SIZETOOL = "SIZETOOL";
+	static final String ARM_NONE_EABI_SIZE = "arm-none-eabi-size";
+
 	static final String LINKIT10 = "LINKIT10";
+	static final String TOOL_PATH = "TOOLPATH";
+
 
 	static final String ARM_NONE_EABI_THUMB = "ARMNONEEABITHUMB";
 
