@@ -195,10 +195,8 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 
 			project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1000));
 
-			String name = "Default";
-			String toolChainId = "se.aceone.mediatek.linkit.toolChain.default";
 			// Creates the .cproject file with the configurations
-			LinkItHelpers.setCProjectDescription(project, toolChainId, name, true, monitor);
+			LinkItHelpers.setCProjectDescription(project, true, monitor);
 
 			// Add the C C++ AVR and other needed Natures to the project
 			LinkItHelpers.addTheNatures(project);
@@ -206,42 +204,20 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 			// Set the environment variables
 			ICProjectDescription projectDescription = CoreModel.getDefault().getProjectDescription(project);
 
-			ICConfigurationDescription defaultConfigDescription = projectDescription.getConfigurationByName(name);
+			ICConfigurationDescription defaultConfigDescription = projectDescription.getConfigurationByName(LINKIT_CONFIGURATION_NAME);
 			projectDescription.setActiveConfiguration(defaultConfigDescription);
 
-			ICResourceDescription cfgd = defaultConfigDescription.getResourceDescription(new Path(""), true);
-			// ICExclusionPatternPathEntry[] entries =
-			// cfgd.getConfiguration().getSourceEntries();
-			// if (entries.length == 1) {
-			// Path exclusionPath[] = new Path[2];
-			// exclusionPath[0] = new Path("Libraries/*/?xamples");
-			// exclusionPath[1] = new Path("Libraries/*/?xtras");
-			// ICExclusionPatternPathEntry newSourceEntry = new
-			// CSourceEntry(entries[0].getFullPath(), exclusionPath,
-			// ICSettingEntry.VALUE_WORKSPACE_PATH);
-			// ICSourceEntry[] out = null;
-			// out = new ICSourceEntry[1];
-			// out[0] = (ICSourceEntry)newSourceEntry;
-			// try {
-			// cfgd.getConfiguration().setSourceEntries(out);
-			// } catch (CoreException e) {
-			// // ignore
-			// }
-			//
-			// } else {
-			// // this should not happen
-			// }
+			ICResourceDescription resourceDescription = defaultConfigDescription.getResourceDescription(new Path(""), true);
 
-			// set warning levels default on
 			try {
-				LinkItHelpers.setEnvironmentVariables(cfgd);
+				LinkItHelpers.setEnvironmentVariables(resourceDescription);
 			} catch (IOException e) {
 				String message = "Failed to set environmet variables " + project.getName();
 				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, message, e));
 				throw new OperationCanceledException(message);
 			}
 
-			LinkItHelpers.buildPathVariables(project, cfgd);
+			LinkItHelpers.buildPathVariables(project, resourceDescription);
 
 			IPathVariableManager pathMan = project.getPathVariableManager();
 			URI uri = pathMan.resolveURI(pathMan.getURIValue(LINKIT10));
@@ -252,7 +228,7 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 			LinkItHelpers.createNewFolder(project, "res", null);
 			LinkItHelpers.createNewFolder(project, "ResID", null);
 
-			LinkItHelpers.setIncludePaths(projectDescription, cfgd);
+			LinkItHelpers.setIncludePaths(projectDescription, resourceDescription);
 
 			LinkItHelpers.setMacros(projectDescription);
 
@@ -281,7 +257,6 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 	@Override
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) throws CoreException {
 		mConfig = config;
-
 	}
 
 }

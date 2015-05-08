@@ -244,6 +244,7 @@
               </outputType>
            </tool>
            -->
+           <!--
            <tool
                  announcement="Starting archiver"
                  command="${LINKITSDK20}${GCCLOCATION}/bin/${ARMARGCC}"
@@ -268,18 +269,27 @@
                     sources="o">
               </inputType>
            </tool>
-           <tool
-                 announcement="Starting Linker"
+           -->
+           <tool announcement="Starting Linker"
                  command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCLINK}"
                  commandLinePattern="${COMMAND} ${GCCLINKER} -B ${ARMNONEEABITHUMB} -T ${LINKIT10}/${GCCTCCLIB}/scat.ld -o ${OUTPUT} ${INPUTS} ${LINKIT10}/${GCCLIB}/${COMMONLIB}"
                  errorParsers="org.eclipse.cdt.core.GLDErrorParser"
                  id="se.aceone.mediatek.linkit.tool.linker"
                  name="Linker"
                  natureFilter="both">
+              <inputType
+                    buildVariable="LINK_OBJ"
+                    id="se.aceone.mediatek.linkit.tool.linker.ob.input"
+                    multipleOfType="true"
+                    name="Linker input"
+                    primaryInput="true"
+                    sources="o">
+              </inputType>
               <outputType
-                    buildVariable="DBG_DATA"
-                    id="se.aceone.mediatek.linkit.tool.linker.dbgdata.output"
-                    name="Linker output"
+                    buildVariable="AXF_DATA"
+                    id="se.aceone.mediatek.linkit.tool.linker.data.output"
+                    multipleOfType="false"
+                    name="Linker output axf"
                     outputNames="${ProjName}.axf"
                     outputs="axf"
                     primaryOutput="true">
@@ -287,11 +297,13 @@
               <outputType
                     buildVariable="DBG"
                     id="se.aceone.mediatek.linkit.tool.linker.dbg.output"
-                    name="Linker output"
+                    multipleOfType="false"
+                    name="Linker output debug"
                     outputNames="${ProjName}.axf"
                     outputs="axf"
-                    primaryOutput="true">
+                    primaryOutput="false">
               </outputType>
+<!--
               <outputType
                     buildVariable="ELF"
                     id="se.aceone.mediatek.linkit.tool.linker.output"
@@ -300,49 +312,42 @@
                     outputs="elf"
                     primaryOutput="true">
               </outputType>
-              <inputType
-                    buildVariable="LINK_OBJ"
-                    id="se.aceone.mediatek.linkit.tool.linker.ob.input"
-                    multipleOfType="true"
-                    name="Linker input"
-                    primaryInput="true"
-                    sources="O">
-              </inputType>
+          -->
            </tool>
            <tool
-                 announcement="Generating debug data file"
+                 announcement="Generating AXF data file"
                  command="${LINKITSDK20}${GCCLOCATION}/bin/${OBJCOPY}"
                  commandLinePattern="${COMMAND} -g -R .comment  ${INPUTS}  ${OUTPUT} "
                  id="se.aceone.mediatek.linkit.tool.objcopy.dbgdata"
                  isAbstract="false"
-                 name="Debug data file"
+                 name="AXF data file"
                  natureFilter="both">
               <inputType
-                    buildVariable="DBG_DATA"
+                    buildVariable="AXF_DATA"
                     dependencyExtensions="axf"
-                    id="se.aceone.mediatek.linkit.tool.objcopy.dbgdata.input"
+                    id="se.aceone.mediatek.linkit.tool.objcopy.data.input"
                     multipleOfType="true"
-                    name="Debug data file input"
+                    name="AXF data file input"
                     primaryInput="true"
-                    sourceContentType="se.aceone.mediatek.linkit.tool.linker.dbgdata.output"
+                    sourceContentType="se.aceone.mediatek.linkit.tool.linker.data.output"
                     sources="axf">
               </inputType>
               <outputType
-                    buildVariable="DBG_DATA_AXF"
-                    id="se.aceone.mediatek.linkit.tool.objcopy.dbgdata.output"
+                    buildVariable="AXF_DATA_OUT"
+                    id="se.aceone.mediatek.linkit.tool.objcopy.data.output"
                     multipleOfType="false"
-                    name="Debug data file output"
-                    outputNames="${ProjName}out.axf"
-                    outputs="afx">
+                    name="AXFdata file output"
+                    outputNames="${ProjName}.out.axf"
+                    outputs="out.afx"
+                    primaryOutput="true">
               </outputType>
            </tool>
-           <tool
-                 announcement="Splitting the dbg data"
+           <tool announcement="Creating debug data only"
                  command="${LINKITSDK20}${GCCLOCATION}/bin/${OBJCOPY}"
                  commandLinePattern="${COMMAND} --only-keep-debug ${INPUTS}  ${OUTPUT} "
                  id="se.aceone.mediatek.linkit.tool.objcopy.dbg"
                  isAbstract="false"
-                 name="Debug data file"
+                 name="Debug only data file"
                  natureFilter="both">
               <inputType
                     buildVariable="DBG"
@@ -355,7 +360,7 @@
                     sources="axf">
               </inputType>
               <outputType
-                    buildVariable="DBG_DBG"
+                    buildVariable="DBG_DATA"
                     id="se.aceone.mediatek.linkit.tool.objcopy.dbg.output"
                     multipleOfType="false"
                     name="Debug data file output"
@@ -363,9 +368,10 @@
                     outputs="dbg">
               </outputType>
            </tool>
+<!--
            <tool
                  announcement="Resource Packer"
-                 command="${LINKITSDK20}/tools/${RESEDITOR}"
+                 command="${TOOLPATH}/${RESEDITOR}"
                  commandLinePattern="${COMMAND} pack -silent -resolution 128x160 -o ${OUTPUT} -e AXF -vom ${workspace_loc}/${ProjName}/${ProjName}.proj  ${INPUTS}"
                  id="se.aceone.mediatek.linkit.tool.packer"
                  isAbstract="false"
@@ -391,31 +397,38 @@
                     outputs="pkd">
               </outputType>
            </tool>
-                <tool
-                 announcement="Size command"
-                 command="${JANTJE.SIZE.SWITCH} "
-                 id="se.aceone.mediatek.linkit.tool.size"
-                 name="Size">
-              <inputType
-                    buildVariable="RES_PKD"
-                    dependencyExtensions="pkd"
-                    id="se.aceone.mediatek.linkit.tool.size.input"
-                    multipleOfType="true"
-                    name="Size input"
-                    primaryInput="true"
-                    sourceContentType="se.aceone.mediatek.linkit.tool.packer.output">
-              </inputType>
-              <outputType
-                    buildVariable="SIZEDUMMY"
-                    id="se.aceone.mediatek.linkit.tool.size.output"
-                    multipleOfType="false"
-                    name="Size output"
-                    outputNames="sizedummy"
-                    outputs="${project}.size"
-                    primaryOutput="true">
-              </outputType>
+    -->       
+                <tool announcement="Size command"
+                      command="${LINKITSDK20}${GCCLOCATION}/bin/${SIZETOOL}"
+                      commandLinePattern="${COMMAND} -A ${INPUTS}"
+                      id="se.aceone.mediatek.linkit.tool.size"
+                      name="Size">
+		              <inputType
+		                    buildVariable="AXF_DATA_OUT"
+		                    id="se.aceone.mediatek.linkit.tool.size.input"
+		                    multipleOfType="false"
+		                    name="Size input"
+		                    primaryInput="true"
+		                    sources="out.axf">
+		              </inputType>
+		              <inputType
+		                    buildVariable="DBG_DATA"
+		                    dependencyExtensions="dbg"
+		                    id="se.aceone.mediatek.linkit.tool.size.input.dbg"
+		                    multipleOfType="true"
+		                    name="Size debug input"
+		                    primaryInput="false">
+		              </inputType>
+		               <outputType
+		                    buildVariable="SIZEDUMMY"
+		                    id="se.aceone.mediatek.linkit.tool.size.output"
+		                    multipleOfType="false"
+		                    name="Size output"
+		                    outputNames="sizedummy"
+		                    outputs="${project}.size"
+		                    primaryOutput="true">
+		              </outputType>
            </tool>
-           
         </toolChain>
          </configuration>
       </projectType>
