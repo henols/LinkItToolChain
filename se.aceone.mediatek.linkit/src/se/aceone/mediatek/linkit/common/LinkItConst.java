@@ -1,8 +1,10 @@
-package se.aceone.mediatek.linkit.tools;
+package se.aceone.mediatek.linkit.common;
+
 
 public interface LinkItConst {
 
-	static final String LINK_IT_SDK20 = "LinkItSDK20".toUpperCase();
+	static final String LINK_IT_SDK = "LINK_IT_SDK";
+
 	static final String INCLUDE = "INICLUDE";
 	static final String LIBRARY = "LIBRARY";
 	static final String GCCLOCATION = "GCCLOCATION";
@@ -12,6 +14,7 @@ public interface LinkItConst {
 
 	static final String LINKIT10 = "LINKIT10";
 	static final String TOOL_PATH = "TOOLPATH";
+	static final String COMPILER_PATH = "COMPILERPATH";
 
 	static final String ARM_NONE_EABI_THUMB = "ARMNONEEABITHUMB";
 
@@ -20,11 +23,16 @@ public interface LinkItConst {
 	static final String HDK_MT2502A_DEV_BOARD = "__HDK_MT2502A_DEV_BOARD__";
 	static final String HDK_MT2502D_DEV_BOARD = "__HDK_MT2502D_DEV_BOARD__";
 
-	static final String[] DEV_BOARDS = { HDK_LINKIT_ONE_V1, HDK_MT2502A_DEV_BOARD, HDK_MT2502D_DEV_BOARD };
+	static final String[] DEV_BOARDS_1_0 = { HDK_LINKIT_ONE_V1, HDK_MT2502A_DEV_BOARD, HDK_MT2502D_DEV_BOARD };
+	static final String[] DEV_BOARDS_2_0 = { HDK_LINKIT_ONE_V1, HDK_MT2502A_DEV_BOARD, HDK_MT2502D_DEV_BOARD };
+
+	static final String LAST_USED_BOARD_SDK_1_0 = "last used board sdk 1.0";
+	static final String LAST_USED_BOARD_SDK_2_0 = "last used board sdk 2.0";
 
 	// General stuff
 	public static final String PluginStart = "se.aceone.mediatek.linkit.";
 	public static final String CORE_PLUGIN_ID = PluginStart + "core";
+	public static final String LINKIT_NODE = PluginStart + LINK_IT_SDK;
 
 	// build configurations
 	static final String LINKIT_CONFIGURATION = "se.aceone.mediatek.linkit.configuration";
@@ -38,4 +46,14 @@ public interface LinkItConst {
 	public static final String Scannernatureid = "org.eclipse.cdt.managedbuilder.core.ScannerConfigNature";
 	public static final String LinkItNatureID = PluginStart + "linkitnature";
 
+
+	// Porperties
+	
+	static final String DEVELOPER= "Developer";
+	static final String APP_NAME ="App name";
+	static final String APP_VERSION ="App version";
+	static final String APP_ID = "app id";
+	static final String  DEFAULT_LIB_LIST="Defaultliblist";
+
+	
 }

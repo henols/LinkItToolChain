@@ -1,84 +1,40 @@
 package se.aceone.mediatek.linkit.ui;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 
-import org.eclipse.cdt.core.model.CoreModel;
-import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
-import org.eclipse.cdt.core.settings.model.ICProjectDescription;
-import org.eclipse.cdt.core.settings.model.ICResourceDescription;
-import org.eclipse.core.filesystem.URIUtil;
-import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
-import se.aceone.mediatek.linkit.Activator;
-import se.aceone.mediatek.linkit.tools.Common;
-import se.aceone.mediatek.linkit.tools.LinkItConst;
-import se.aceone.mediatek.linkit.tools.LinkItHelpers;
+import se.aceone.mediatek.linkit.common.LinkItConst;
+import se.aceone.mediatek.linkit.tools.LinkItHelper;
 
-public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewWizard, IExecutableExtension {
+public abstract class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewWizard, IExecutableExtension {
 
-	private WizardNewProjectCreationPage mWizardPage; // first page of the
+	protected WizardNewProjectCreationPage mWizardPage; // first page of the
 														// dialog
 	private IConfigurationElement mConfig;
 	private IProject mProject;
 
-	public NewLinkitProjectWizard() {
-		super();
-	}
-
-	@Override
-	/**
-	 * adds pages to the wizard. We are using the standard project wizard of Eclipse
-	 */
-	public void addPages() {
-		//
-		// We assume everything is OK as it is tested in the handler
-		// create each page and fill in the title and description
-		// first page to fill in the project name
-		//
-		mWizardPage = new WizardNewProjectCreationPage("New LinkIt Tool Chain Project");
-		mWizardPage.setDescription("Create a new LinkIt Tool Chain Project.");
-		mWizardPage.setTitle("New LinkIt Tool Chain Project");
-		AbstractUIPlugin plugin = Activator.getDefault();
-		ImageRegistry imageRegistry = plugin.getImageRegistry();
-		Image myImage = imageRegistry.get(Activator.CPU_64PX);
-		ImageDescriptor image = ImageDescriptor.createFromImage(myImage);
-		mWizardPage.setImageDescriptor(image);
-		//
-		// /
-		addPage(mWizardPage);
-
-	}
+	protected LinkItHelper helper;
 
 	/**
 	 * this method is required by IWizard otherwise nothing will actually happen
@@ -173,86 +129,8 @@ public class NewLinkitProjectWizard extends Wizard implements LinkItConst, INewW
 	 * @param monitor
 	 * @throws OperationCanceledException
 	 */
-	void createProject(IProjectDescription description, IProject project, IProgressMonitor monitor) throws OperationCanceledException {
+	protected abstract void createProject(IProjectDescription description, IProject project, IProgressMonitor monitor) throws OperationCanceledException ;
 
-		monitor.beginTask("", 2000);
-		try {
-			if (!LinkItHelpers.checkEnvironment()) {
-				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, "Enviroment are not configuerd."));
-				throw new OperationCanceledException("Enviroment are not configuerd.");
-			}
-
-			IPathVariableManager manager = project.getWorkspace().getPathVariableManager();
-			if (manager.getURIValue(LINK_IT_SDK20) == null) {
-				manager.setURIValue(LINK_IT_SDK20, URIUtil.toURI(LinkItHelpers.getEnvironmentPath()));
-			}
-
-			project.create(description, new SubProgressMonitor(monitor, 1000));
-
-			if (monitor.isCanceled()) {
-				throw new OperationCanceledException();
-			}
-
-			project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1000));
-
-			// Creates the .cproject file with the configurations
-			LinkItHelpers.setCProjectDescription(project, true, monitor);
-
-			// Add the C C++ AVR and other needed Natures to the project
-			LinkItHelpers.addTheNatures(project);
-
-			// Set the environment variables
-			ICProjectDescription projectDescription = CoreModel.getDefault().getProjectDescription(project);
-
-			ICConfigurationDescription defaultConfigDescription = projectDescription.getConfigurationByName(LINKIT_CONFIGURATION_NAME);
-			projectDescription.setActiveConfiguration(defaultConfigDescription);
-
-			ICResourceDescription resourceDescription = defaultConfigDescription.getResourceDescription(new Path(""), true);
-
-			try {
-				LinkItHelpers.setEnvironmentVariables(resourceDescription);
-			} catch (IOException e) {
-				String message = "Failed to set environmet variables " + project.getName();
-				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, message, e));
-				throw new OperationCanceledException(message);
-			}
-
-			LinkItHelpers.buildPathVariables(project, resourceDescription);
-
-			IPathVariableManager pathMan = project.getPathVariableManager();
-			URI uri = pathMan.resolveURI(pathMan.getURIValue(LINKIT10));
-			LinkItHelpers.createNewFolder(project, "LinkIt", URIUtil.toURI(new Path(uri.getPath()).append("src")));
-
-			LinkItHelpers.createNewFolder(project, "src", null);
-
-			LinkItHelpers.createNewFolder(project, "res", null);
-			LinkItHelpers.createNewFolder(project, "ResID", null);
-
-			LinkItHelpers.setIncludePaths(projectDescription, resourceDescription);
-
-			LinkItHelpers.setMacros(projectDescription);
-
-			LinkItHelpers.setSourcePaths(projectDescription);
-
-			LinkItHelpers.copyProjectResources(projectDescription, monitor);
-
-			projectDescription.setActiveConfiguration(defaultConfigDescription);
-			projectDescription.setCdtProjectCreated();
-			CoreModel.getDefault().getProjectDescriptionManager().setProjectDescription(project, projectDescription, true, null);
-
-			monitor.done();
-
-		} catch (Exception e) {
-			String message = "Failed to create project " + project.getName();
-			Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, message, e));
-			throw new OperationCanceledException(message);
-		}
-
-	}
-
-	@Override
-	public void init(IWorkbench workbench, IStructuredSelection selection) {
-	}
 
 	@Override
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) throws CoreException {

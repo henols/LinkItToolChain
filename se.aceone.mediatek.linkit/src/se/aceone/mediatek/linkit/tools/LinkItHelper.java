@@ -48,12 +48,10 @@ import org.eclipse.cdt.core.settings.model.extension.CConfigurationData;
 import org.eclipse.cdt.managedbuilder.core.IBuilder;
 import org.eclipse.cdt.managedbuilder.core.IConfiguration;
 import org.eclipse.cdt.managedbuilder.core.IManagedBuildInfo;
-import org.eclipse.cdt.managedbuilder.core.IProjectType;
 import org.eclipse.cdt.managedbuilder.core.IToolChain;
 import org.eclipse.cdt.managedbuilder.core.ManagedBuildManager;
 import org.eclipse.cdt.managedbuilder.internal.core.Configuration;
 import org.eclipse.cdt.managedbuilder.internal.core.ManagedProject;
-import org.eclipse.cdt.managedbuilder.internal.core.ProjectType;
 import org.eclipse.cdt.managedbuilder.internal.core.ToolChain;
 import org.eclipse.cdt.managedbuilder.language.settings.providers.AbstractBuiltinSpecsDetector;
 import org.eclipse.core.filesystem.URIUtil;
@@ -77,26 +75,44 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 
+import se.aceone.mediatek.linkit.common.LinkItConst;
+import se.aceone.mediatek.linkit.common.LinkItPreferences;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.APIAuth;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Namelist;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Output;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Userinfo;
 
-public class LinkItHelpers extends Common {
+public abstract class LinkItHelper extends Common {
 
-	public static boolean checkEnvironment() {
-		return getEnvironmentPath() != null;
+	private IProject project;
+	private String gccLocation;
+
+	public LinkItHelper(IProject project) {
+		this.project = project;
 	}
 
-	public static String getEnvironmentPath() {
-		String linkitEnv = System.getenv().get("LinkItSDK20");
-		if (linkitEnv == null) {
-			linkitEnv = System.getenv().get(LINK_IT_SDK20);
+	public abstract String getEnvironmentPath();
+
+	public boolean checkEnvironment() {
+		String envPath = getEnvironmentPath();
+		if (envPath == null) {
+			return false;
 		}
-		return linkitEnv;
+
+		return checkSysIni(envPath);
 	}
 
+	public abstract String getCompilerPath();
+
+	public static boolean checkSysIni(String envPath) {
+		IPath linkitEnv = new Path(envPath).append("tools");
+		File sysini = new File(linkitEnv.toOSString(), "sys.ini");
+		return sysini.isFile();
+	}
+
+	
+	
 	/**
 	 * Removes include folders that are not valid. This method does not save the
 	 * configurationDescription description
@@ -106,7 +122,7 @@ public class LinkItHelpers extends Common {
 	 * @return true is a include path has been removed. False if the include
 	 *         path remains unchanged.
 	 */
-	public static boolean removeInvalidIncludeFolders(ICConfigurationDescription configurationDescription) {
+	public boolean removeInvalidIncludeFolders(ICConfigurationDescription configurationDescription) {
 		// find all languages
 		ICFolderDescription folderDescription = configurationDescription.getRootFolderDescription();
 		ICLanguageSetting[] languageSettings = folderDescription.getLanguageSettings();
@@ -156,7 +172,7 @@ public class LinkItHelpers extends Common {
 	 * @param source
 	 *            the fully qualified name of the folder to link to
 	 */
-	public static void linkFolderToFolder(IProject project, IPath source, IPath target) {
+	public void linkFolderToFolder(IProject project, IPath source, IPath target) {
 
 		// create target parent folder and grandparents
 		IPath ParentFolders = new Path(target.toString()).removeLastSegments(1);
@@ -176,7 +192,7 @@ public class LinkItHelpers extends Common {
 		}
 	}
 
-	public static void addTheNatures(IProject project) throws CoreException {
+	public void addTheNatures(IProject project) throws CoreException {
 		IProjectDescription description = project.getDescription();
 
 		String[] newnatures = new String[4];
@@ -202,7 +218,7 @@ public class LinkItHelpers extends Common {
 	 *            A monitor to show progress
 	 * @throws CoreException
 	 */
-	public static void addResourceToProject(IContainer container, IPath path, InputStream contentStream, IProgressMonitor monitor) throws CoreException {
+	public void addResourceToProject(IContainer container, IPath path, InputStream contentStream, IProgressMonitor monitor) throws CoreException {
 		final IFile file = container.getFile(path);
 		if (file.exists()) {
 			file.setContents(contentStream, true, true, monitor);
@@ -212,7 +228,7 @@ public class LinkItHelpers extends Common {
 
 	}
 
-	public static MessageConsole findConsole(String name) {
+	public MessageConsole findConsole(String name) {
 		ConsolePlugin plugin = ConsolePlugin.getDefault();
 		IConsoleManager conMan = plugin.getConsoleManager();
 		IConsole[] existing = conMan.getConsoles();
@@ -239,7 +255,7 @@ public class LinkItHelpers extends Common {
 	 * @return nothing
 	 * @throws CoreException
 	 */
-	public static void createNewFolder(IProject project, String newFolderName, URI linklocation) throws CoreException {
+	public void createNewFolder(IProject project, String newFolderName, URI linklocation) throws CoreException {
 		// IPath newFolderPath = Project.getFullPath().append(newFolderName);
 		final IFolder newFolderHandle = project.getFolder(newFolderName);
 		if (linklocation != null) {
@@ -250,7 +266,7 @@ public class LinkItHelpers extends Common {
 
 	}
 
-	public static void setDirtyFlag(IProject project, ICConfigurationDescription cfgDescription) {
+	public void setDirtyFlag(IProject project, ICConfigurationDescription cfgDescription) {
 		IManagedBuildInfo buildInfo = ManagedBuildManager.getBuildInfo(project);
 		if (buildInfo == null) {
 			return; // Project is not a managed build project
@@ -281,7 +297,7 @@ public class LinkItHelpers extends Common {
 		}
 	}
 
-	private static String makeEnvVar(String string) {
+	private String makeEnvVar(String string) {
 		return "${" + string + "}";
 	}
 
@@ -293,7 +309,7 @@ public class LinkItHelpers extends Common {
 	 * @param target
 	 *            the location where the links are to be created
 	 */
-	public static void linkDirectory(IProject project, IPath source, IPath target) {
+	public void linkDirectory(IProject project, IPath source, IPath target) {
 
 		File[] a = source.toFile().listFiles();
 		if (a == null) {
@@ -315,8 +331,7 @@ public class LinkItHelpers extends Common {
 		}
 	}
 
-	public static void setCProjectDescription(IProject project, String toolChainId, String name, boolean isManagedBuild, IProgressMonitor monitor)
-			throws CoreException {
+	public ICProjectDescription setCProjectDescription(IProject project, boolean isManagedBuild, IProgressMonitor monitor) throws CoreException {
 
 		ICProjectDescriptionManager mngr = CoreModel.getDefault().getProjectDescriptionManager();
 		ICProjectDescription des = mngr.createProjectDescription(project, false, false);
@@ -326,17 +341,14 @@ public class LinkItHelpers extends Common {
 		info.setManagedProject(mProj);
 		monitor.worked(20);
 
-		// Iterate across the configurations
-		IToolChain toolChain = ManagedBuildManager.getExtensionToolChain(toolChainId);
-		String toolChainChildId = ManagedBuildManager.calculateChildId(toolChainId, null);
-		IConfiguration configuration = ManagedBuildManager.getExtensionConfiguration("se.aceone.mediatek.linkit.configuration");
-		String confChildId = ManagedBuildManager.calculateChildId(configuration.getId(), null);
-//		IProjectType projectType = ManagedBuildManager.getExtensionProjectType("se.aceone.mediatek.linkit.projectType");
-		IConfiguration cfg = new Configuration(mProj, (ToolChain) toolChain, toolChainChildId, name);
+		IToolChain toolChain = ManagedBuildManager.getExtensionToolChain(LINKIT_DEFAULT_TOOL_CHAIN);
+		String toolChainChildId = ManagedBuildManager.calculateChildId(LINKIT_DEFAULT_TOOL_CHAIN, null);
+
+		IConfiguration configuration = ManagedBuildManager.getExtensionConfiguration(LINKIT_CONFIGURATION);
+
+		IConfiguration cfg = new Configuration(mProj, (ToolChain) toolChain, toolChainChildId, LINKIT_CONFIGURATION_NAME);
 		cfg.setCleanCommand(configuration.getCleanCommand());
-		// IConfiguration cfg = new Configuration((ProjectType)projectType,
-		// configuration, confChildId, name);
-		cfg.createToolChain(toolChain, toolChainChildId, toolChain.getName(), false);
+
 		IBuilder bld = cfg.getEditableBuilder();
 		if (bld != null) {
 			bld.setManagedBuildOn(isManagedBuild);
@@ -347,14 +359,14 @@ public class LinkItHelpers extends Common {
 		CConfigurationData data = cfg.getConfigurationData();
 		ICConfigurationDescription cfgDes = des.createConfiguration(ManagedBuildManager.CFG_DATA_PROVIDER_ID, data);
 
-		setDefaultLanguageSettingsProviders(project, toolChainId, cfg, cfgDes);
+		setDefaultLanguageSettingsProviders(project, LINKIT_DEFAULT_TOOL_CHAIN, cfg, cfgDes);
 
 		monitor.worked(50);
 		mngr.setProjectDescription(project, des);
-
+		return des;
 	}
 
-	private static void setDefaultLanguageSettingsProviders(IProject project, String toolChainId, IConfiguration cfg, ICConfigurationDescription cfgDescription) {
+	private void setDefaultLanguageSettingsProviders(IProject project, String toolChainId, IConfiguration cfg, ICConfigurationDescription cfgDescription) {
 		// propagate the preference to project properties
 		boolean isPreferenceEnabled = ScannerDiscoveryLegacySupport.isLanguageSettingsProvidersFunctionalityEnabled(null);
 		ScannerDiscoveryLegacySupport.setLanguageSettingsProvidersFunctionalityEnabled(project, isPreferenceEnabled);
@@ -369,7 +381,7 @@ public class LinkItHelpers extends Common {
 		}
 	}
 
-	private static List<ILanguageSettingsProvider> getDefaultLanguageSettingsProviders(IConfiguration cfg, ICConfigurationDescription cfgDescription) {
+	private List<ILanguageSettingsProvider> getDefaultLanguageSettingsProviders(IConfiguration cfg, ICConfigurationDescription cfgDescription) {
 		List<ILanguageSettingsProvider> providers = new ArrayList<ILanguageSettingsProvider>();
 		String[] ids = cfg != null ? cfg.getDefaultLanguageSettingsProviderIds() : null;
 
@@ -394,21 +406,21 @@ public class LinkItHelpers extends Common {
 		return providers;
 	}
 
-	public static void setMacros(ICProjectDescription projectDescription) {
+	public void setMacros(ICProjectDescription projectDescription, String devBoard) {
 		addMacro(projectDescription, "__GNUC__", null, ICSettingEntry.BUILTIN);
-		addMacro(projectDescription, HDK_LINKIT_ONE_V1, null);
+		addMacro(projectDescription, devBoard, null);
 	}
 
-	public static void addMacro(ICProjectDescription projectDescription, String macro, String value) {
+	public void addMacro(ICProjectDescription projectDescription, String macro, String value) {
 		addMacro(projectDescription, macro, value, ICSettingEntry.NONE);
 	}
 
-	public static void addMacro(ICProjectDescription projectDescription, String macro, String value, int flags) {
+	public void addMacro(ICProjectDescription projectDescription, String macro, String value, int flags) {
 		ICConfigurationDescription configurationDescription = projectDescription.getDefaultSettingConfiguration();
 		addMacro(configurationDescription, macro, value, flags);
 	}
 
-	public static void addMacro(ICConfigurationDescription configurationDescription, String macro, String value, int flags) {
+	public void addMacro(ICConfigurationDescription configurationDescription, String macro, String value, int flags) {
 		// find all languages
 		for (ICFolderDescription folderDescription : configurationDescription.getFolderDescriptions()) {
 			ICLanguageSetting[] settings = folderDescription.getLanguageSettings();
@@ -426,20 +438,19 @@ public class LinkItHelpers extends Common {
 		}
 	}
 
-	public static void setEnvironmentVariables(ICResourceDescription resourceDescription) throws FileNotFoundException, IOException {
+	public void setEnvironmentVariables(ICResourceDescription resourceDescription, String devBoard) throws FileNotFoundException, IOException {
 		IEnvironmentVariableManager envManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		IContributedEnvironment contribEnv = envManager.getContributedEnvironment();
 		ICConfigurationDescription configuration = resourceDescription.getConfiguration();
 
-		contribEnv.addVariable(new EnvironmentVariable(DEV_BOARD, HDK_LINKIT_ONE_V1), configuration);
+		contribEnv.addVariable(new EnvironmentVariable(DEV_BOARD, devBoard), configuration);
 		contribEnv.addVariable(new EnvironmentVariable(SIZETOOL, ARM_NONE_EABI_SIZE), configuration);
 
 		Path linkitEnv = new Path(getEnvironmentPath());
-		System.out.println(LINK_IT_SDK20 + "=" + linkitEnv);
-		contribEnv.addVariable(new EnvironmentVariable(LINK_IT_SDK20, linkitEnv.toPortableString()), configuration);
+		System.out.println(LINK_IT_SDK + "=" + linkitEnv);
+		contribEnv.addVariable(new EnvironmentVariable(LINK_IT_SDK, linkitEnv.toPortableString()), configuration);
 		IPath toolPath = linkitEnv.append("tools");
 		contribEnv.addVariable(new EnvironmentVariable(TOOL_PATH, toolPath.toPortableString()), configuration);
-
 		File sysini = new File(toolPath.toOSString(), "sys.ini");
 		LineNumberReader numberReader = new LineNumberReader(new FileReader(sysini));
 		String line;
@@ -448,28 +459,34 @@ public class LinkItHelpers extends Common {
 				int i = line.indexOf("=");
 				if (i > 0) {
 					String key = line.substring(0, i).trim().toUpperCase();
-					String value = line.substring(i + 1).trim();
-					if (value.startsWith("\"") && value.endsWith("\"")) {
-						value = value.substring(1, value.length() - 1).trim();
+					if (!key.startsWith("RVCT") && !key.startsWith("ADS") && !key.startsWith("VTP")) {
+						String value = line.substring(i + 1).trim();
+						if (value.startsWith("\"") && value.endsWith("\"")) {
+							value = value.substring(1, value.length() - 1).trim();
+						}
+						value = value.replace('\\', '/');
+						System.out.println(key + "=" + value);
+						if(key.equals(GCCLOCATION)){
+							gccLocation = value;
+						}
+						contribEnv.addVariable(new EnvironmentVariable(key, value), configuration);
 					}
-					value = value.replace('\\', '/');
-					System.out.println(key + "=" + value);
-					contribEnv.addVariable(new EnvironmentVariable(key, value), configuration);
 				}
 			}
 		}
 		numberReader.close();
+		contribEnv.addVariable(new EnvironmentVariable(COMPILER_PATH, new Path(getCompilerPath()).toPortableString()), configuration);
 	}
 
-	public static void buildPathVariables(IProject project, ICResourceDescription resourceDescription) throws CoreException {
+	public void buildPathVariables(IProject project, ICResourceDescription resourceDescription) throws CoreException {
 		IPathVariableManager pathMan = project.getPathVariableManager();
 		IEnvironmentVariableManager envManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		IContributedEnvironment contribEnv = envManager.getContributedEnvironment();
 
 		ICConfigurationDescription configuration = resourceDescription.getConfiguration();
 		String lib = getBuildEnvironmentVariable(configuration, LIBRARY, null);
-		String roolPath = getBuildEnvironmentVariable(configuration, TOOL_PATH, null);
-		IPath libLink10 = new Path(roolPath).append(lib).append(LINKIT10);
+		String toolPath = getBuildEnvironmentVariable(configuration, TOOL_PATH, null);
+		IPath libLink10 = new Path(toolPath).append(lib).append(LINKIT10);
 		URI uri = URIUtil.toURI(libLink10.toPortableString());
 		pathMan.setURIValue(LINKIT10, uri);
 
@@ -477,7 +494,7 @@ public class LinkItHelpers extends Common {
 
 	}
 
-	public static void addSourceFolder(ICConfigurationDescription configurationDescription, IPath includePath) throws WriteAccessException, CoreException {
+	public void addSourceFolder(ICConfigurationDescription configurationDescription, IPath includePath) throws WriteAccessException, CoreException {
 		// find all languages
 		ICConfigurationDescription configuration = configurationDescription.getConfiguration();
 		List<ICSourceEntry> srcFolders = new ArrayList<ICSourceEntry>();
@@ -499,7 +516,7 @@ public class LinkItHelpers extends Common {
 	 * @see addLibraryDependency
 	 *      {@link #addLibraryDependency(IProject, IProject)}
 	 */
-	public static void addIncludeFolder(ICProjectDescription projectDescription, IPath includePath) {
+	public void addIncludeFolder(ICProjectDescription projectDescription, IPath includePath) {
 		ICConfigurationDescription configurationDescription = projectDescription.getDefaultSettingConfiguration();
 		addIncludeFolder(configurationDescription, includePath);
 
@@ -516,7 +533,7 @@ public class LinkItHelpers extends Common {
 	 * @see addLibraryDependency
 	 *      {@link #addLibraryDependency(IProject, IProject)}
 	 */
-	public static void addIncludeFolder(ICConfigurationDescription configurationDescription, IPath includePath) {
+	public void addIncludeFolder(ICConfigurationDescription configurationDescription, IPath includePath) {
 		// find all languages
 		ICFolderDescription folderDescription = configurationDescription.getRootFolderDescription();
 		ICLanguageSetting[] settings = folderDescription.getLanguageSettings();
@@ -527,13 +544,13 @@ public class LinkItHelpers extends Common {
 			if (langId != null && langId.startsWith("org.eclipse.cdt.")) { //$NON-NLS-1$
 				List<ICLanguageSettingEntry> includes = new ArrayList<ICLanguageSettingEntry>();
 				includes.addAll(setting.getSettingEntriesList(ICSettingEntry.INCLUDE_PATH));
-				includes.add(new CIncludePathEntry(includePath, ICSettingEntry.LOCAL));
+				includes.add(new CIncludePathEntry(includePath, ICSettingEntry.READONLY));
 				setting.setSettingEntries(ICSettingEntry.INCLUDE_PATH, includes);
 			}
 		}
 	}
 
-	public static void setIncludePaths(ICProjectDescription projectDescriptor, ICResourceDescription resourceDescription) {
+	public void setIncludePaths(ICProjectDescription projectDescriptor, ICResourceDescription resourceDescription) {
 		IEnvironmentVariableManager envManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
 		IContributedEnvironment contribEnv = envManager.getContributedEnvironment();
 		ICConfigurationDescription configuration = resourceDescription.getConfiguration();
@@ -545,7 +562,7 @@ public class LinkItHelpers extends Common {
 		IPath toolPath = new Path(getBuildEnvironmentVariable(configurationDescription, TOOL_PATH, null));
 		IPath envInclude = toolPath.append(getBuildEnvironmentVariable(configurationDescription, INCLUDE, null));
 		addIncludeFolder(projectDescriptor, envInclude);
-		IPath env = new Path(getBuildEnvironmentVariable(configurationDescription, LINK_IT_SDK20, null));
+		IPath env = new Path(getBuildEnvironmentVariable(configurationDescription, LINK_IT_SDK, null));
 		IPath gccLocation = env.append(getBuildEnvironmentVariable(configurationDescription, GCCLOCATION, null));
 		IPath armIncl = gccLocation.append("arm-none-eabi/include");
 		addIncludeFolder(projectDescriptor, armIncl);
@@ -562,16 +579,17 @@ public class LinkItHelpers extends Common {
 		addIncludeFolder(projectDescriptor, libGcc.append("include-fixed"));
 	}
 
-	public static void setSourcePaths(ICProjectDescription projectDescriptor) throws WriteAccessException, CoreException {
+	public void setSourcePaths(ICProjectDescription projectDescriptor) throws WriteAccessException, CoreException {
 		IProject project = projectDescriptor.getProject();
 		ICConfigurationDescription configurationDescription = projectDescriptor.getDefaultSettingConfiguration();
 		ICConfigurationDescription configuration = configurationDescription.getConfiguration();
 
 		addSourceFolder(configuration, project.getFolder("src").getFullPath());
 		addSourceFolder(configuration, project.getFolder("LinkIt").getFullPath());
+
 	}
 
-	public static void copyProjectResources(ICProjectDescription projectDescriptor, IProgressMonitor monitor) throws CoreException, IOException, JAXBException {
+	public void copyProjectResources(ICProjectDescription projectDescriptor, IProgressMonitor monitor) throws CoreException, IOException, JAXBException {
 		ICConfigurationDescription configurationDescription = projectDescriptor.getDefaultSettingConfiguration();
 		IPath toolPath = new Path(getBuildEnvironmentVariable(configurationDescription, TOOL_PATH, null));
 		IProject project = projectDescriptor.getProject();
@@ -580,37 +598,33 @@ public class LinkItHelpers extends Common {
 		replacements.put("LINKIT20TEMPLATE", project.getName());
 		replacements.put("WIZARDTEMPLATE", project.getName().toUpperCase() + "_H");
 
-		IPath wiz = toolPath.append("Wizard/LINKIT20WIZARD");
-		IPath srcPath = wiz.append("LINKIT20BASIC/LINKIT20TEMPLATE.proj");
+		IPath wiz = toolPath.append("Wizard").append("LINKIT20WIZARD");
+		IPath srcPath = wiz.append("LINKIT20BASIC").append("LINKIT20TEMPLATE.proj");
 		IPath outPath = new Path(project.getName() + ".proj");
 		addResourceToProject(monitor, project, srcPath, outPath);
 
 		String projectType = "LINKITEMPTY";
-		IPath projType = wiz.append("LINKITVXP/" + projectType);
+		IPath projType = wiz.append("LINKITVXP").append(projectType);
 
-		srcPath = projType.append("LINKIT20TEMPLATE.c");
 		outPath = new Path("src/" + project.getName() + ".c");
-		addResourceToProject(monitor, project, srcPath, outPath, replacements);
+		addResourceToProject(monitor, project, projType.append("LINKIT20TEMPLATE.c"), outPath, replacements);
 
-		srcPath = projType.append("LINKIT20TEMPLATE.h");
 		outPath = new Path("src/" + project.getName() + ".h");
-		addResourceToProject(monitor, project, srcPath, outPath, replacements);
-
-		// TODO Read jaxb
-		srcPath = projType.append("config.xml");
+		addResourceToProject(monitor, project, projType.append("LINKIT20TEMPLATE.h"), outPath, replacements);
 
 		JAXBContext jaxbContext = JAXBContext.newInstance(Packageinfo.class);
 
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-		Packageinfo packageinfo = (Packageinfo) jaxbUnmarshaller.unmarshal(new File(srcPath.toOSString()));
+		Packageinfo packageinfo = (Packageinfo) jaxbUnmarshaller.unmarshal(new File(projType.append("config.xml").toOSString()));
 		Userinfo userinfo = packageinfo.getUserinfo();
-		userinfo.setDeveloper("aceOne IoT");
-		userinfo.setAppname("First app");
-		;
-		userinfo.setAppversion("2.0.0");
+		userinfo.setDeveloper(LinkItPreferences.getDeveloper());
+		userinfo.setAppname(LinkItPreferences.getAppName());
+		userinfo.setAppversion(LinkItPreferences.getAppVersion());
 
+		BigInteger appid = BigInteger.valueOf(LinkItPreferences.getAppId());
+		userinfo.setAppid(appid);
 		APIAuth apiAuth = packageinfo.getAPIAuth();
-		apiAuth.setDefaultliblist("Mediatek; Standard; Memory; Framework; Comman");
+		apiAuth.setDefaultliblist(LinkItPreferences.getDefaultLibraryList());
 
 		Namelist namelist = packageinfo.getNamelist();
 		namelist.setEnglish(project.getName());
@@ -648,7 +662,7 @@ public class LinkItHelpers extends Common {
 
 	}
 
-	private static void addResourceToProject(IProgressMonitor monitor, IProject project, IPath srcPath, IPath outPath, Map<String, String> replace)
+	protected void addResourceToProject(IProgressMonitor monitor, IProject project, IPath srcPath, IPath outPath, Map<String, String> replace)
 			throws CoreException, IOException {
 		InputStream contentStream;
 		if (replace != null) {
@@ -674,8 +688,16 @@ public class LinkItHelpers extends Common {
 		addResourceToProject(project, outPath, contentStream, monitor);
 	}
 
-	private static void addResourceToProject(IProgressMonitor monitor, IProject project, IPath srcPath, IPath outPath) throws CoreException, IOException {
+	protected void addResourceToProject(IProgressMonitor monitor, IProject project, IPath srcPath, IPath outPath) throws CoreException, IOException {
 		addResourceToProject(monitor, project, srcPath, outPath, null);
 	}
 
+
+	protected IProject getProject() {
+		return project;
+	}
+
+	public String getGccLocation() {
+		return gccLocation;
+	}
 }

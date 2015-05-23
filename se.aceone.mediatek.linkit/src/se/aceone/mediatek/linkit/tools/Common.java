@@ -34,6 +34,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import se.aceone.mediatek.linkit.Activator;
+import se.aceone.mediatek.linkit.common.LinkItConst;
 
 public class Common implements LinkItConst {
 
@@ -379,9 +380,9 @@ public class Common implements LinkItConst {
 	 *            The return value if the variable is not found.
 	 * @return The expanded build environment variable
 	 */
-	static public String getBuildEnvironmentVariable(IProject project, String configName, String envName, String defaultvalue) {
+	static public String getBuildEnvironmentVariable(IProject project, String envName, String defaultvalue) {
 		ICProjectDescription prjDesc = CoreModel.getDefault().getProjectDescription(project);
-		return getBuildEnvironmentVariable(prjDesc.getConfigurationByName(configName), envName, defaultvalue);
+		return getBuildEnvironmentVariable(prjDesc.getConfigurationByName(LINKIT_CONFIGURATION_NAME), envName, defaultvalue);
 	}
 
 	/**

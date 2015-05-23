@@ -9,16 +9,29 @@
 		<wizard
         canFinishEarly="false"
         category="se.aceone.mediatek.linkit.newWizards"
-        class="se.aceone.mediatek.linkit.ui.NewLinkitProjectWizard"
+        class="se.aceone.mediatek.linkit.ui.NewLinkit10ProjectWizard"
         finalPerspective="org.eclipse.cdt.ui.CPerspective"
         icon="icons/16px-Nuvola_devices_ksim_cpu.png"
-        id="se.aceone.mediatek.linkit.NewLinkitProjectWizard"
-        name="New LinkIt Project"
+        id="se.aceone.mediatek.linkit.NewLinkit10ProjectWizard"
+        name="New LinkIt 1.0 Project"
         project="true">
          <description>
             %wizard.description
          </description>	        
 		</wizard>
+  <wizard
+        canFinishEarly="false"
+        category="se.aceone.mediatek.linkit.newWizards"
+        class="se.aceone.mediatek.linkit.ui.NewLinkit20ProjectWizard"
+        finalPerspective="org.eclipse.cdt.ui.CPerspective"
+        icon="icons/16px-Nuvola_devices_ksim_cpu.png"
+        id="se.aceone.mediatek.linkit.NewLinkit20ProjectWizard"
+        name="New LinkIt 2.0 Project"
+        project="true">
+     <description>
+        %wizard.description
+     </description>
+  </wizard>
 	</extension>
    <extension
          id="se.aceone.mediatek.linkit.buildDefinitions"
@@ -86,7 +99,7 @@
            </optionCategory>
            <tool
                  announcement="Starting C++ compile"
-                 command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCCPPCOMPILER}"
+                 command="${COMPILERPATH}/bin/${GCCCPPCOMPILER}"
                  commandLinePattern="${COMMAND} ${GCCTCCCOMPILER} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
                  errorParsers="org.eclipse.cdt.core.GCCErrorParser"
                  id="se.aceone.mediatek.linkit.compiler.cpp"
@@ -147,7 +160,7 @@
     -->       </tool>
            <tool
                  announcement="Starting C compile"
-                 command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCCCOMPILER}"
+                 command="${COMPILERPATH}/bin/${GCCCCOMPILER}"
                  commandLinePattern="${COMMAND} ${GCCCOMPILER} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
                  errorParsers="org.eclipse.cdt.core.GCCErrorParser"
                  id="se.aceone.mediatek.linkit.compiler.c"
@@ -270,9 +283,11 @@
               </inputType>
            </tool>
            -->
-           <tool announcement="Starting Linker"
-                 command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCLINK}"
-                 commandLinePattern="${COMMAND} ${GCCLINKER} -B ${ARMNONEEABITHUMB} -T ${LINKIT10}/${GCCTCCLIB}/scat.ld -o ${OUTPUT} ${INPUTS} ${LINKIT10}/${GCCLIB}/${COMMONLIB}"
+           <tool
+                 announcement="Starting Linker"
+                 command="${COMPILERPATH}/bin/${GCCLINK}"
+                 commandLineGenerator="se.aceone.mediatek.linkit.toolchain.LinkerCommadLineGenerator"
+                 commandLinePattern="${COMMAND} ${GCCLINKER} -B ${ARMNONEEABITHUMB} -T &quot;${LINKIT10}/${GCCTCCLIB}/scat.ld&quot; -o ${OUTPUT} ${INPUTS} &quot;${LINKIT10}/${GCCLIB}/${COMMONLIB}&quot; "
                  errorParsers="org.eclipse.cdt.core.GLDErrorParser"
                  id="se.aceone.mediatek.linkit.tool.linker"
                  name="Linker"
@@ -316,7 +331,7 @@
            </tool>
            <tool
                  announcement="Generating AXF data file"
-                 command="${LINKITSDK20}${GCCLOCATION}/bin/${OBJCOPY}"
+                 command="${COMPILERPATH}/bin/${OBJCOPY}"
                  commandLinePattern="${COMMAND} -g -R .comment  ${INPUTS}  ${OUTPUT} "
                  id="se.aceone.mediatek.linkit.tool.objcopy.dbgdata"
                  isAbstract="false"
@@ -343,7 +358,7 @@
               </outputType>
            </tool>
            <tool announcement="Creating debug data only"
-                 command="${LINKITSDK20}${GCCLOCATION}/bin/${OBJCOPY}"
+                 command="${COMPILERPATH}/bin/${OBJCOPY}"
                  commandLinePattern="${COMMAND} --only-keep-debug ${INPUTS}  ${OUTPUT} "
                  id="se.aceone.mediatek.linkit.tool.objcopy.dbg"
                  isAbstract="false"
@@ -399,7 +414,7 @@
            </tool>
     -->       
                 <tool announcement="Size command"
-                      command="${LINKITSDK20}${GCCLOCATION}/bin/${SIZETOOL}"
+                      command="${COMPILERPATH}/bin/${SIZETOOL}"
                       commandLinePattern="${COMMAND} -A ${INPUTS}"
                       id="se.aceone.mediatek.linkit.tool.size"
                       name="Size">
@@ -439,7 +454,35 @@
           associatedExtensionId="org.eclipse.cdt.ui.navigator.content"
           menuGroupId="org.eclipse.cdt.ui.newProject"
           type="new"
-          wizardId="se.aceone.mediatek.linkit.NewLinkitProjectWizard">
+          wizardId="se.aceone.mediatek.linkit.NewLinkit10ProjectWizard">
+       <enablement>
+          <or>
+             <with
+                   variable="activeWorkbenchWindow.activePerspective">
+                <equals
+                      value="org.eclipse.cdt.ui.CPerspective">
+                </equals>
+             </with>
+             <instanceof
+                   value="org.eclipse.cdt.core.model.ICElement">
+             </instanceof>
+             <and>
+                <instanceof
+                      value="org.eclipse.core.resources.IProject">
+                </instanceof>
+                <test
+                      property="org.eclipse.core.resources.projectNature"
+                      value="org.eclipse.cdt.core.cnature">
+                </test>
+             </and>
+          </or>
+       </enablement>
+    </commonWizard>
+    <commonWizard
+          associatedExtensionId="org.eclipse.cdt.ui.navigator.content"
+          menuGroupId="org.eclipse.cdt.ui.newProject"
+          type="new"
+          wizardId="se.aceone.mediatek.linkit.NewLinkit20ProjectWizard">
        <enablement>
           <or>
              <with
@@ -465,4 +508,102 @@
     </commonWizard>
 
   </extension>
+  	<extension point="org.eclipse.ui.preferencePages">
+		<page name="LinkIt"
+			class="se.aceone.mediatek.linkit.ui.LinkItPreferencePage"
+			id="se.aceone.mediatek.linkit.ui.LinkItPreferencePage">
+		</page>
+  <page
+        category="se.aceone.mediatek.linkit.ui.LinkItPreferencePage"
+        class="se.aceone.mediatek.linkit.ui.LinkItPreferencePage"
+        id="se.aceone.mediatek.linkit.ui.Sdk20PreferencePage"
+        name="SDK 2.0 (Assist)">
+  </page>
+  <page
+        category="se.aceone.mediatek.linkit.ui.LinkItPreferencePage"
+        class="se.aceone.mediatek.linkit.ui.LinkItPreferencePage"
+        id="se.aceone.mediatek.linkit.ui.Sdk10PreferencePage"
+        name="SDK 1.0">
+  </page>
+	</extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="se.aceone.mediatek.linkit.commands.category"
+            name="MediaTek">
+      </category>
+      <command
+            categoryId="se.aceone.mediatek.linkit.commands.category"
+            id="se.aceone.mediatek.linkit.commands.pack"
+            name="Pack Command">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               id="se.aceone.mediatek.linkit.menus.pack"
+               label="MediaTek"
+               mnemonic="M">
+            <command
+                  commandId="se.aceone.mediatek.linkit.commands.pack"
+                  id="se.aceone.mediatek.linkit.menus.pack"
+                  mnemonic="P">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="se.aceone.mediatek.linkit.toolbars.pack">
+            <command
+                  commandId="se.aceone.mediatek.linkit.commands.pack"
+                  icon="icons/App-package-icon16px.png"
+                  id="se.aceone.mediatek.linkit.toolbars.pack"
+                  tooltip="LinkIt vpx packer">
+               <visibleWhen
+                     checkEnabled="true">
+                               <or>
+             <with
+                   variable="activeWorkbenchWindow.activePerspective">
+                <equals
+                      value="org.eclipse.cdt.ui.CPerspective">
+                </equals>
+             </with>
+             <instanceof
+                   value="org.eclipse.cdt.core.model.ICElement">
+             </instanceof>
+             <and>
+                <instanceof
+                      value="org.eclipse.core.resources.IProject">
+                </instanceof>
+                <test
+                      property="org.eclipse.core.resources.projectNature"
+                      value="org.eclipse.cdt.core.cnature">
+                </test>
+             </and>
+          </or>
+                     
+               </visibleWhen>
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="se.aceone.mediatek.linkit.commands.pack"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1 + P">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="se.aceone.mediatek.linkit.handlers.LinkItProjectPackHandler"
+            commandId="se.aceone.mediatek.linkit.commands.pack">
+      </handler>
+   </extension>   
 </plugin>
