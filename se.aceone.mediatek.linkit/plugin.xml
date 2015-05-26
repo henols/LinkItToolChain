@@ -99,8 +99,8 @@
            </optionCategory>
            <tool
                  announcement="Starting C++ compile"
-                 command="${COMPILERPATH}/bin/${GCCCPPCOMPILER}"
-                 commandLinePattern="${COMMAND} ${GCCTCCCOMPILER} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
+                 command="${COMPILERPATH}/${COMPILERTOOLPATH}/${GCCCPPCOMPILER}"
+                 commandLinePattern="&quot;${COMMAND}&quot; ${GCCTCCCOMPILER} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
                  errorParsers="org.eclipse.cdt.core.GCCErrorParser"
                  id="se.aceone.mediatek.linkit.compiler.cpp"
                  name="C++ Compiler"
@@ -160,8 +160,8 @@
     -->       </tool>
            <tool
                  announcement="Starting C compile"
-                 command="${COMPILERPATH}/bin/${GCCCCOMPILER}"
-                 commandLinePattern="${COMMAND} ${GCCCOMPILER} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
+                 command="${COMPILERPATH}/${COMPILERTOOLPATH}/${GCCCCOMPILER}"
+                 commandLinePattern="&quot;${COMMAND}&quot; ${GCCCOMPILER} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
                  errorParsers="org.eclipse.cdt.core.GCCErrorParser"
                  id="se.aceone.mediatek.linkit.compiler.c"
                  name="C Compiler"
@@ -224,7 +224,7 @@
            <!-- 
            <tool
                  announcement="Starting ASM compile"
-                 command="${LINKITSDK20}${GCCLOCATION}/bin/${ARMARGCC}"
+                 command="${LINKITSDK20}${GCCLOCATION}/${COMPILERTOOLPATH}/${ARMARGCC}"
                  commandLinePattern=" ${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} ${OUTPUT} ${INPUTS}"
                  errorParsers="org.eclipse.cdt.core.GCCErrorParser"
                  id="se.aceone.mediatek.linkit.compiler.s"
@@ -260,7 +260,7 @@
            <!--
            <tool
                  announcement="Starting archiver"
-                 command="${LINKITSDK20}${GCCLOCATION}/bin/${ARMARGCC}"
+                 command="${LINKITSDK20}${GCCLOCATION}/${COMPILERTOOLPATH}/${ARMARGCC}"
                  errorParsers="org.eclipse.cdt.core.GLDErrorParser"
                  id="se.aceone.mediatek.linkit.tool.archiver"
                  name="Archiver">
@@ -285,9 +285,9 @@
            -->
            <tool
                  announcement="Starting Linker"
-                 command="${COMPILERPATH}/bin/${GCCLINK}"
+                 command="${COMPILERPATH}/${COMPILERTOOLPATH}/${GCCLINK}"
                  commandLineGenerator="se.aceone.mediatek.linkit.toolchain.LinkerCommadLineGenerator"
-                 commandLinePattern="${COMMAND} ${GCCLINKER} -B ${ARMNONEEABITHUMB} -T &quot;${LINKIT10}/${GCCTCCLIB}/scat.ld&quot; -o ${OUTPUT} ${INPUTS} &quot;${LINKIT10}/${GCCLIB}/${COMMONLIB}&quot; "
+                 commandLinePattern="&quot;${COMMAND}&quot; ${GCCLINKER} -B ${ARMNONEEABITHUMB} -T &quot;${LINKIT10}/${GCCTCCLIB}/scat.ld&quot; -o ${OUTPUT} ${INPUTS} &quot;${LINKIT10}/${GCCLIB}/${COMMONLIB}&quot; "
                  errorParsers="org.eclipse.cdt.core.GLDErrorParser"
                  id="se.aceone.mediatek.linkit.tool.linker"
                  name="Linker"
@@ -331,8 +331,8 @@
            </tool>
            <tool
                  announcement="Generating AXF data file"
-                 command="${COMPILERPATH}/bin/${OBJCOPY}"
-                 commandLinePattern="${COMMAND} -g -R .comment  ${INPUTS}  ${OUTPUT} "
+                 command="${COMPILERPATH}/${COMPILERTOOLPATH}/${OBJCOPY}"
+                 commandLinePattern="&quot;${COMMAND}&quot; -g -R .comment  ${INPUTS}  ${OUTPUT} "
                  id="se.aceone.mediatek.linkit.tool.objcopy.dbgdata"
                  isAbstract="false"
                  name="AXF data file"
@@ -358,8 +358,8 @@
               </outputType>
            </tool>
            <tool announcement="Creating debug data only"
-                 command="${COMPILERPATH}/bin/${OBJCOPY}"
-                 commandLinePattern="${COMMAND} --only-keep-debug ${INPUTS}  ${OUTPUT} "
+                 command="${COMPILERPATH}/${COMPILERTOOLPATH}/${OBJCOPY}"
+                 commandLinePattern="&quot;${COMMAND}&quot; --only-keep-debug ${INPUTS}  ${OUTPUT} "
                  id="se.aceone.mediatek.linkit.tool.objcopy.dbg"
                  isAbstract="false"
                  name="Debug only data file"
@@ -414,8 +414,8 @@
            </tool>
     -->       
                 <tool announcement="Size command"
-                      command="${COMPILERPATH}/bin/${SIZETOOL}"
-                      commandLinePattern="${COMMAND} -A ${INPUTS}"
+                      command="${COMPILERPATH}/${COMPILERTOOLPATH}/${SIZETOOL}"
+                      commandLinePattern="&quot;${COMMAND}&quot; -A ${INPUTS}"
                       id="se.aceone.mediatek.linkit.tool.size"
                       name="Size">
 		              <inputType

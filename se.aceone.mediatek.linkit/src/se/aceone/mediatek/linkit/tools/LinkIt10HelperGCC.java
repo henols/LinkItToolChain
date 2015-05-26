@@ -33,7 +33,7 @@ import se.aceone.mediatek.linkit.xml.config.Packageinfo.Output;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Userinfo;
 
 
-public class LinkIt10Helper extends LinkItHelper {
+public class LinkIt10HelperGCC extends LinkItHelper {
 
 
 	static final String LINK_IT_SDK10_CAMMEL_CASE = "LinkItSDK10";
@@ -41,7 +41,7 @@ public class LinkIt10Helper extends LinkItHelper {
 
 	public static final String COMPILER_IT_SDK10 = "ARMCOMPILER";
 
-	public LinkIt10Helper(IProject project) {
+	public LinkIt10HelperGCC(IProject project) {
 		super(project);
 	}
 
@@ -143,38 +143,6 @@ public class LinkIt10Helper extends LinkItHelper {
 		outPath= linkit.append(split[split.length-1]);
 		addResourceToProject(monitor, project, gccInclude, outPath);
 
-	}
-	
-	public void setIncludePaths(ICProjectDescription projectDescriptor, ICResourceDescription resourceDescription) {
-		IEnvironmentVariableManager envManager = CCorePlugin.getDefault().getBuildEnvironmentManager();
-		IContributedEnvironment contribEnv = envManager.getContributedEnvironment();
-		ICConfigurationDescription configuration = resourceDescription.getConfiguration();
-
-		ICConfigurationDescription configurationDescription = projectDescriptor.getDefaultSettingConfiguration();
-
-		addIncludeFolder(projectDescriptor, projectDescriptor.getProject().getFolder("ResID").getProjectRelativePath());
-
-		IPath toolPath = new Path(getBuildEnvironmentVariable(configurationDescription, TOOL_PATH, null));
-		IPath envInclude = toolPath.append(getBuildEnvironmentVariable(configurationDescription, INCLUDE, null));
-		addIncludeFolder(projectDescriptor, envInclude);
-		
-		IPath env = new Path(getBuildEnvironmentVariable(configurationDescription, LINK_IT_SDK, null));
-		
-//		IPath gccLocation = new Path(getBuildEnvironmentVariable(configurationDescription, GCCLOCATION, null));
-		IPath gccLocation = new Path(getCompilerPath());
-		IPath armIncl = gccLocation.append("arm-none-eabi/include");
-		addIncludeFolder(projectDescriptor, armIncl);
-		armIncl = armIncl.append("c++/4.9.3");
-		addIncludeFolder(projectDescriptor, armIncl);
-		IPath armThumb = armIncl.append("arm-none-eabi/thumb");
-		addIncludeFolder(projectDescriptor, armThumb);
-
-		contribEnv.addVariable(new EnvironmentVariable(ARM_NONE_EABI_THUMB, armThumb.toPortableString()), configuration);
-
-		addIncludeFolder(projectDescriptor, armIncl.append("backward"));
-		IPath libGcc = gccLocation.append("lib/gcc/arm-none-eabi/4.9.3");
-		addIncludeFolder(projectDescriptor, libGcc.append("include"));
-		addIncludeFolder(projectDescriptor, libGcc.append("include-fixed"));
 	}
 
 }

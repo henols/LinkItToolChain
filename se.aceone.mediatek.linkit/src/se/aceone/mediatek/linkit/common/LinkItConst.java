@@ -8,7 +8,11 @@ public interface LinkItConst {
 	static final String INCLUDE = "INICLUDE";
 	static final String LIBRARY = "LIBRARY";
 	static final String GCCLOCATION = "GCCLOCATION";
+	static final String COMPILER_TOOL_PATH = "COMPILERTOOLPATH";
+	static final String COMPILER_TOOL_PATH_GCC = "bin";
+	static final String COMPILER_TOOL_PATH_RVTC = "Programs/3.1/569/win_32-pentium";
 
+	
 	static final String SIZETOOL = "SIZETOOL";
 	static final String ARM_NONE_EABI_SIZE = "arm-none-eabi-size";
 

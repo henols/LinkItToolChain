@@ -28,7 +28,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import se.aceone.mediatek.linkit.Activator;
 import se.aceone.mediatek.linkit.tools.Common;
-import se.aceone.mediatek.linkit.tools.LinkIt10Helper;
+import se.aceone.mediatek.linkit.tools.LinkIt10HelperGCC;
+import se.aceone.mediatek.linkit.tools.LinkIt10HelperRVTC;
 
 public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
 
@@ -74,7 +75,8 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
 		monitor.beginTask("", 2000);
 		try {
 			
-			helper = new LinkIt10Helper(project);
+			helper = new LinkIt10HelperGCC(project);
+//			helper = new LinkIt10HelperRVTC(project);
 			
 			if (!helper.checkEnvironment()) {
 				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, "Enviroment for LinkIt SDK 1.0 are not configuerd."));
@@ -82,8 +84,8 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
 			}
 
 			IPathVariableManager manager = project.getWorkspace().getPathVariableManager();
-			if (manager.getURIValue(LinkIt10Helper.LINK_IT_SDK10) == null) {
-				manager.setURIValue(LinkIt10Helper.LINK_IT_SDK10, URIUtil.toURI(helper.getEnvironmentPath()));
+			if (manager.getURIValue(LinkIt10HelperGCC.LINK_IT_SDK10) == null) {
+				manager.setURIValue(LinkIt10HelperGCC.LINK_IT_SDK10, URIUtil.toURI(helper.getEnvironmentPath()));
 			}
 
 			project.create(description, new SubProgressMonitor(monitor, 1000));

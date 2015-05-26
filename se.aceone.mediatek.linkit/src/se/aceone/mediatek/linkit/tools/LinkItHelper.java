@@ -111,8 +111,6 @@ public abstract class LinkItHelper extends Common {
 		return sysini.isFile();
 	}
 
-	
-	
 	/**
 	 * Removes include folders that are not valid. This method does not save the
 	 * configurationDescription description
@@ -446,6 +444,8 @@ public abstract class LinkItHelper extends Common {
 		contribEnv.addVariable(new EnvironmentVariable(DEV_BOARD, devBoard), configuration);
 		contribEnv.addVariable(new EnvironmentVariable(SIZETOOL, ARM_NONE_EABI_SIZE), configuration);
 
+		contribEnv.addVariable(new EnvironmentVariable(COMPILER_TOOL_PATH, new Path(COMPILER_TOOL_PATH_GCC).toPortableString()), configuration);
+
 		Path linkitEnv = new Path(getEnvironmentPath());
 		System.out.println(LINK_IT_SDK + "=" + linkitEnv);
 		contribEnv.addVariable(new EnvironmentVariable(LINK_IT_SDK, linkitEnv.toPortableString()), configuration);
@@ -466,7 +466,7 @@ public abstract class LinkItHelper extends Common {
 						}
 						value = value.replace('\\', '/');
 						System.out.println(key + "=" + value);
-						if(key.equals(GCCLOCATION)){
+						if (key.equals(GCCLOCATION)) {
 							gccLocation = value;
 						}
 						contribEnv.addVariable(new EnvironmentVariable(key, value), configuration);
@@ -562,9 +562,13 @@ public abstract class LinkItHelper extends Common {
 		IPath toolPath = new Path(getBuildEnvironmentVariable(configurationDescription, TOOL_PATH, null));
 		IPath envInclude = toolPath.append(getBuildEnvironmentVariable(configurationDescription, INCLUDE, null));
 		addIncludeFolder(projectDescriptor, envInclude);
-		IPath env = new Path(getBuildEnvironmentVariable(configurationDescription, LINK_IT_SDK, null));
-		IPath gccLocation = env.append(getBuildEnvironmentVariable(configurationDescription, GCCLOCATION, null));
-		IPath armIncl = gccLocation.append("arm-none-eabi/include");
+
+		setCompilerIncludePaths(projectDescriptor, contribEnv, configuration);
+	}
+
+	protected void setCompilerIncludePaths(ICProjectDescription projectDescriptor, IContributedEnvironment contribEnv, ICConfigurationDescription configuration) {
+		IPath compilerLocation = new Path(getCompilerPath());
+		IPath armIncl = compilerLocation.append("arm-none-eabi/include");
 		addIncludeFolder(projectDescriptor, armIncl);
 		armIncl = armIncl.append("c++/4.9.3");
 		addIncludeFolder(projectDescriptor, armIncl);
@@ -574,7 +578,7 @@ public abstract class LinkItHelper extends Common {
 		contribEnv.addVariable(new EnvironmentVariable(ARM_NONE_EABI_THUMB, armThumb.toPortableString()), configuration);
 
 		addIncludeFolder(projectDescriptor, armIncl.append("backward"));
-		IPath libGcc = gccLocation.append("lib/gcc/arm-none-eabi/4.9.3");
+		IPath libGcc = compilerLocation.append("lib/gcc/arm-none-eabi/4.9.3");
 		addIncludeFolder(projectDescriptor, libGcc.append("include"));
 		addIncludeFolder(projectDescriptor, libGcc.append("include-fixed"));
 	}
@@ -692,11 +696,14 @@ public abstract class LinkItHelper extends Common {
 		addResourceToProject(monitor, project, srcPath, outPath, null);
 	}
 
-
 	protected IProject getProject() {
 		return project;
 	}
 
+	public void setGccLocation(String gccLocation) {
+		this.gccLocation = gccLocation;
+	}
+	
 	public String getGccLocation() {
 		return gccLocation;
 	}
