@@ -75,7 +75,7 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
 		monitor.beginTask("", 2000);
 		try {
 			
-			helper = new LinkIt10HelperGCC(project);
+			helper = new LinkIt10HelperRVTC(project);
 //			helper = new LinkIt10HelperRVTC(project);
 			
 			if (!helper.checkEnvironment()) {
@@ -110,7 +110,7 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
 
 			ICResourceDescription resourceDescription = defaultConfigDescription.getResourceDescription(new Path(""), true);
 
-			String devBoard = "__IOT_LINKIT1_0__";
+			String devBoard = "__LINKIT_SDK__";
 			try {
 				helper.setEnvironmentVariables(resourceDescription, devBoard );
 			} catch (IOException e) {

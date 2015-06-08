@@ -39,7 +39,7 @@ import se.aceone.mediatek.linkit.tools.Common;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Userinfo;
 
-public class LinkerCommadLineGenerator implements IManagedCommandLineGenerator, LinkItConst {
+public class GCCLinkerCommadLineGenerator implements IManagedCommandLineGenerator, LinkItConst {
 	public final String AT = "@"; //$NON-NLS-1$
 	public final String COLON = ":"; //$NON-NLS-1$
 	public final String DOT = "."; //$NON-NLS-1$
@@ -69,7 +69,7 @@ public class LinkerCommadLineGenerator implements IManagedCommandLineGenerator, 
 	public final String OUTPUT_PRM_NAME = "OUTPUT"; //$NON-NLS-1$
 	public final String INPUTS_PRM_NAME = "INPUTS"; //$NON-NLS-1$
 
-	public LinkerCommadLineGenerator() {
+	public GCCLinkerCommadLineGenerator() {
 	}
 
 	private String makeVariable(String variableName) {

@@ -339,8 +339,9 @@ public abstract class LinkItHelper extends Common {
 		info.setManagedProject(mProj);
 		monitor.worked(20);
 
-		IToolChain toolChain = ManagedBuildManager.getExtensionToolChain(LINKIT_DEFAULT_TOOL_CHAIN);
-		String toolChainChildId = ManagedBuildManager.calculateChildId(LINKIT_DEFAULT_TOOL_CHAIN, null);
+		String linkitDefaultToolChainGcc = getToolChainId();
+		IToolChain toolChain = ManagedBuildManager.getExtensionToolChain(linkitDefaultToolChainGcc);
+		String toolChainChildId = ManagedBuildManager.calculateChildId(linkitDefaultToolChainGcc, null);
 
 		IConfiguration configuration = ManagedBuildManager.getExtensionConfiguration(LINKIT_CONFIGURATION);
 
@@ -357,13 +358,18 @@ public abstract class LinkItHelper extends Common {
 		CConfigurationData data = cfg.getConfigurationData();
 		ICConfigurationDescription cfgDes = des.createConfiguration(ManagedBuildManager.CFG_DATA_PROVIDER_ID, data);
 
-		setDefaultLanguageSettingsProviders(project, LINKIT_DEFAULT_TOOL_CHAIN, cfg, cfgDes);
+		setDefaultLanguageSettingsProviders(project, linkitDefaultToolChainGcc, cfg, cfgDes);
 
 		monitor.worked(50);
 		mngr.setProjectDescription(project, des);
 		return des;
 	}
 
+	protected String getToolChainId() {
+		return LINKIT_DEFAULT_TOOL_CHAIN_GCC;
+	}
+
+	
 	private void setDefaultLanguageSettingsProviders(IProject project, String toolChainId, IConfiguration cfg, ICConfigurationDescription cfgDescription) {
 		// propagate the preference to project properties
 		boolean isPreferenceEnabled = ScannerDiscoveryLegacySupport.isLanguageSettingsProvidersFunctionalityEnabled(null);
@@ -519,7 +525,6 @@ public abstract class LinkItHelper extends Common {
 	public void addIncludeFolder(ICProjectDescription projectDescription, IPath includePath) {
 		ICConfigurationDescription configurationDescription = projectDescription.getDefaultSettingConfiguration();
 		addIncludeFolder(configurationDescription, includePath);
-
 	}
 
 	/**
@@ -707,4 +712,10 @@ public abstract class LinkItHelper extends Common {
 	public String getGccLocation() {
 		return gccLocation;
 	}
+	
+	protected String getIncludeVar() {
+		return "GCCINCLUDE";
+	}
+	
+
 }

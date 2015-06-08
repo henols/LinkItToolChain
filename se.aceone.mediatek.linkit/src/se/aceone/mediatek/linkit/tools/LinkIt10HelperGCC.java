@@ -12,13 +12,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.eclipse.cdt.core.CCorePlugin;
-import org.eclipse.cdt.core.envvar.EnvironmentVariable;
-import org.eclipse.cdt.core.envvar.IContributedEnvironment;
-import org.eclipse.cdt.core.envvar.IEnvironmentVariableManager;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.core.settings.model.ICProjectDescription;
-import org.eclipse.cdt.core.settings.model.ICResourceDescription;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -32,9 +27,7 @@ import se.aceone.mediatek.linkit.xml.config.Packageinfo.Namelist;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Output;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Userinfo;
 
-
 public class LinkIt10HelperGCC extends LinkItHelper {
-
 
 	static final String LINK_IT_SDK10_CAMMEL_CASE = "LinkItSDK10";
 	public static final String LINK_IT_SDK10 = LINK_IT_SDK10_CAMMEL_CASE.toUpperCase();
@@ -63,7 +56,7 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 		}
 		return compiler;
 	}
-	
+
 	public void copyProjectResources(ICProjectDescription projectDescriptor, IProgressMonitor monitor) throws CoreException, IOException, JAXBException {
 		ICConfigurationDescription configurationDescription = projectDescriptor.getDefaultSettingConfiguration();
 		IPath toolPath = new Path(getBuildEnvironmentVariable(configurationDescription, TOOL_PATH, null));
@@ -72,10 +65,16 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 		Map<String, String> replacements = new HashMap<String, String>();
 		replacements.put("LINKITWIZARDVS2008", project.getName());
 		replacements.put("LINKIT_APP_WIZARDTEMPLATE", project.getName().toUpperCase() + "_H");
+		replacements.put("__INCLUDE_PATH__", ".\\\\include;.\\\\include\\\\service;.\\\\include\\\\component;.\\\\ResID;.\\\\;.\\\\src\\\\");
+		replacements.put("__LIB_PATH__", "odbc32.lib odbccp32.lib msimg32.lib linkitwin32.lib");
+		replacements.put("__VRE_WIZARD_SOURCE_LIST__", "<File RelativePath=\"src\\\\" + project.getName() + ".c\"/>");
+
+		replacements.put("__INCLUDE_HEAD_FILE__", " Includes\r\n#include <vmatcmd.h>\r\n#include <vmkeypad.h>\r\n#include <vmlog.h>\r\n"
+				+ "#include <vmpromng.h>\r\n#include <vmsys.h>\r\n");
 
 		IPath wiz = toolPath.append("Wizard").append("LINKIT_SDK_WIZARD_V10_IOT");
 		IPath srcPath = wiz.append("LINKITWIZARDVS2008.vcproj");
-		IPath outPath = new Path(project.getName() + ".proj");
+		IPath outPath = new Path(project.getName() + ".vcproj");
 		addResourceToProject(monitor, project, srcPath, outPath, replacements);
 
 		IPath projType = wiz;
@@ -95,7 +94,7 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 		userinfo.setAppname(LinkItPreferences.getAppName());
 		userinfo.setAppversion(LinkItPreferences.getAppVersion());
 
-		BigInteger appid  = BigInteger.valueOf(LinkItPreferences.getAppId());
+		BigInteger appid = BigInteger.valueOf(LinkItPreferences.getAppId());
 		userinfo.setAppid(appid);
 		APIAuth apiAuth = packageinfo.getAPIAuth();
 		apiAuth.setDefaultliblist(LinkItPreferences.getDefaultLibraryList());
@@ -122,7 +121,7 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 
 		srcPath = res.append("ref_list_LINKITWIZARDVS2008.txt");
 		outPath = new Path("res/ref_list_" + project.getName() + ".txt");
-		addResourceToProject(monitor, project, srcPath, outPath,replacements);
+		addResourceToProject(monitor, project, srcPath, outPath, replacements);
 
 		srcPath = res.append("LINKITWIZARDVS2008.res.xml");
 		outPath = new Path("res/" + project.getName() + ".res.xml");
@@ -135,12 +134,12 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 		addResourceToProject(monitor, project, srcPath, outPath);
 
 		IPath linkit10 = new Path(getBuildEnvironmentVariable(configurationDescription, LINKIT10, null));
-		String gccIncludeVar = getBuildEnvironmentVariable(configurationDescription, "GCCINCLUDE", null);
+		String gccIncludeVar = getBuildEnvironmentVariable(configurationDescription, getIncludeVar(), null);
 		IPath gccInclude = linkit10.append(gccIncludeVar);
 		IPath linkit = project.getFolder("LinkIt").getProjectRelativePath();
 
 		String[] split = gccIncludeVar.split("[/\\\\]");
-		outPath= linkit.append(split[split.length-1]);
+		outPath = linkit.append(split[split.length - 1]);
 		addResourceToProject(monitor, project, gccInclude, outPath);
 
 	}

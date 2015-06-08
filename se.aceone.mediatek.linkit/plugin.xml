@@ -39,7 +39,6 @@
          point="org.eclipse.cdt.managedbuilder.core.buildDefinitions">
          		<builder
         autoBuildTarget="all"
-        buildfileGenerator="se.aceone.mediatek.linkit.toolchain.LinkItGnuMakefileGenerator"
         cleanBuildTarget="clean"
         command="make"
         errorParsers="org.eclipse.cdt.core.MakeErrorParser"
@@ -74,9 +73,9 @@
                name="Default">
         <toolChain
               archList="all"
-              id="se.aceone.mediatek.linkit.toolChain.default"
+              id="se.aceone.mediatek.linkit.toolChain.default.gcc"
               isAbstract="false"
-              name="LinkIt Tool Chain"
+              name="LinkIt Tool Chain (GCC)"
               osList="all"
               targetTool="se.aceone.mediatek.linkit.tool.size">
            <targetPlatform
@@ -133,7 +132,6 @@
               </option>
               <inputType
                     buildVariable="CPP_SKETCH_FILES"
-                    dependencyCalculator="se.aceone.mediatek.linkit.toolchain.LinkItDependencyCalculator"
                     dependencyContentType="org.eclipse.cdt.core.cxxHeader"
                     id="se.aceone.mediatek.linkit.input"
                     name="C++ Source"
@@ -194,7 +192,6 @@
               </option>
               <inputType
                     buildVariable="C_SKETCH_FILES"
-                    dependencyCalculator="se.aceone.mediatek.linkit.toolchain.LinkItDependencyCalculator"
                     dependencyContentType="org.eclipse.cdt.core.cHeader"
                     id="se.aceone.mediatek.linkit.compiler.c.input"
                     multipleOfType="false"
@@ -286,8 +283,8 @@
            <tool
                  announcement="Starting Linker"
                  command="${COMPILERPATH}/${COMPILERTOOLPATH}/${GCCLINK}"
-                 commandLineGenerator="se.aceone.mediatek.linkit.toolchain.LinkerCommadLineGenerator"
-                 commandLinePattern="&quot;${COMMAND}&quot; ${GCCLINKER} -B ${ARMNONEEABITHUMB} -T &quot;${LINKIT10}/${GCCTCCLIB}/scat.ld&quot; -o ${OUTPUT} ${INPUTS} &quot;${LINKIT10}/${GCCLIB}/${COMMONLIB}&quot; "
+                 commandLineGenerator="se.aceone.mediatek.linkit.toolchain.GCCLinkerCommadLineGenerator"
+                 commandLinePattern="&quot;${COMMAND}&quot; ${GCCTLINKER} -B ${ARMNONEEABITHUMB} -T &quot;${LINKIT10}/${GCCTCCLIB}/scat.ld&quot; -o ${OUTPUT} ${INPUTS} &quot;${LINKIT10}/${GCCLIB}/${COMMONLIB}&quot; "
                  errorParsers="org.eclipse.cdt.core.GLDErrorParser"
                  id="se.aceone.mediatek.linkit.tool.linker"
                  name="Linker"
@@ -443,6 +440,194 @@
 		                    outputs="${project}.size"
 		                    primaryOutput="true">
 		              </outputType>
+           </tool>
+        </toolChain>
+        <toolChain
+              archList="all"
+              id="se.aceone.mediatek.linkit.toolChain.default.rvct"
+              isAbstract="false"
+              name="LinkIt Tool Chain (RVCT)"
+              osList="all"
+              targetTool="se.aceone.mediatek.linkit.tool.objcopy.dbgdata.rvct">
+           <targetPlatform
+                 archList="all"
+                 binaryParser="org.eclipse.cdt.core.ELF"
+                 id="se.aceone.mediatek.linkit.targetplatform.rvct"
+                 name="LinkIt Target"
+                 osList="all">
+           </targetPlatform>
+           <builder
+                 buildfileGenerator="se.aceone.mediatek.linkit.toolchain.LinkItGnuMakefileGenerator"
+                 id="se.aceone.mediatek.linkit.builder.rvct"
+                 isVariableCaseSensitive="false"
+                 name="LinkIt Builder"
+                 reservedMacroNames="LinkItSDK10"
+                 superClass="se.aceone.mediatek.linkit.gnu.builder">
+           </builder>
+           <optionCategory
+                 id="se.aceone.mediatek.linkit.optionCategory.includePaths.rvct"
+                 name="Include Folders">
+           </optionCategory>
+           <tool
+                 announcement="Starting C++ compile"
+                 command="${COMPILERPATH}/${COMPILERTOOLPATH}/${CPPCOMPILER}"
+                 commandLinePattern="&quot;${COMMAND}&quot; ${RVCTTCCCOMPILER} ${FLAGS} -o ${OUTPUT} -c ${INPUTS}"
+                 errorParsers="org.eclipse.cdt.core.GCCErrorParser"
+                 id="se.aceone.mediatek.linkit.compiler.cpp.rvct"
+                 name="C++ Compiler"
+                 natureFilter="both">
+              <optionCategory
+                    id="se.aceone.mediatek.linkit.cpp.optionCategory.includePaths.rvct"
+                    name="Include Path">
+              </optionCategory>
+              <option
+                    browseType="directory"
+                    category="se.aceone.mediatek.linkit.cpp.optionCategory.includePaths.rvct"
+                    command="-I"
+                    id="se.aceone.mediatek.linkit.compiler.cpp.option.incpath.rvct"
+                    name="C++ Include Path"
+                    resourceFilter="project"
+                    valueHandler="ValueHandler"
+                    valueType="includePath">
+              </option>
+              <optionCategory
+                    id="se.aceone.mediatek.linkit.cpp.optionCategory.macros.rvct"
+                    name="Macros">
+              </optionCategory>
+              <option
+                    browseType="none"
+                    category="se.aceone.mediatek.linkit.cpp.optionCategory.macros.rvct"
+                    command="-D"
+                    id="se.aceone.mediatek.linkit.compiler.cpp.option.macros.rvct"
+                    name="C++ Macros"
+                    resourceFilter="project"
+                    valueType="definedSymbols">
+              </option>
+              <inputType
+                    buildVariable="CPP_SKETCH_FILES"
+                    dependencyCalculator="se.aceone.mediatek.linkit.toolchain.LinkItDependencyCalculator"
+                    dependencyContentType="org.eclipse.cdt.core.cxxHeader"
+                    id="se.aceone.mediatek.linkit.input.rvct"
+                    name="C++ Source"
+                    primaryInput="true"
+                    sourceContentType="org.eclipse.cdt.core.cxxSource">
+              </inputType>
+              <outputType
+                    buildVariable="LINK_OBJ"
+                    id="se.aceone.mediatek.linkit.link.output.rvct"
+                    name="C++ Link Object"
+                    nameProvider="se.aceone.mediatek.linkit.toolchain.LinkNameProvider"
+                    outputs="o"
+                    primaryOutput="true">
+              </outputType>
+ 			</tool>
+           <tool
+                 announcement="Starting C compile"
+                 command="${COMPILERPATH}/${COMPILERTOOLPATH}/${CCOMPILER}"
+                 commandLinePattern="&quot;${COMMAND}&quot; ${RVCTCOMPILER} ${FLAGS} -o ${OUTPUT} -c ${INPUTS}"
+                 errorParsers="org.eclipse.cdt.core.GCCErrorParser"
+                 id="se.aceone.mediatek.linkit.compiler.c.rvct"
+                 name="C Compiler"
+                 natureFilter="both">
+              <optionCategory
+                    id="se.aceone.mediatek.linkit.c.optionCategory.includePaths.rvct"
+                    name="Include Path">
+              </optionCategory>
+              <option
+                    browseType="directory"
+                    category="se.aceone.mediatek.linkit.c.optionCategory.includePaths.rvct"
+                    command="-I"
+                    id="se.aceone.mediatek.linkit.compiler.c.option.incpath.rvct"
+                    name="C Include Path"
+                    resourceFilter="project"
+                    valueType="includePath">
+              </option>
+              <optionCategory
+                    id="se.aceone.mediatek.linkit.c.optionCategory.macros.rvct"
+                    name="Macros">
+              </optionCategory>
+              <option
+                    browseType="none"
+                    category="se.aceone.mediatek.linkit.c.optionCategory.macros.rvct"
+                    command="-D"
+                    id="se.aceone.mediatek.linkit.compiler.c.option.macros.rvct"
+                    name="C Macros"
+                    resourceFilter="project"
+                    valueType="definedSymbols">
+              </option>
+              <inputType
+                    buildVariable="C_SKETCH_FILES"
+                    dependencyCalculator="se.aceone.mediatek.linkit.toolchain.LinkItDependencyCalculator"
+                    dependencyContentType="org.eclipse.cdt.core.cHeader"
+                    id="se.aceone.mediatek.linkit.compiler.c.input.rvct"
+                    multipleOfType="false"
+                    name="C Source"
+                    primaryInput="true"
+                    sourceContentType="org.eclipse.cdt.core.cSource">
+              </inputType>
+              <outputType
+                    buildVariable="LINK_OBJ"
+                    id="se.aceone.mediatek.linkit.compiler.c.link.output.rvct"
+                    name="C Link Object"
+                    nameProvider="se.aceone.mediatek.linkit.toolchain.LinkNameProvider"
+                    outputs="o"
+                    primaryOutput="true">
+              </outputType>
+           </tool>
+           <tool
+                 announcement="Starting Linker"
+                 command="${COMPILERPATH}/${COMPILERTOOLPATH}/${LINK}"
+                 commandLineGenerator="se.aceone.mediatek.linkit.toolchain.RVCTLinkerCommadLineGenerator"
+                 commandLinePattern="&quot;${COMMAND}&quot; -o ${OUTPUT} ${INPUTS} ${RVCTLINKER} &quot;${LINKIT10}/${RVCTLIB}/${COMMONLIB}&quot; "
+                 errorParsers="org.eclipse.cdt.core.GLDErrorParser"
+                 id="se.aceone.mediatek.linkit.tool.linker.rvct"
+                 name="Linker"
+                 natureFilter="both">
+              <inputType
+                    buildVariable="LINK_OBJ"
+                    id="se.aceone.mediatek.linkit.tool.linker.ob.input.rvct"
+                    multipleOfType="true"
+                    name="Linker input"
+                    primaryInput="true"
+                    sources="o">
+              </inputType>
+              <outputType
+                    buildVariable="AXF_DATA"
+                    id="se.aceone.mediatek.linkit.tool.linker.data.output.rvct"
+                    multipleOfType="false"
+                    name="Linker output axf"
+                    outputNames="${ProjName}.axf"
+                    outputs="axf"
+                    primaryOutput="true">
+              </outputType>
+           </tool>
+           <tool
+                 announcement="Generating AXF data file"
+                 command="${COMPILERPATH}/${COMPILERTOOLPATH}/${FROMELF}"
+                 commandLinePattern="&quot;${COMMAND}&quot; --output ${OUTPUT}  ${INPUTS} "
+                 id="se.aceone.mediatek.linkit.tool.objcopy.dbgdata.rvct"
+                 isAbstract="false"
+                 name="AXF data file"
+                 natureFilter="both">
+              <inputType
+                    buildVariable="AXF_DATA"
+                    dependencyExtensions="axf"
+                    id="se.aceone.mediatek.linkit.tool.objcopy.data.input.rvct"
+                    multipleOfType="true"
+                    name="AXF data file input"
+                    primaryInput="true"
+                    sourceContentType="se.aceone.mediatek.linkit.tool.linker.data.output.rvct"
+                    sources="axf">
+              </inputType>
+              <outputType
+                    buildVariable="AXF_DATA_OUT"
+                    id="se.aceone.mediatek.linkit.tool.objcopy.data.output.rvct"
+                    multipleOfType="false"
+                    name="AXFdata file output"
+                    outputNames="${ProjName}.out.axf"
+                    outputs="out.afx"
+                    primaryOutput="true">
+              </outputType>
            </tool>
         </toolChain>
          </configuration>

@@ -1,19 +1,12 @@
 package se.aceone.mediatek.linkit.tools;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.envvar.EnvironmentVariable;
@@ -22,25 +15,16 @@ import org.eclipse.cdt.core.envvar.IEnvironmentVariableManager;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.cdt.core.settings.model.ICResourceDescription;
+import org.eclipse.cdt.core.settings.model.ICSettingEntry;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-
-import se.aceone.mediatek.linkit.common.LinkItPreferences;
-import se.aceone.mediatek.linkit.xml.config.Packageinfo;
-import se.aceone.mediatek.linkit.xml.config.Packageinfo.APIAuth;
-import se.aceone.mediatek.linkit.xml.config.Packageinfo.Namelist;
-import se.aceone.mediatek.linkit.xml.config.Packageinfo.Output;
-import se.aceone.mediatek.linkit.xml.config.Packageinfo.Userinfo;
 
 public class LinkIt10HelperRVTC extends LinkIt10HelperGCC {
 
 	static final String LINK_IT_SDK10_CAMMEL_CASE = "LinkItSDK10";
 	public static final String LINK_IT_SDK10 = LINK_IT_SDK10_CAMMEL_CASE.toUpperCase();
 
-	public static final String COMPILER_IT_SDK10_GCC = "ARMCOMPILER";
 	public static final String COMPILER_IT_SDK10_RTVC = "RVCT31BIN";
 
 	public LinkIt10HelperRVTC(IProject project) {
@@ -106,17 +90,17 @@ public class LinkIt10HelperRVTC extends LinkIt10HelperGCC {
 			if (!key.startsWith("GCC") && !key.startsWith("ADS") && !key.startsWith("VTP")) {
 				String value = envVars.get(key);
 				System.out.println(key + "=" + value);
-				if(key.startsWith("RVCT")){
-					key = "GCC" + key.substring(4);
-				}else if(key.equals("CCOMPILER")){
-					key = "GCCCCOMPILER";
-				}else if(key.equals("CPPCOMPILER")){
-					key = "GCCCPPCOMPILER";
-				}else if(key.equals("LINK")){
-					key = "GCCLINKER";
-				}else if(key.equals("FROMELF")){
-					key = "OBJCOPY";
-				}
+//				if(key.startsWith("RVCT")){
+//					key = "GCC" + key.substring(4);
+//				}else if(key.equals("CCOMPILER")){
+//					key = "GCCCCOMPILER";
+//				}else if(key.equals("CPPCOMPILER")){
+//					key = "GCCCPPCOMPILER";
+//				}else if(key.equals("LINK")){
+//					key = "GCCLINKER";
+//				}else if(key.equals("FROMELF")){
+//					key = "OBJCOPY";
+//				}
 				contribEnv.addVariable(new EnvironmentVariable(key, value), configuration);
 			}
 		}
@@ -129,5 +113,23 @@ public class LinkIt10HelperRVTC extends LinkIt10HelperGCC {
 		IPath rvtcIncl = compilerLocation.append("Data/3.1/569/include/windows");
 		addIncludeFolder(projectDescriptor, rvtcIncl);
 	}
+
+	public void setMacros(ICProjectDescription projectDescription, String devBoard) {
+		addMacro(projectDescription, "__COMPILER_RVCT__", null, ICSettingEntry.BUILTIN);
+		addMacro(projectDescription, "_FOR_WNC", null, ICSettingEntry.BUILTIN);
+		addMacro(projectDescription, "_NOUNIX_", null, ICSettingEntry.BUILTIN);
+		addMacro(projectDescription, "_USE_MINIGUIENTRY", null, ICSettingEntry.BUILTIN);
+		addMacro(projectDescription, "_MINIGUI_LIB_", null, ICSettingEntry.BUILTIN);
+		addMacro(projectDescription, devBoard, null);
+	}
+
+	protected String getToolChainId() {
+		return LINKIT_DEFAULT_TOOL_CHAIN_RVCT;
+	}
+
+	protected String getIncludeVar() {
+		return "RVCTINCLUDE";
+	}
+
 
 }

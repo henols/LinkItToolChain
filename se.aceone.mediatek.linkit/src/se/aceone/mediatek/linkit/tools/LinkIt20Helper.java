@@ -25,5 +25,4 @@ public class LinkIt20Helper extends LinkItHelper {
 		return new Path(getEnvironmentPath()).append(getGccLocation()).toPortableString();
 	}
 
-
 }
