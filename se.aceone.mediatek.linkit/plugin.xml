@@ -472,7 +472,7 @@
                  announcement="Starting C++ compile"
                  command="${COMPILERPATH}/${COMPILERTOOLPATH}/${CPPCOMPILER}"
                  commandLinePattern="&quot;${COMMAND}&quot; ${RVCTTCCCOMPILER} ${FLAGS} -o ${OUTPUT} -c ${INPUTS}"
-                 errorParsers="org.eclipse.cdt.core.GCCErrorParser"
+                 errorParsers="se.aceone.mediatek.linkit.rvct"
                  id="se.aceone.mediatek.linkit.compiler.cpp.rvct"
                  name="C++ Compiler"
                  natureFilter="both">
@@ -525,7 +525,7 @@
                  announcement="Starting C compile"
                  command="${COMPILERPATH}/${COMPILERTOOLPATH}/${CCOMPILER}"
                  commandLinePattern="&quot;${COMMAND}&quot; ${RVCTCOMPILER} ${FLAGS} -o ${OUTPUT} -c ${INPUTS}"
-                 errorParsers="org.eclipse.cdt.core.GCCErrorParser"
+                 errorParsers="se.aceone.mediatek.linkit.rvct"
                  id="se.aceone.mediatek.linkit.compiler.c.rvct"
                  name="C Compiler"
                  natureFilter="both">
@@ -790,5 +790,38 @@
             class="se.aceone.mediatek.linkit.handlers.LinkItProjectPackHandler"
             commandId="se.aceone.mediatek.linkit.commands.pack">
       </handler>
+   </extension>
+   <extension
+         id="se.aceone.mediatek.linkit.errorparser"
+         name="LinkIt Error parser"
+         point="org.eclipse.cdt.core.ErrorParser">
+      <errorparser
+            id="se.aceone.mediatek.linkit.rvct"
+            name="RVCT Error parser">
+         <pattern
+               description-expr="$7"
+               eat-processed-line="true"
+               file-expr="$1"
+               line-expr="$3"
+               regex="&quot;(.*?)&quot;(.*\s)(\d+):\s*(([Ee]rror)|(ERROR)):\s*(.*)"
+               severity="Error">
+         </pattern>
+         <pattern
+               description-expr="$7"
+               eat-processed-line="true"
+               file-expr="$1"
+               line-expr="$3"
+               regex="&quot;(.*?)&quot;(.*\s)(\d+):\s*(([Ww]arning)|(WARNING)):\s*(.*)"
+               severity="Warning">
+         </pattern>
+         <pattern
+               description-expr="$9"
+               eat-processed-line="true"
+               file-expr="$1"
+               line-expr="$3"
+               regex="&quot;(.*?)&quot;(.*\s)(\d+):\s*(([Nn]ote)|(NOTE)|([Ii]nfo)|(INFO)):\s*(.*)"
+               severity="Info">
+         </pattern>
+      </errorparser>
    </extension>   
 </plugin>
