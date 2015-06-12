@@ -487,7 +487,6 @@
                     id="se.aceone.mediatek.linkit.compiler.cpp.option.incpath.rvct"
                     name="C++ Include Path"
                     resourceFilter="project"
-                    valueHandler="ValueHandler"
                     valueType="includePath">
               </option>
               <optionCategory
