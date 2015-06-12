@@ -1,0 +1,14 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>se.aceone.mediatek.linkit.aggregator</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    
+    <modules>
+        <module>../feature</module>
+        <module>../plugin</module>
+        <module>../repository</module>
+    </modules>
+    <groupId>se.aceone.mediatek.linkit</groupId>
+    <name>LinkIt Toolchain Aggregator</name>
+</project> 

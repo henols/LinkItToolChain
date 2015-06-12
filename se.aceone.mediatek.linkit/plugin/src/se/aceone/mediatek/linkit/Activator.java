@@ -32,7 +32,7 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 		return plugin;
 	}
 
-	public static final String ID = "se.aceone.mediatek.linkit";
+	public static final String ID = "se.aceone.mediatek.linkit.toolchain";
 	public static final String CPU_16PX = "cpu_16px";
 	public static final String CPU_32PX = "cpu_32px";
 	public static final String CPU_64PX = "cpu_64px";
