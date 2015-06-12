@@ -472,7 +472,7 @@
                  announcement="Starting C++ compile"
                  command="${COMPILERPATH}/${COMPILERTOOLPATH}/${CPPCOMPILER}"
                  commandLinePattern="&quot;${COMMAND}&quot; ${RVCTTCCCOMPILER} ${FLAGS} -o ${OUTPUT} -c ${INPUTS}"
-                 errorParsers="se.aceone.mediatek.linkit.rvct"
+                 errorParsers="se.aceone.mediatek.linkit.rvct.compiler"
                  id="se.aceone.mediatek.linkit.compiler.cpp.rvct"
                  name="C++ Compiler"
                  natureFilter="both">
@@ -525,7 +525,7 @@
                  announcement="Starting C compile"
                  command="${COMPILERPATH}/${COMPILERTOOLPATH}/${CCOMPILER}"
                  commandLinePattern="&quot;${COMMAND}&quot; ${RVCTCOMPILER} ${FLAGS} -o ${OUTPUT} -c ${INPUTS}"
-                 errorParsers="se.aceone.mediatek.linkit.rvct"
+                 errorParsers="se.aceone.mediatek.linkit.rvct.compiler"
                  id="se.aceone.mediatek.linkit.compiler.c.rvct"
                  name="C Compiler"
                  natureFilter="both">
@@ -579,7 +579,7 @@
                  command="${COMPILERPATH}/${COMPILERTOOLPATH}/${LINK}"
                  commandLineGenerator="se.aceone.mediatek.linkit.toolchain.RVCTLinkerCommadLineGenerator"
                  commandLinePattern="&quot;${COMMAND}&quot; -o ${OUTPUT} ${INPUTS} ${RVCTLINKER} &quot;${LINKIT10}/${RVCTLIB}/${COMMONLIB}&quot; "
-                 errorParsers="org.eclipse.cdt.core.GLDErrorParser"
+                 errorParsers="se.aceone.mediatek.linkit.rvct.linker"
                  id="se.aceone.mediatek.linkit.tool.linker.rvct"
                  name="Linker"
                  natureFilter="both">
@@ -796,8 +796,8 @@
          name="LinkIt Error parser"
          point="org.eclipse.cdt.core.ErrorParser">
       <errorparser
-            id="se.aceone.mediatek.linkit.rvct"
-            name="RVCT Error parser">
+            id="se.aceone.mediatek.linkit.rvct.compiler"
+            name="RVCT Compiler Error parser">
          <pattern
                description-expr="$7"
                eat-processed-line="true"
@@ -820,6 +820,28 @@
                file-expr="$1"
                line-expr="$3"
                regex="&quot;(.*?)&quot;(.*\s)(\d+):\s*(([Nn]ote)|(NOTE)|([Ii]nfo)|(INFO)):\s*(.*)"
+               severity="Info">
+         </pattern>
+      </errorparser>
+      <errorparser
+            id="se.aceone.mediatek.linkit.rvct.linker"
+            name="RVCT Linker Error parser">
+         <pattern
+               description-expr="$5"
+               eat-processed-line="true"
+               regex="(([Ee]rror)|(ERROR)):\s*(.*):\s*(.*)"
+               severity="Error">
+         </pattern>
+         <pattern
+               description-expr="$5"
+               eat-processed-line="true"
+               regex="(([Ww]arning)|(WARNING)):\s*(.*):\s*(.*)"
+               severity="Warning">
+         </pattern>
+         <pattern
+               description-expr="$7"
+               eat-processed-line="true"
+               regex="(([Nn]ote)|(NOTE)|([Ii]nfo)|(INFO)):\s*(.*):\s*(.*)"
                severity="Info">
          </pattern>
       </errorparser>
