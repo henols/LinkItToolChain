@@ -4,7 +4,7 @@
 	<extension point="org.eclipse.ui.newWizards">
 		<category 
 			id="se.aceone.mediatek.linkit.newWizards"
-			name="Mediatek">
+			name="LinkIt">
 		</category>
 		<wizard
         canFinishEarly="false"
@@ -35,7 +35,7 @@
 	</extension>
    <extension
          id="se.aceone.mediatek.linkit.buildDefinitions"
-         name="Mediatek LinkIt Tool Chain"
+         name="LinkIt Tool Chain"
          point="org.eclipse.cdt.managedbuilder.core.buildDefinitions">
          		<builder
         autoBuildTarget="all"
@@ -57,7 +57,7 @@
         macroOutputFileExtValue="$(suffix $(notdir $@)"
         macroOutputFileNameValue="$(notdir $@)"
         macroOutputFileRelPathValue="$@"
-        name="Mediatek LinkIt GNU Builder"
+        name="LinkIt GNU Builder"
         parallelBuildCmd="-j*"
         reservedMacroNames="ROOT,DEPS,OBJS,.*_SRCS,EXECUTABLES,SUBDIRS,LIBS,USER_OBJS,.*_INPUTS,.*_OUTPUTS"
         variableFormat="${=}">
@@ -65,7 +65,7 @@
       <projectType
             id="se.aceone.mediatek.linkit.projectType"
             isAbstract="false"
-            name="Mediatek LinkIt">
+            name="LinkIt">
          <configuration
                artifactExtension="vxp"
                cleanCommand="rm -f"
@@ -715,7 +715,7 @@
          point="org.eclipse.ui.commands">
       <category
             id="se.aceone.mediatek.linkit.commands.category"
-            name="MediaTek">
+            name="LinkIt">
       </category>
       <command
             categoryId="se.aceone.mediatek.linkit.commands.category"
@@ -729,7 +729,7 @@
             locationURI="menu:org.eclipse.ui.main.menu?after=additions">
          <menu
                id="se.aceone.mediatek.linkit.menus.pack"
-               label="MediaTek"
+               label="LinkIt"
                mnemonic="M">
             <command
                   commandId="se.aceone.mediatek.linkit.commands.pack"

@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension point="org.eclipse.ui.newWizards">
+		<category 
+			id="se.aceone.mediatek.linkit.newWizards"
+			name="Mediatek">
+		</category>
+		<wizard
+			id="se.aceone.mediatek.linkit.NewLinkitProjectWizard"
+			category="se.aceone.mediatek.linkit.newWizards"
+	        class="se.aceone.mediatek.linkit.ui.NewLinkitProjectWizard"
+	        name="New LinkIt Project"
+	        icon="icons/LinkIt.png"
+	        finalPerspective ="org.eclipse.cdt.ui.CPerspective"
+	        project="true">
+         <description>
+            %wizard.description
+         </description>	        
+		</wizard>
+	</extension>
+
+   <extension
+         id="se.aceone.mediatek.linkit.buildDefinitions"
+         name="Mediatek LinkIt Tool Chain"
+         point="org.eclipse.cdt.managedbuilder.core.buildDefinitions">
+         		<builder
+        autoBuildTarget="all"
+        buildfileGenerator="se.aceone.mediatek.linkit.toolchain.LinkItGnuMakefileGenerator"
+        cleanBuildTarget="clean"
+        command="make"
+        errorParsers="org.eclipse.cdt.core.MakeErrorParser"
+        id="se.aceone.mediatek.linkit.gnu.builder"
+        ignoreErrCmd="-k"
+        incrementalBuildTarget="all"
+        isAbstract="true"
+        isVariableCaseSensitive="false"
+        macroInputDirRelPathValue="$(dir $&lt;)"
+        macroInputFileBaseNameValue="$(basename $(notdir $&lt;))"
+        macroInputFileExtValue="$(suffix $(notdir $&lt;))"
+        macroInputFileNameValue="$(notdir $&lt;)"
+        macroInputFileRelPathValue="$&lt;"
+        macroOutputDirRelPathValue="$(dir $@)"
+        macroOutputFileBaseNameValue="$(basename (notdir $@))"
+        macroOutputFileExtValue="$(suffix $(notdir $@)"
+        macroOutputFileNameValue="$(notdir $@)"
+        macroOutputFileRelPathValue="$@"
+        name="Mediatek LinkIt GNU Builder"
+        parallelBuildCmd="-j*"
+        reservedMacroNames="ROOT,DEPS,OBJS,.*_SRCS,EXECUTABLES,SUBDIRS,LIBS,USER_OBJS,.*_INPUTS,.*_OUTPUTS"
+        variableFormat="${=}">
+  </builder>
+      <projectType
+            id="se.aceone.mediatek.linkit.projectType"
+            isAbstract="false"
+            name="Mediatek LinkIt">
+         <configuration
+               artifactExtension="vxp"
+               cleanCommand="rm -f"
+               id="se.aceone.mediatek.linkit.configuration"
+               name="Default">
+        <toolChain
+              archList="all"
+              id="se.aceone.mediatek.linkit.toolChain.default"
+              isAbstract="false"
+              name="LinkIt Tool Chain"
+              osList="all"
+              targetTool="se.aceone.mediatek.linkit.tool.linkert"
+              >
+              <!--
+              targetTool="se.aceone.mediatek.linkit.tool.size"
+              -->
+           <targetPlatform
+                 archList="all"
+                 binaryParser="org.eclipse.cdt.core.ELF"
+                 id="se.aceone.mediatek.linkit.targetplatform"
+                 name="LinkIt Target"
+                 osList="all">
+           </targetPlatform>
+           <builder
+                 id="se.aceone.mediatek.linkit.builder"
+                 isVariableCaseSensitive="false"
+                 name="LinkIt Builder"
+                 reservedMacroNames="LinkItSDK20"
+                 superClass="se.aceone.mediatek.linkit.gnu.builder">
+           </builder>
+           <optionCategory
+                 id="se.aceone.mediatek.linkit.optionCategory.includePaths"
+                 name="Include Folders">
+           </optionCategory>
+           <tool
+                 announcement="Starting C++ compile"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCCPPCOMPILER}"
+                 commandLinePattern="${COMMAND} ${GCCTCCCOMPILER} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
+                 errorParsers="org.eclipse.cdt.core.GCCErrorParser"
+                 id="se.aceone.mediatek.linkit.compiler.cpp"
+                 name="C++ Compiler"
+                 natureFilter="both">
+              <optionCategory
+                    id="se.aceone.mediatek.linkit.cpp.optionCategory.includePaths"
+                    name="Include Path">
+              </optionCategory>
+              <option
+                    browseType="directory"
+                    category="se.aceone.mediatek.linkit.cpp.optionCategory.includePaths"
+                    command="-I"
+                    id="se.aceone.mediatek.linkit.compiler.cpp.option.incpath"
+                    name="C++ Include Path"
+                    resourceFilter="project"
+                    valueType="includePath">
+              </option>
+              <optionCategory
+                    id="se.aceone.mediatek.linkit.cpp.optionCategory.macros"
+                    name="Macros">
+              </optionCategory>
+              <option
+                    browseType="none"
+                    category="se.aceone.mediatek.linkit.cpp.optionCategory.macros"
+                    command="-D"
+                    id="se.aceone.mediatek.linkit.compiler.cpp.option.macros"
+                    name="C++ Macros"
+                    resourceFilter="project"
+                    valueType="definedSymbols">
+              </option>
+              <outputType
+                    buildVariable="LINK_OBJ"
+                    id="se.aceone.mediatek.linkit.link.output"
+                    name="C++ Link Object"
+                    nameProvider="se.aceone.mediatek.linkit.toolchain.LinkNameProvider"
+                    outputs="o"
+                    primaryOutput="true">
+              </outputType>
+              <inputType
+                    buildVariable="CPP_SKETCH_FILES"
+                    dependencyCalculator="se.aceone.mediatek.linkit.toolchain.LinkItDependencyCalculator"
+                    dependencyContentType="org.eclipse.cdt.core.cxxHeader"
+                    id="se.aceone.mediatek.linkit.compiler.cpp.input"
+                    name="C++ Source"
+                    primaryInput="true"
+                    sourceContentType="org.eclipse.cdt.core.cxxSource">
+              </inputType>
+<!--
+              <outputType
+                    buildVariable="AR_OBJ"
+                    id="se.aceone.mediatek.linkit.compiler.cpp.ar.output"
+                    name="C++ AR Object"
+                    nameProvider="se.aceone.mediatek.linkit.ArchiveNameProvider"
+                    outputs="o"
+                    primaryOutput="true">
+              </outputType>
+    -->       </tool>
+           <tool
+                 announcement="Starting C compile"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCCCOMPILER}"
+                 commandLinePattern="${COMMAND} ${GCCCOMPILER} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} -o ${OUTPUT} -c ${INPUTS}"
+                 errorParsers="org.eclipse.cdt.core.GCCErrorParser"
+                 id="se.aceone.mediatek.linkit.compiler.c"
+                 name="C Compiler"
+                 natureFilter="both">
+              <optionCategory
+                    id="se.aceone.mediatek.linkit.c.optionCategory.includePaths"
+                    name="Include Path">
+              </optionCategory>
+              <option
+                    browseType="directory"
+                    category="se.aceone.mediatek.linkit.c.optionCategory.includePaths"
+                    command="-I"
+                    id="se.aceone.mediatek.linkit.compiler.c.option.incpath"
+                    name="C Include Path"
+                    resourceFilter="project"
+                    valueType="includePath">
+              </option>
+              <optionCategory
+                    id="se.aceone.mediatek.linkit.c.optionCategory.macros"
+                    name="Macros">
+              </optionCategory>
+              <option
+                    browseType="none"
+                    category="se.aceone.mediatek.linkit.c.optionCategory.macros"
+                    command="-D"
+                    id="se.aceone.mediatek.linkit.compiler.c.option.macros"
+                    name="C Macros"
+                    resourceFilter="project"
+                    valueType="definedSymbols">
+              </option>
+              <outputType
+                    buildVariable="LINK_OBJ"
+                    id="se.aceone.mediatek.linkit.compiler.c.link.output"
+                    name="C Link Object"
+                    nameProvider="se.aceone.mediatek.linkit.toolchain.LinkNameProvider"
+                    outputs="o"
+                    primaryOutput="true">
+              </outputType>
+              <inputType
+                    buildVariable="C_SKETCH_FILES"
+                    dependencyCalculator="se.aceone.mediatek.linkit.toolchain.LinkItDependencyCalculator"
+                    dependencyContentType="org.eclipse.cdt.core.cHeader"
+                    id="se.aceone.mediatek.linkit.compiler.c.input"
+                    multipleOfType="false"
+                    name="C Source"
+                    primaryInput="true"
+                    sourceContentType="org.eclipse.cdt.core.cSource">
+              </inputType>
+              <!--
+              <outputType
+                    buildVariable="AR_OBJ"
+                    id="se.aceone.mediatek.linkit.compiler.c.ar.output"
+                    name="C AR Object"
+                    nameProvider="se.aceone.mediatek.linkit.toolchain.ArchiveNameProvider"
+                    outputs="o"
+                    primaryOutput="true">
+              </outputType>
+              -->
+           </tool>
+           <!-- 
+           <tool
+                 announcement="Starting ASM compile"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${ARMARGCC}"
+                 commandLinePattern=" ${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} ${OUTPUT} ${INPUTS}"
+                 errorParsers="org.eclipse.cdt.core.GCCErrorParser"
+                 id="se.aceone.mediatek.linkit.compiler.s"
+                 name="ASM Compiler"
+                 natureFilter="both">
+              <inputType
+                    buildVariable="S_SKETCH_FILES"
+                    dependencyCalculator="se.aceone.mediatek.linkit.toolchain.ArduinoDependencyCalculator"
+                    dependencyContentType="org.eclipse.cdt.core.cxxHeader"
+                    id="se.aceone.mediatek.linkit.compiler.S.sketch.input"
+                    name="ASM Source"
+                    primaryInput="true"
+                    sourceContentType="org.eclipse.cdt.core.asmSource">
+              </inputType>
+              <outputType
+                    buildVariable="LINK_OBJ"
+                    id="se.aceone.mediatek.linkit.compiler.S.sketch.link.output"
+                    name="ASM Link Object"
+                    nameProvider="se.aceone.mediatek.linkit.toolchain.LinkNameProvider"
+                    outputs="o"
+                    primaryOutput="true">
+              </outputType>
+              <outputType
+                    buildVariable="AR_OBJ"
+                    id="se.aceone.mediatek.linkit.compiler.S.ar.output"
+                    name="ASM AR Object"
+                    nameProvider="se.aceone.mediatek.linkit.toolchain.ArchiveNameProvider"
+                    outputs="o"
+                    primaryOutput="true">
+              </outputType>
+           </tool>
+           -->
+           <!--
+           <tool
+                 announcement="Starting archiver"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${ARMARGCC}"
+                 errorParsers="org.eclipse.cdt.core.GLDErrorParser"
+                 id="se.aceone.mediatek.linkit.tool.ar"
+                 name="Archiver">
+              <outputType
+                    buildVariable="AR"
+                    id="it.baeyens.arduino.tool.archiver.output"
+                    name="Archiver output"
+                    outputNames="${A.ARCHIVE_FILE}"
+                    outputs="ar"
+                    primaryOutput="true">
+              </outputType>
+              <inputType
+                    assignToOption="A.OBJECT_FILE"
+                    buildVariable="AR_OBJ"
+                    id="it.baeyens.arduino.tool.archiver.input"
+                    multipleOfType="true"
+                    name="Archiver input"
+                    primaryInput="false"
+                    sources="o">
+              </inputType>
+           </tool>
+           -->
+           <tool
+                 announcement="Starting Linker"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${GCCLINK}"
+                 commandLinePattern="${COMMAND} ${GCCLINKER} -B ${ARMNONEEABITHUMB} -T ${LINKIT10}/${GCCTCCLIB}/scat.ld -o ${OUTPUT} ${INPUTS} ${LINKIT10}/${GCCLIB}/${COMMONLIB}"
+                 errorParsers="org.eclipse.cdt.core.GLDErrorParser"
+                 id="se.aceone.mediatek.linkit.tool.linker"
+                 name="Linker"
+                 natureFilter="both">
+              <inputType
+                    buildVariable="LINK_OBJ"
+                    id="se.aceone.mediatek.linkit.tool.linker.input"
+                    multipleOfType="true"
+                    name="Linker input"
+                    primaryInput="true"
+                    sources="O">
+              </inputType>
+              <outputType
+                    buildVariable="ELF"
+                    id="se.aceone.mediatek.linkit.tool.linker.output"
+                    name="Linker output"
+                    outputNames="${ProjName}.axf"
+                    outputs="elf"
+                    primaryOutput="true">
+              </outputType>
+           </tool>
+           <!--
+           <tool
+                 announcement="Generating debug data file"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${OBJCOPY}"
+                 commandLinePattern="${COMMAND} -g -R .comment ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} ${OUTPUT}  ${INPUTS}"
+                 id="se.aceone.mediatek.linkit.tool.objcopy.dbgdatafile"
+                 isAbstract="false"
+                 name="Debug data file"
+                 natureFilter="both">
+              <inputType
+                    buildVariable="ELF"
+                    dependencyExtensions="elf"
+                    id="se.aceone.mediatek.linkit.tool.objcopy.dbgdatafile.input"
+                    multipleOfType="false"
+                    name="Debug data file input"
+                    primaryInput="true"
+                    sources="elf">
+              </inputType>
+              <outputType
+                    buildVariable="OUT_AXF"
+                    id="se.aceone.mediatek.linkit.tool.objcopy.dbgdatafile.output"
+                    multipleOfType="false"
+                    name="Debug data file output"
+                    outputNames="${ProjName}out.axf"
+                    outputs="afx">
+              </outputType>
+           </tool>
+           -->
+<!--           <tool
+                 announcement="Generating debug data file"
+                 command="${LINKITSDK20}${GCCLOCATION}/bin/${OBJCOPY}"
+                 commandLinePattern="${COMMAND} -only-keep-debug  ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} ${OUTPUT}  ${INPUTS}"
+                 id="se.aceone.mediatek.linkit.tool.objcopy.dbg"
+                 isAbstract="false"
+                 name="Splitting debug data"
+                 natureFilter="both">
+              <inputType
+                    buildVariable="ELF"
+                    dependencyExtensions="elf"
+                    id="se.aceone.mediatek.linkit.tool.objcopy.dbg.input"
+                    multipleOfType="false"
+                    name="Splitting debug data input"
+                    primaryInput="true"
+                    sources="elf">
+              </inputType>
+              <outputType
+                    buildVariable="DBG"
+                    id="se.aceone.mediatek.linkit.tool.objcopy.dbg.output"
+                    multipleOfType="false"
+                    name="Splitting debug data output"
+                    outputNames="${ProjName}.dbg"
+                    outputs="dbg">
+              </outputType>
+           </tool>
+           -->
+           <!--
+           <tool
+                 announcement="Create Flash image (ihex format)"
+                 command="${A.RECIPE.OBJCOPY.HEX.PATTERN} "
+                 id="se.aceone.mediatek.linkit.tool.objcopy.flash"
+                 isAbstract="false"
+                 name="Flash image"
+                 natureFilter="both">
+              <inputType
+                    buildVariable="EEP"
+                    dependencyExtensions="eep"
+                    id="it.baeyens.arduino.tool.objcopy.flash.input"
+                    multipleOfType="true"
+                    name="Flash image input"
+                    primaryInput="true"
+                    sourceContentType="it.baeyens.arduino.tool.eep.output"
+                    sources="eep">
+              </inputType>
+              <outputType
+                    buildVariable="FLASH_IMAGE"
+                    id="it.baeyens.arduino.tool.objcopy.flash.output"
+                    multipleOfType="false"
+                    name="Flash image output"
+                    nameProvider="it.baeyens.arduino.toolchain.hexNameProvider"
+                    outputs="hex,bin">
+              </outputType>
+           </tool>
+                <tool
+                 announcement="%tool.announcement.5"
+                 command="${JANTJE.SIZE.SWITCH} "
+                 id="se.aceone.mediatek.linkit.tool.size"
+                 name="Size">
+              <inputType
+                    buildVariable="FLASH_IMAGE"
+                    dependencyExtensions="hex"
+                    id="it.baeyens.arduino.tool.size.input"
+                    multipleOfType="true"
+                    name="Size input"
+                    primaryInput="true"
+                    sourceContentType="it.baeyens.arduino.tool.objcopy.flash.output">
+              </inputType>
+              <outputType
+                    buildVariable="SIZEDUMMY"
+                    id="it.baeyens.arduino.tool.size.output"
+                    multipleOfType="false"
+                    name="Size output"
+                    outputNames="sizedummy"
+                    outputs="${project}.size"
+                    primaryOutput="true">
+              </outputType>
+           </tool>
+           -->
+        </toolChain>
+         </configuration>
+      </projectType>
+   </extension>
+
+</plugin>
