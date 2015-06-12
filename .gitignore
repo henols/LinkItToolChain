@@ -1,1 +1,4 @@
 *.class
+*.prefs
+se.aceone.mediatek.linkit/.classpath
+*.classpath
