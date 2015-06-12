@@ -2,3 +2,5 @@
 *.prefs
 se.aceone.mediatek.linkit/.classpath
 *.classpath
+se.aceone.mediatek.linkit/.project
+*.project
