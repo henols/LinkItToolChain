@@ -138,8 +138,6 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 		IPath gccInclude = linkit10.append(gccIncludeVar);
 		IPath linkit = project.getFolder("LinkIt").getProjectRelativePath();
 
-		String[] split = gccIncludeVar.split("[/\\\\]");
-		outPath = linkit.append(split[split.length - 1]);
 //		addResourceToProject(monitor, project, gccInclude, outPath);
 		linkFileToFolder(project, gccInclude, linkit);
 	}
