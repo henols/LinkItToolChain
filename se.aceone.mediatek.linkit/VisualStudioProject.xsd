@@ -1,0 +1,140 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="VisualStudioProject">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Platforms">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Platform">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="Name"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element type="xs:string" name="ToolFiles"/>
+        <xs:element name="Configurations">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Configuration" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Tool" maxOccurs="unbounded" minOccurs="0">
+                      <xs:complexType>
+                        <xs:simpleContent>
+                          <xs:extension base="xs:string">
+                            <xs:attribute type="xs:string" name="Name" use="optional"/>
+                            <xs:attribute type="xs:string" name="CommandLine" use="optional"/>
+                            <xs:attribute type="xs:string" name="PreprocessorDefinitions" use="optional"/>
+                            <xs:attribute type="xs:string" name="MkTypLibCompatible" use="optional"/>
+                            <xs:attribute type="xs:string" name="SuppressStartupBanner" use="optional"/>
+                            <xs:attribute type="xs:byte" name="TargetEnvironment" use="optional"/>
+                            <xs:attribute type="xs:string" name="TypeLibraryName" use="optional"/>
+                            <xs:attribute type="xs:string" name="HeaderFileName" use="optional"/>
+                            <xs:attribute type="xs:byte" name="Optimization" use="optional"/>
+                            <xs:attribute type="xs:string" name="AdditionalIncludeDirectories" use="optional"/>
+                            <xs:attribute type="xs:string" name="MinimalRebuild" use="optional"/>
+                            <xs:attribute type="xs:byte" name="BasicRuntimeChecks" use="optional"/>
+                            <xs:attribute type="xs:byte" name="RuntimeLibrary" use="optional"/>
+                            <xs:attribute type="xs:string" name="RuntimeTypeInfo" use="optional"/>
+                            <xs:attribute type="xs:string" name="PrecompiledHeaderFile" use="optional"/>
+                            <xs:attribute type="xs:string" name="AssemblerListingLocation" use="optional"/>
+                            <xs:attribute type="xs:string" name="ObjectFile" use="optional"/>
+                            <xs:attribute type="xs:string" name="ProgramDataBaseFileName" use="optional"/>
+                            <xs:attribute type="xs:byte" name="BrowseInformation" use="optional"/>
+                            <xs:attribute type="xs:byte" name="WarningLevel" use="optional"/>
+                            <xs:attribute type="xs:byte" name="DebugInformationFormat" use="optional"/>
+                            <xs:attribute type="xs:string" name="ForcedIncludeFiles" use="optional"/>
+                            <xs:attribute type="xs:short" name="Culture" use="optional"/>
+                            <xs:attribute type="xs:string" name="AdditionalDependencies" use="optional"/>
+                            <xs:attribute type="xs:string" name="OutputFile" use="optional"/>
+                            <xs:attribute type="xs:byte" name="LinkIncremental" use="optional"/>
+                            <xs:attribute type="xs:string" name="IgnoreDefaultLibraryNames" use="optional"/>
+                            <xs:attribute type="xs:string" name="ModuleDefinitionFile" use="optional"/>
+                            <xs:attribute type="xs:string" name="GenerateDebugInformation" use="optional"/>
+                            <xs:attribute type="xs:string" name="ProgramDatabaseFile" use="optional"/>
+                            <xs:attribute type="xs:byte" name="SubSystem" use="optional"/>
+                            <xs:attribute type="xs:byte" name="RandomizedBaseAddress" use="optional"/>
+                            <xs:attribute type="xs:byte" name="DataExecutionPrevention" use="optional"/>
+                            <xs:attribute type="xs:string" name="ImportLibrary" use="optional"/>
+                            <xs:attribute type="xs:byte" name="TargetMachine" use="optional"/>
+                            <xs:attribute type="xs:byte" name="InlineFunctionExpansion" use="optional"/>
+                            <xs:attribute type="xs:string" name="StringPooling" use="optional"/>
+                            <xs:attribute type="xs:string" name="EnableFunctionLevelLinking" use="optional"/>
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute type="xs:string" name="Name" use="optional"/>
+                  <xs:attribute type="xs:string" name="OutputDirectory" use="optional"/>
+                  <xs:attribute type="xs:string" name="IntermediateDirectory" use="optional"/>
+                  <xs:attribute type="xs:byte" name="ConfigurationType" use="optional"/>
+                  <xs:attribute type="xs:string" name="InheritedPropertySheets" use="optional"/>
+                  <xs:attribute type="xs:byte" name="UseOfMFC" use="optional"/>
+                  <xs:attribute type="xs:string" name="ATLMinimizesCRunTimeLibraryUsage" use="optional"/>
+                  <xs:attribute type="xs:byte" name="CharacterSet" use="optional"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element type="xs:string" name="References"/>
+        <xs:element name="Files">
+          <xs:complexType>
+            <xs:choice maxOccurs="unbounded" minOccurs="0">
+              <xs:element name="Filter">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="File" maxOccurs="unbounded" minOccurs="0">
+                      <xs:complexType>
+                        <xs:simpleContent>
+                          <xs:extension base="xs:string">
+                            <xs:attribute type="xs:string" name="RelativePath" use="optional"/>
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute type="xs:string" name="Name"/>
+                  <xs:attribute type="xs:string" name="Filter"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="File">
+                <xs:complexType mixed="true">
+                  <xs:sequence>
+                    <xs:element name="File" maxOccurs="unbounded" minOccurs="0">
+                      <xs:complexType>
+                        <xs:simpleContent>
+                          <xs:extension base="xs:string">
+                            <xs:attribute type="xs:string" name="RelativePath" use="optional"/>
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute type="xs:string" name="RelativePath" use="optional"/>
+                  <xs:attribute type="xs:string" name="Name" use="optional"/>
+                  <xs:attribute type="xs:string" name="Filter" use="optional"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element type="xs:string" name="Globals"/>
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="ProjectType"/>
+      <xs:attribute type="xs:float" name="Version"/>
+      <xs:attribute type="xs:string" name="Name"/>
+      <xs:attribute type="xs:string" name="ProjectGUID"/>
+      <xs:attribute type="xs:string" name="RootNamespace"/>
+      <xs:attribute type="xs:string" name="Keyword"/>
+      <xs:attribute type="xs:byte" name="TargetFrameworkVersion"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
