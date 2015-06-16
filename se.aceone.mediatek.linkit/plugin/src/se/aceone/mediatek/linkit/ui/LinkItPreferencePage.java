@@ -1,14 +1,5 @@
 package se.aceone.mediatek.linkit.ui;
 
-import java.awt.Desktop;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.eclipse.core.resources.IPathVariableManager;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -16,9 +7,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
@@ -27,12 +16,7 @@ import se.aceone.mediatek.linkit.common.LinkItConst;
 
 public class LinkItPreferencePage extends FieldEditorPreferencePage implements LinkItConst, IWorkbenchPreferencePage {
 
-//	private MyDirectoryFieldEditor mArduinoIdePath;
-//	private DirectoryFieldEditor mArduinoPrivateLibPath;
-//	private DirectoryFieldEditor mArduinoPrivateHardwarePath;
-//	private ComboFieldEditor mArduinoBuildBeforeUploadOption;
 	private boolean mIsDirty = false;
-	private IPath mPrefBoardFile = null;
 	private StringFieldEditor developer;
 	private StringFieldEditor appName;
 	private StringFieldEditor appVersion;
@@ -68,43 +52,6 @@ public class LinkItPreferencePage extends FieldEditorPreferencePage implements L
 	@Override
 	public boolean okToLeave() {
 		return testStatus();
-	}
-
-	private boolean showError(String dialogMessage) {
-		String FullDialogMessage = dialogMessage + "\nPlease see <http://eclipse.baeyens.it/installAdvice.shtml> for more info.\n";
-		FullDialogMessage = FullDialogMessage
-				+ "Yes continue and ignore the warning\nNo do not continue and open install advice in browser\ncancel do not continue";
-		MessageBox dialog = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.CANCEL | SWT.NO);
-		dialog.setText("Considerations about Arduino IDE compatibility");
-		dialog.setMessage(FullDialogMessage);
-		int ret = dialog.open();
-		if (ret == SWT.CANCEL)
-			return false;
-		if (ret == SWT.NO) {
-			boolean openedDialog = false;
-			try {
-				URI uri = new URI("http://eclipse.baeyens.it/installAdvice.shtml");
-
-				Desktop desktop = null;
-				if (Desktop.isDesktopSupported()) {
-					desktop = Desktop.getDesktop();
-					desktop.browse(uri);
-					openedDialog = true;
-				}
-			} catch (URISyntaxException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			if (!openedDialog) {
-				dialog = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
-				dialog.setText("A error occured!");
-				dialog.setMessage("Failed to open browser!");
-				dialog.open();
-			}
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -145,8 +92,8 @@ public class LinkItPreferencePage extends FieldEditorPreferencePage implements L
 	 */
 	private void setWorkSpacePathVariables() {
 
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IPathVariableManager pathMan = workspace.getPathVariableManager();
+//		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+//		IPathVariableManager pathMan = workspace.getPathVariableManager();
 
 //		try {
 //			IPath ArduinoIDEPath = Common.getArduinoIDEPathFromUserSelection(mArduinoIdePath.getStringValue());
@@ -240,7 +187,7 @@ public class LinkItPreferencePage extends FieldEditorPreferencePage implements L
 	 */
 	private boolean testStatus() {
 		String ErrorMessage = "";
-		String Seperator = "";
+//		String Seperator = "";
 
 		// Validate the arduino path
 //		IPath arduinoFolder = Common.getArduinoIDEPathFromUserSelection(mArduinoIdePath.getStringValue());

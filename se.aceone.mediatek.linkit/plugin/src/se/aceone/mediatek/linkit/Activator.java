@@ -3,7 +3,6 @@ package se.aceone.mediatek.linkit;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -13,7 +12,7 @@ import org.osgi.framework.BundleContext;
 
 public class Activator extends AbstractUIPlugin implements BundleActivator {
 
-	private static BundleContext context;
+//	private static BundleContext context;
 	private static AbstractUIPlugin plugin;
 
 	/*

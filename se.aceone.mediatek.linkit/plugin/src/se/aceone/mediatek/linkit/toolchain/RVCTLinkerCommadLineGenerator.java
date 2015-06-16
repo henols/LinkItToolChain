@@ -1,19 +1,11 @@
 package se.aceone.mediatek.linkit.toolchain;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.eclipse.cdt.core.CCorePlugin;
-import org.eclipse.cdt.core.envvar.IContributedEnvironment;
-import org.eclipse.cdt.core.envvar.IEnvironmentVariableManager;
-import org.eclipse.cdt.managedbuilder.buildproperties.IBuildProperty;
-import org.eclipse.cdt.managedbuilder.core.IBuildObject;
-import org.eclipse.cdt.managedbuilder.core.IBuildObjectProperties;
 import org.eclipse.cdt.managedbuilder.core.IConfiguration;
 import org.eclipse.cdt.managedbuilder.core.IManagedCommandLineGenerator;
 import org.eclipse.cdt.managedbuilder.core.IManagedCommandLineInfo;
@@ -22,23 +14,17 @@ import org.eclipse.cdt.managedbuilder.core.ITool;
 import org.eclipse.cdt.managedbuilder.core.IToolChain;
 import org.eclipse.cdt.managedbuilder.core.ManagedBuildManager;
 import org.eclipse.cdt.managedbuilder.internal.core.ManagedCommandLineInfo;
-import org.eclipse.cdt.managedbuilder.macros.BuildMacroException;
 import org.eclipse.cdt.managedbuilder.macros.IBuildMacro;
 import org.eclipse.cdt.managedbuilder.macros.IBuildMacroProvider;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 
 import se.aceone.mediatek.linkit.common.LinkItConst;
-import se.aceone.mediatek.linkit.common.LinkItPreferences;
 import se.aceone.mediatek.linkit.tools.Common;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo;
-import se.aceone.mediatek.linkit.xml.config.Packageinfo.Userinfo;
 
+@SuppressWarnings("restriction")
 public class RVCTLinkerCommadLineGenerator implements IManagedCommandLineGenerator, LinkItConst {
 	public final String AT = "@"; //$NON-NLS-1$
 	public final String COLON = ":"; //$NON-NLS-1$

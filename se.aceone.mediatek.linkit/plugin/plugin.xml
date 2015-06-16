@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
-<plugin name="" version="" id="">
-	<extension point="org.eclipse.ui.newWizards">
+<plugin>
+ <extension
+         point="org.eclipse.ui.menus">
+         
+      <menuContribution
+         locationURI=
+         "popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
+         <command
+               commandId="se.aceone.mediatek.linkit.commands.updateproj"
+               label="Update project file"
+               mnemonic="M1+U">
+            <visibleWhen>
+			   <iterate operator="and">
+				 <test property="org.eclipse.core.resources.projectNature" value="org.eclipse.cdt.core.cnature"/>
+             	 <with variable="activeWorkbenchWindow.activePerspective">
+                   <equals value="org.eclipse.cdt.ui.CPerspective"/>
+                 </with>
+			   </iterate>
+			</visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>	<extension point="org.eclipse.ui.newWizards">
 		<category 
 			id="se.aceone.mediatek.linkit.newWizards"
 			name="LinkIt">
@@ -639,21 +659,18 @@
           menuGroupId="org.eclipse.cdt.ui.newProject"
           type="new"
           wizardId="se.aceone.mediatek.linkit.NewLinkit10ProjectWizard">
+          
        <enablement>
           <or>
-             <with
-                   variable="activeWorkbenchWindow.activePerspective">
-                <equals
-                      value="org.eclipse.cdt.ui.CPerspective">
+             <with variable="activeWorkbenchWindow.activePerspective">
+                <equals value="org.eclipse.cdt.ui.CPerspective">
                 </equals>
              </with>
              <instanceof
-                   value="org.eclipse.cdt.core.model.ICElement">
-             </instanceof>
+                   value="org.eclipse.cdt.core.model.ICElement"/>
              <and>
                 <instanceof
-                      value="org.eclipse.core.resources.IProject">
-                </instanceof>
+                      value="org.eclipse.core.resources.IProject"/>
                 <test
                       property="org.eclipse.core.resources.projectNature"
                       value="org.eclipse.cdt.core.cnature">
@@ -676,12 +693,10 @@
                 </equals>
              </with>
              <instanceof
-                   value="org.eclipse.cdt.core.model.ICElement">
-             </instanceof>
+                   value="org.eclipse.cdt.core.model.ICElement"/>
              <and>
                 <instanceof
-                      value="org.eclipse.core.resources.IProject">
-                </instanceof>
+                      value="org.eclipse.core.resources.IProject"/>
                 <test
                       property="org.eclipse.core.resources.projectNature"
                       value="org.eclipse.cdt.core.cnature">
@@ -721,19 +736,49 @@
             id="se.aceone.mediatek.linkit.commands.pack"
             name="Pack Command">
       </command>
+      <command
+            categoryId="se.aceone.mediatek.linkit.commands.category"
+            id="se.aceone.mediatek.linkit.commands.updateproj"
+            name="Update project file">
+      </command>
    </extension>
-   <extension
-         point="org.eclipse.ui.menus">
+   <extension point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="menu:org.eclipse.ui.main.menu?after=additions">
          <menu
                id="se.aceone.mediatek.linkit.menus.pack"
-               label="LinkIt"
-               mnemonic="M">
+               label="LinkIt">
+               <visibleWhen
+                     checkEnabled="true">
+                               <or>
+             <with variable="activeWorkbenchWindow.activePerspective">
+                <equals
+                      value="org.eclipse.cdt.ui.CPerspective">
+                </equals>
+             </with>
+             <instanceof
+                   value="org.eclipse.cdt.core.model.ICElement">
+             </instanceof>
+             <and>
+                <instanceof
+                      value="org.eclipse.core.resources.IProject">
+                </instanceof>
+                <test
+                      property="org.eclipse.core.resources.projectNature"
+                      value="org.eclipse.cdt.core.cnature">
+                </test>
+             </and>
+          </or>
+                     
+              </visibleWhen>
             <command
                   commandId="se.aceone.mediatek.linkit.commands.pack"
                   id="se.aceone.mediatek.linkit.menus.pack"
                   mnemonic="P">
+            </command>
+            <command
+                  commandId="se.aceone.mediatek.linkit.commands.updateproj"
+                  id="se.aceone.mediatek.linkit.menus.updateproj">
             </command>
          </menu>
       </menuContribution>
@@ -789,10 +834,29 @@
             class="se.aceone.mediatek.linkit.handlers.LinkItProjectPackHandler"
             commandId="se.aceone.mediatek.linkit.commands.pack">
       </handler>
+      <handler class="se.aceone.mediatek.linkit.commad.UpdateProjectFile" commandId="se.aceone.mediatek.linkit.commands.updateproj">
+      <activeWhen>
+			 <with variable="selection">
+             <iterate ifEmpty="true" operator="and">
+                <adapt type="org.eclipse.core.resources.IResource">
+                   <or>
+                      <test property="org.eclipse.core.resources.extension"
+                            value="proj">
+                      </test>
+                      <test property="org.eclipse.core.resources.extension"
+                            value="vcproj">
+                      </test>
+                   </or>
+                </adapt>
+             </iterate>
+          </with>
+      </activeWhen>
+      </handler>
+      
    </extension>
    <extension
-         id="se.aceone.mediatek.linkit.errorparser"
-         name="LinkIt Error parser"
+         id="se.aceone.mediatek.linkit.errorparser.compiler"
+         name="LinkIt Error parser Compiler"
          point="org.eclipse.cdt.core.ErrorParser">
       <errorparser
             id="se.aceone.mediatek.linkit.rvct.compiler"
@@ -822,6 +886,11 @@
                severity="Info">
          </pattern>
       </errorparser>
+   </extension>
+   <extension
+         id="se.aceone.mediatek.linkit.errorparser.linker"
+         name="LinkIt Error parser Linker"
+         point="org.eclipse.cdt.core.ErrorParser">
       <errorparser
             id="se.aceone.mediatek.linkit.rvct.linker"
             name="RVCT Linker Error parser">

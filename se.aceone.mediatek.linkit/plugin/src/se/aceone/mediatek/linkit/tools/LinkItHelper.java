@@ -62,6 +62,7 @@ import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -83,6 +84,7 @@ import se.aceone.mediatek.linkit.xml.config.Packageinfo.Namelist;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Output;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Userinfo;
 
+@SuppressWarnings("restriction")
 public abstract class LinkItHelper extends Common {
 
 	private IProject project;
@@ -126,7 +128,7 @@ public abstract class LinkItHelper extends Common {
 		ICLanguageSetting[] languageSettings = folderDescription.getLanguageSettings();
 		boolean hasChange = false;
 		// Add include path to all languages
-		for (int idx = 0; idx < languageSettings.length; idx++) {
+		for(int idx = 0; idx < languageSettings.length; idx++) {
 			ICLanguageSetting lang = languageSettings[idx];
 			String LangID = lang.getLanguageId();
 			if (LangID != null) {
@@ -134,9 +136,9 @@ public abstract class LinkItHelper extends Common {
 					ICLanguageSettingEntry[] OrgIncludeEntries = lang.getSettingEntries(ICSettingEntry.INCLUDE_PATH);
 					ICLanguageSettingEntry[] OrgIncludeEntriesFull = lang.getResolvedSettingEntries(ICSettingEntry.INCLUDE_PATH);
 					int copiedEntry = 0;
-					for (int curEntry = 0; curEntry < OrgIncludeEntries.length; curEntry++) {
-						IPath cusPath = ((CIncludePathEntry) OrgIncludeEntriesFull[curEntry]).getFullPath();
-						if ((ResourcesPlugin.getWorkspace().getRoot().exists(cusPath)) || (((CIncludePathEntry) OrgIncludeEntries[curEntry]).isBuiltIn())) {
+					for(int curEntry = 0; curEntry < OrgIncludeEntries.length; curEntry++) {
+						IPath cusPath = ((CIncludePathEntry)OrgIncludeEntriesFull[curEntry]).getFullPath();
+						if ((ResourcesPlugin.getWorkspace().getRoot().exists(cusPath)) || (((CIncludePathEntry)OrgIncludeEntries[curEntry]).isBuiltIn())) {
 							OrgIncludeEntries[copiedEntry++] = OrgIncludeEntries[curEntry];
 						} else {
 							Common.log(new Status(IStatus.WARNING, LinkItConst.CORE_PLUGIN_ID, "Removed invalid include path" + cusPath, null));
@@ -174,7 +176,7 @@ public abstract class LinkItHelper extends Common {
 
 		// create target parent folder and grandparents
 		IPath ParentFolders = new Path(target.toString()).removeLastSegments(1);
-		for (int curfolder = ParentFolders.segmentCount() - 1; curfolder >= 0; curfolder--) {
+		for(int curfolder = ParentFolders.segmentCount() - 1; curfolder >= 0; curfolder--) {
 			try {
 				createNewFolder(project, ParentFolders.removeLastSegments(curfolder).toString(), null);
 			} catch (CoreException e) {// ignore this error as the parent
@@ -230,12 +232,11 @@ public abstract class LinkItHelper extends Common {
 		ConsolePlugin plugin = ConsolePlugin.getDefault();
 		IConsoleManager conMan = plugin.getConsoleManager();
 		IConsole[] existing = conMan.getConsoles();
-		for (int i = 0; i < existing.length; i++)
-			if (name.equals(existing[i].getName()))
-				return (MessageConsole) existing[i];
+		for(int i = 0; i < existing.length; i++)
+			if (name.equals(existing[i].getName())) return (MessageConsole)existing[i];
 		// no console found, so create a new one
 		MessageConsole myConsole = new MessageConsole(name, null);
-		conMan.addConsoles(new IConsole[] { myConsole });
+		conMan.addConsoles(new IConsole[]{ myConsole });
 		return myConsole;
 	}
 
@@ -281,22 +282,18 @@ public abstract class LinkItHelper extends Common {
 
 		List<ILanguageSettingsProvider> providers;
 		if (cfgDescription instanceof ILanguageSettingsProvidersKeeper) {
-			providers = new ArrayList<ILanguageSettingsProvider>(((ILanguageSettingsProvidersKeeper) cfgDescription).getLanguageSettingProviders());
-			for (ILanguageSettingsProvider provider : providers) {
+			providers = new ArrayList<ILanguageSettingsProvider>(((ILanguageSettingsProvidersKeeper)cfgDescription).getLanguageSettingProviders());
+			for(ILanguageSettingsProvider provider : providers) {
 				if ((provider instanceof AbstractBuiltinSpecsDetector)) { // basically
 					// check
 					// for
 					// working
 					// copy
 					// clear and reset isExecuted flag
-					((AbstractBuiltinSpecsDetector) provider).clear();
+					((AbstractBuiltinSpecsDetector)provider).clear();
 				}
 			}
 		}
-	}
-
-	private String makeEnvVar(String string) {
-		return "${" + string + "}";
 	}
 
 	/**
@@ -314,7 +311,7 @@ public abstract class LinkItHelper extends Common {
 			Common.log(new Status(IStatus.INFO, LinkItConst.CORE_PLUGIN_ID, "The folder you want to link to '" + source + "' does not contain any files.", null));
 			return;
 		}
-		for (File f : a) {
+		for(File f : a) {
 			if (f.isDirectory()) {
 				linkFolderToFolder(project, source.append(f.getName()), target.append(f.getName()));
 			} else {
@@ -345,7 +342,7 @@ public abstract class LinkItHelper extends Common {
 
 		IConfiguration configuration = ManagedBuildManager.getExtensionConfiguration(LINKIT_CONFIGURATION);
 
-		IConfiguration cfg = new Configuration(mProj, (ToolChain) toolChain, toolChainChildId, LINKIT_CONFIGURATION_NAME);
+		IConfiguration cfg = new Configuration(mProj, (ToolChain)toolChain, toolChainChildId, LINKIT_CONFIGURATION_NAME);
 		cfg.setCleanCommand(configuration.getCleanCommand());
 
 		IBuilder bld = cfg.getEditableBuilder();
@@ -369,16 +366,15 @@ public abstract class LinkItHelper extends Common {
 		return LINKIT_DEFAULT_TOOL_CHAIN_GCC;
 	}
 
-	
 	private void setDefaultLanguageSettingsProviders(IProject project, String toolChainId, IConfiguration cfg, ICConfigurationDescription cfgDescription) {
 		// propagate the preference to project properties
 		boolean isPreferenceEnabled = ScannerDiscoveryLegacySupport.isLanguageSettingsProvidersFunctionalityEnabled(null);
 		ScannerDiscoveryLegacySupport.setLanguageSettingsProvidersFunctionalityEnabled(project, isPreferenceEnabled);
 
 		if (cfgDescription instanceof ILanguageSettingsProvidersKeeper) {
-			ILanguageSettingsProvidersKeeper lspk = (ILanguageSettingsProvidersKeeper) cfgDescription;
+			ILanguageSettingsProvidersKeeper lspk = (ILanguageSettingsProvidersKeeper)cfgDescription;
 
-			lspk.setDefaultLanguageSettingsProvidersIds(new String[] { toolChainId });
+			lspk.setDefaultLanguageSettingsProvidersIds(new String[]{ toolChainId });
 
 			List<ILanguageSettingsProvider> providers = getDefaultLanguageSettingsProviders(cfg, cfgDescription);
 			lspk.setLanguageSettingProviders(providers);
@@ -395,7 +391,7 @@ public abstract class LinkItHelper extends Common {
 		}
 
 		if (ids != null) {
-			for (String id : ids) {
+			for(String id : ids) {
 				ILanguageSettingsProvider provider = null;
 				if (!LanguageSettingsManager.isPreferShared(id)) {
 					provider = LanguageSettingsManager.getExtensionProviderCopy(id, false);
@@ -426,11 +422,11 @@ public abstract class LinkItHelper extends Common {
 
 	public void addMacro(ICConfigurationDescription configurationDescription, String macro, String value, int flags) {
 		// find all languages
-		for (ICFolderDescription folderDescription : configurationDescription.getFolderDescriptions()) {
+		for(ICFolderDescription folderDescription : configurationDescription.getFolderDescriptions()) {
 			ICLanguageSetting[] settings = folderDescription.getLanguageSettings();
 
 			// Add include path to all languages
-			for (ICLanguageSetting setting : settings) {
+			for(ICLanguageSetting setting : settings) {
 				String langId = setting.getLanguageId();
 				if (langId != null && langId.startsWith("org.eclipse.cdt.")) { //$NON-NLS-1$
 					List<ICLanguageSettingEntry> macros = new ArrayList<ICLanguageSettingEntry>();
@@ -504,7 +500,7 @@ public abstract class LinkItHelper extends Common {
 		// find all languages
 		ICConfigurationDescription configuration = configurationDescription.getConfiguration();
 		List<ICSourceEntry> srcFolders = new ArrayList<ICSourceEntry>();
-		for (ICSourceEntry entry : configuration.getSourceEntries()) {
+		for(ICSourceEntry entry : configuration.getSourceEntries()) {
 			srcFolders.add(entry);
 		}
 		srcFolders.add(new CSourceEntry(includePath, null, ICSettingEntry.RESOLVED));
@@ -544,7 +540,7 @@ public abstract class LinkItHelper extends Common {
 		ICLanguageSetting[] settings = folderDescription.getLanguageSettings();
 
 		// Add include path to all languages
-		for (ICLanguageSetting setting : settings) {
+		for(ICLanguageSetting setting : settings) {
 			String langId = setting.getLanguageId();
 			if (langId != null && langId.startsWith("org.eclipse.cdt.")) { //$NON-NLS-1$
 				List<ICLanguageSettingEntry> includes = new ArrayList<ICLanguageSettingEntry>();
@@ -624,7 +620,7 @@ public abstract class LinkItHelper extends Common {
 		JAXBContext jaxbContext = JAXBContext.newInstance(Packageinfo.class);
 
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-		Packageinfo packageinfo = (Packageinfo) jaxbUnmarshaller.unmarshal(new File(projType.append("config.xml").toOSString()));
+		Packageinfo packageinfo = (Packageinfo)jaxbUnmarshaller.unmarshal(new File(projType.append("config.xml").toOSString()));
 		Userinfo userinfo = packageinfo.getUserinfo();
 		userinfo.setDeveloper(LinkItPreferences.getDeveloper());
 		userinfo.setAppname(LinkItPreferences.getAppName());
@@ -671,8 +667,7 @@ public abstract class LinkItHelper extends Common {
 
 	}
 
-	protected void addResourceToProject(IProgressMonitor monitor, IProject project, IPath srcPath, IPath outPath, Map<String, String> replace)
-			throws CoreException, IOException {
+	protected void addResourceToProject(IProgressMonitor monitor, IProject project, IPath srcPath, IPath outPath, Map<String, String> replace) throws CoreException, IOException {
 		InputStream contentStream;
 		if (replace != null) {
 			String lineSep = System.getProperty("line.separator");
@@ -686,7 +681,7 @@ public abstract class LinkItHelper extends Common {
 			}
 			br.close();
 			String res = sb.toString();
-			for (String key : replace.keySet()) {
+			for(String key : replace.keySet()) {
 				res = res.replaceAll(key, replace.get(key));
 			}
 			contentStream = new ByteArrayInputStream(res.getBytes());
@@ -708,14 +703,14 @@ public abstract class LinkItHelper extends Common {
 	public void setGccLocation(String gccLocation) {
 		this.gccLocation = gccLocation;
 	}
-	
+
 	public String getGccLocation() {
 		return gccLocation;
 	}
-	
+
 	protected String getIncludeVar() {
 		return "GCCINCLUDE";
 	}
-	
+
 
 }
