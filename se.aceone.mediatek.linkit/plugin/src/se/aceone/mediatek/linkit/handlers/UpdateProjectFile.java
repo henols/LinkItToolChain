@@ -1,4 +1,4 @@
-package se.aceone.mediatek.linkit.commad;
+package se.aceone.mediatek.linkit.handlers;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -127,7 +127,7 @@ public class UpdateProjectFile extends AbstractHandler {
 		try {
 			project.accept(new IResourceVisitor() {
 				public boolean visit(IResource resource) throws CoreException {
-					if (resource.isLinked()) {
+					if (resource.isLinked() || resource.isLinked(IResource.CHECK_ANCESTORS)) {
 						return false;
 					}
 					if (resource.getType() == IResource.FILE) {

@@ -140,8 +140,8 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 
 		String[] split = gccIncludeVar.split("[/\\\\]");
 		outPath = linkit.append(split[split.length - 1]);
-		addResourceToProject(monitor, project, gccInclude, outPath);
-
+//		addResourceToProject(monitor, project, gccInclude, outPath);
+		linkFileToFolder(project, gccInclude, linkit);
 	}
 
 }

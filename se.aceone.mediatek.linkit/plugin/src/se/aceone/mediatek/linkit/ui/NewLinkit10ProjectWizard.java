@@ -1,7 +1,6 @@
 package se.aceone.mediatek.linkit.ui;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
@@ -121,8 +120,8 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
 
 			helper.buildPathVariables(project, resourceDescription);
 
-			IPathVariableManager pathMan = project.getPathVariableManager();
-			URI uri = pathMan.resolveURI(pathMan.getURIValue(LINKIT10));
+//			IPathVariableManager pathMan = project.getPathVariableManager();
+//			URI uri = pathMan.resolveURI(pathMan.getURIValue(LINKIT10));
 //			helper.createNewFolder(project, "LinkIt", URIUtil.toURI(new Path(uri.getPath()).append("src")));
 			helper.createNewFolder(project, "LinkIt", null);
 

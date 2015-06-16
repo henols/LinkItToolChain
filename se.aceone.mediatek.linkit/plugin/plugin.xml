@@ -519,7 +519,7 @@
 		<handler class="se.aceone.mediatek.linkit.handlers.LinkItProjectPackHandler"
 			commandId="se.aceone.mediatek.linkit.commands.pack">
 		</handler>
-		<handler class="se.aceone.mediatek.linkit.commad.UpdateProjectFile"
+		<handler class="se.aceone.mediatek.linkit.handlers.UpdateProjectFile"
 			commandId="se.aceone.mediatek.linkit.commands.updateproj">
 			<activeWhen>
 				<with variable="selection">

@@ -62,7 +62,6 @@ import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -315,14 +314,18 @@ public abstract class LinkItHelper extends Common {
 			if (f.isDirectory()) {
 				linkFolderToFolder(project, source.append(f.getName()), target.append(f.getName()));
 			} else {
-				final IFile newFileHandle = project.getFile(target.append(f.getName()));
-				try {
-					newFileHandle.createLink(source.append(f.getName()), IResource.REPLACE | IResource.ALLOW_MISSING_LOCAL, null);
-				} catch (CoreException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				linkFileToFolder(project, source.append(f.getName()), target);
 			}
+		}
+	}
+
+	protected void linkFileToFolder(IProject project, IPath source, IPath target) {
+		final IFile newFileHandle = project.getFile(target.append(source.lastSegment()));
+		try {
+			newFileHandle.createLink(source, IResource.REPLACE | IResource.ALLOW_MISSING_LOCAL, null);
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
