@@ -6,3 +6,8 @@ se.aceone.mediatek.linkit/.project
 *.project
 se.aceone.mediatek.linkit/.settings/org.eclipse.wst.common.project.facet.core.xml
 se.aceone.mediatek.linkit/.settings/org.eclipse.wst.common.project.facet.core.prefs.xml
+*.log
+*.ini
+*.location
+*.lock
+.metadata/.mylyn/repositories.xml.zip

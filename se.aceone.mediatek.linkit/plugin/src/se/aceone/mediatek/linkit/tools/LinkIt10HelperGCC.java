@@ -14,6 +14,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.core.settings.model.ICProjectDescription;
+import org.eclipse.cdt.core.settings.model.ICResourceDescription;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -57,6 +58,21 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 		return compiler;
 	}
 
+	@Override
+	public void setIncludePaths(ICProjectDescription projectDescriptor, ICResourceDescription resourceDescription) {
+		super.setIncludePaths(projectDescriptor, resourceDescription);
+
+		ICConfigurationDescription configurationDescription = projectDescriptor.getDefaultSettingConfiguration();
+		IProject project = projectDescriptor.getProject();
+
+		IPath linkit10 = new Path(getBuildEnvironmentVariable(configurationDescription, LINKIT10, null));
+		String gccIncludeVar = getBuildEnvironmentVariable(configurationDescription, getIncludeVar(), null);
+		IPath gccInclude = linkit10.append(gccIncludeVar);
+		IPath linkit = project.getFolder("LinkIt").getProjectRelativePath();
+
+		linkFileToFolder(project, gccInclude, linkit);
+	}
+	
 	public void copyProjectResources(ICProjectDescription projectDescriptor, IProgressMonitor monitor) throws CoreException, IOException, JAXBException {
 		ICConfigurationDescription configurationDescription = projectDescriptor.getDefaultSettingConfiguration();
 		IPath toolPath = new Path(getBuildEnvironmentVariable(configurationDescription, TOOL_PATH, null));
@@ -133,13 +149,6 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 		outPath = new Path("ResID/ResID.h");
 		addResourceToProject(monitor, project, srcPath, outPath);
 
-		IPath linkit10 = new Path(getBuildEnvironmentVariable(configurationDescription, LINKIT10, null));
-		String gccIncludeVar = getBuildEnvironmentVariable(configurationDescription, getIncludeVar(), null);
-		IPath gccInclude = linkit10.append(gccIncludeVar);
-		IPath linkit = project.getFolder("LinkIt").getProjectRelativePath();
-
-//		addResourceToProject(monitor, project, gccInclude, outPath);
-		linkFileToFolder(project, gccInclude, linkit);
 	}
 
 }
