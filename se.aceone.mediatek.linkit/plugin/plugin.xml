@@ -49,7 +49,7 @@
       </category>
       <wizard
             name="Import LinkIt 1.0 Project"
-            icon="icons/sample.gif"
+            icon="icons/16px-Nuvola_devices_ksim_cpu.png"
             category="se.aceone.mediatek.linkit.importWizards.linkit"
             class="se.aceone.mediatek.linkit.importWizards.ImportLinkIt10ProjectWizard"
             id="se.aceone.mediatek.linkit.importWizards.ImportLinkIt10ProjectWizard">

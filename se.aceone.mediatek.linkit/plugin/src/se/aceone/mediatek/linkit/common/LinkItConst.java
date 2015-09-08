@@ -1,5 +1,7 @@
 package se.aceone.mediatek.linkit.common;
 
+import org.eclipse.core.runtime.IPath;
+
 
 public interface LinkItConst {
 
@@ -53,12 +55,13 @@ public interface LinkItConst {
 
 
 	// Porperties
-	
 	static final String DEVELOPER= "Developer";
 	static final String APP_NAME ="App name";
 	static final String APP_VERSION ="App version";
 	static final String APP_ID = "app id";
 	static final String  DEFAULT_LIB_LIST="Defaultliblist";
 
+	static final String PACK_DIGEST = "PackDigist";
+	static final String RES_EDITOR = "ResEditor";
 	
 }

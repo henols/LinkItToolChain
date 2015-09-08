@@ -80,7 +80,8 @@ public class ImportLinkIt10ProjectWizardPage extends WizardPage {
 	private FileFilter projectFilter = new FileFilter() {
 		// Only accept those files that are .project
 		public boolean accept(File pathName) {
-			return pathName.getName().endsWith(".vcproj");
+			String name = pathName.getName();
+			return name.endsWith(".vcproj") && !(name.startsWith("~") || name.startsWith("."));
 		}
 	};
 
@@ -388,6 +389,7 @@ public class ImportLinkIt10ProjectWizardPage extends WizardPage {
 
 		} catch (Exception exception) {
 			// no good couldn't get the name
+			exception.printStackTrace();
 		}
 
 		if (visualStudioProject == null) {

@@ -86,11 +86,12 @@
         </xs:element>
         <xs:element name="vxp">
           <xs:complexType>
-            <xs:sequence>
+            <xs:choice>
+              <xs:element type="xs:integer" name="mreversion"/>
               <xs:element type="xs:integer" name="sdkversion"/>
               <xs:element type="xs:integer" name="venus"/>
               <xs:element type="xs:integer" name="iot_wearable"/>
-            </xs:sequence>
+            </xs:choice>
           </xs:complexType>
         </xs:element>
         <xs:element name="font">

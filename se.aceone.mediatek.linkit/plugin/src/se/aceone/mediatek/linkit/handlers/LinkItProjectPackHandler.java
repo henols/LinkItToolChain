@@ -18,13 +18,13 @@ public class LinkItProjectPackHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		IProject SelectedProjects[] = se.aceone.mediatek.linkit.tools.Common.getSelectedProjects();
-		switch (SelectedProjects.length) {
+		IProject selectedProjects[] = se.aceone.mediatek.linkit.tools.Common.getSelectedProjects();
+		switch (selectedProjects.length) {
 		case 0:
-			Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "No project found to upload"));
+			Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "No project found to pack"));
 			break;
 		case 1:
-			final IProject myBuildProject = SelectedProjects[0];
+			final IProject buildProject = selectedProjects[0];
 			Job mBuildJob = new Job("") {
 
 				@Override
@@ -32,7 +32,7 @@ public class LinkItProjectPackHandler extends AbstractHandler {
 					Display.getDefault().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							LinkItProjectPackWrapper.upload(myBuildProject, CoreModel.getDefault().getProjectDescription(myBuildProject).getActiveConfiguration()
+							LinkItProjectPackWrapper.pack(buildProject, CoreModel.getDefault().getProjectDescription(buildProject).getActiveConfiguration()
 									.getName());
 						}
 					});
@@ -45,17 +45,17 @@ public class LinkItProjectPackHandler extends AbstractHandler {
 			break;
 		default:
 			Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Only 1 project should be seleted: found "
-					+ Integer.toString(SelectedProjects.length) + " the names are :" + SelectedProjects.toString()));
+					+ Integer.toString(selectedProjects.length) + " the names are :" + selectedProjects.toString()));
 
 		}
 		return null;
 	}
 
-	class UploadJobHandler extends Job {
+	class PackJobHandler extends Job {
 		IProject myBuildProject = null;
 
-		public UploadJobHandler(IProject buildProject) {
-			super("Upload the code of project " + buildProject.getName());
+		public PackJobHandler(IProject buildProject) {
+			super("Pack the code of project " + buildProject.getName());
 			myBuildProject = buildProject;
 		}
 
