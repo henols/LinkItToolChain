@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/se.aceone.mediatek.linkit.feature_0.0.1.qualifier.jar" id="se.aceone.mediatek.linkit.feature" version="0.0.1.qualifier">
+   <feature url="features/se.aceone.mediatek.linkit.feature_0.0.2.qualifier.jar" id="se.aceone.mediatek.linkit.feature" version="0.0.2.qualifier">
       <category name="se.aceone.mediatek.linkit"/>
    </feature>
-   <bundle id="se.aceone.mediatek.linkit.toolchain" version="0.0.1.qualifier">
+   <bundle id="se.aceone.mediatek.linkit.toolchain" version="0.0.2.qualifier">
       <category name="se.aceone.mediatek.linkit"/>
    </bundle>
    <category-def name="se.aceone.mediatek.linkit" label="LinkIt Toolchain"/>

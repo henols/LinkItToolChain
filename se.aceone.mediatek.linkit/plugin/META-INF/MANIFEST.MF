@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: LinkIt Toolchain
 Bundle-SymbolicName: se.aceone.mediatek.linkit.toolchain;singleton:=true
-Bundle-Version: 0.0.1.qualifier
+Bundle-Version: 0.0.2.qualifier
 Bundle-Activator: se.aceone.mediatek.linkit.Activator
 Bundle-Vendor: aceoneIoT
 Require-Bundle: org.eclipse.core.runtime,
