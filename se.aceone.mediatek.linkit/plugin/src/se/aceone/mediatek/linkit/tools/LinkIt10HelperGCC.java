@@ -27,6 +27,7 @@ import se.aceone.mediatek.linkit.xml.config.Packageinfo.APIAuth;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Namelist;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Output;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Userinfo;
+import se.aceone.mediatek.linkit.xml.config.Packageinfo.Vxp;
 
 public class LinkIt10HelperGCC extends LinkItHelper {
 
@@ -124,6 +125,11 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 		output.setType(BigInteger.valueOf(0));
 		output.setDevice(BigInteger.valueOf(0));
 
+		Vxp vxp = packageinfo.getVxp();
+		vxp.setVenus(BigInteger.valueOf(1));
+		vxp.setSdkversion(BigInteger.valueOf(10));
+		vxp.setIotWearable(BigInteger.valueOf(2));
+		
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		javax.xml.bind.Marshaller marshaller = jaxbContext.createMarshaller();
 		marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); // NOI18N
