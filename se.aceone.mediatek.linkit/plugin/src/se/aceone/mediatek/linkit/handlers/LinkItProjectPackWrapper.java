@@ -18,6 +18,7 @@ import org.eclipse.cdt.core.envvar.IEnvironmentVariableManager;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
@@ -28,13 +29,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.swt.SWT;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
-import org.eclipse.ui.console.MessageConsoleStream;
 
 import se.aceone.mediatek.linkit.common.ExternalCommandLauncher;
 import se.aceone.mediatek.linkit.common.LinkItConst;
@@ -150,8 +148,10 @@ public class LinkItProjectPackWrapper {
 			return null;
 		}
 		String confName = getConfigurationName(project);
-		String axfFile = project.getFile(new Path(confName).append(project.getName() + ".axf")).getLocation().toOSString();
-		String outFile = project.getFile(new Path(confName).append(project.getName() + ".pkd")).getLocation().toOSString();
+		// String axfFile = project.getFile(new Path(confName).append(project.getName() +
+		// ".axf")).getLocation().toOSString();
+		// String outFile = project.getFile(new Path(confName).append(project.getName() +
+		// ".pkd")).getLocation().toOSString();
 		String projFile = project.getFile(new Path(project.getName() + ".vcproj")).getLocation().toOSString();
 		String toolPath = getEnvVariable(project, LinkItConst.TOOL_PATH);
 
@@ -238,18 +238,18 @@ public class LinkItProjectPackWrapper {
 		command.add(projFile);
 
 		// app english name?
-		command.add("\"" + packageinfo.getNamelist().getEnglish() + "\"");
+		command.add(setQuotes(project.getName()));
 
 		Userinfo userinfo = packageinfo.getUserinfo();
-		command.add("\"" + userinfo.getAppversion() + "\"");
-		command.add("\"" + (userinfo.getDeveloper() == null ? "" : userinfo.getDeveloper().trim()) + "\"");
+		command.add(setQuotes(userinfo.getAppversion()));
+		command.add(setQuotes((userinfo.getDeveloper() == null ? "" : userinfo.getDeveloper().trim())));
 
 		Targetconfig targetconfig = packageinfo.getTargetconfig();
 		List<JAXBElement<? extends Serializable>> configList = targetconfig.getMemOrSupportbgOrUserfont();
 
 		JAXBElement<? extends Serializable> e = getElementByName(configList, "mem");
 		if (e != null) {
-			command.add("\"" + e.getValue() + "\"");
+			command.add(setQuotes(e.getValue() + ""));
 		} else {
 			command.add("\"-1\"");
 		}
@@ -267,20 +267,20 @@ public class LinkItProjectPackWrapper {
 		}
 
 		Namelist namelist = packageinfo.getNamelist();
-		command.add("\"" + namelist.getEnglish() + "\"");
-		command.add("\"" + namelist.getChinese() + "\"");
-		command.add("\"" + namelist.getCht() + "\"");
+		command.add(setQuotes(namelist.getEnglish()));
+		command.add(setQuotes(namelist.getChinese()));
+		command.add(setQuotes(namelist.getCht()));
 
 		Operationinfo operationinfo = packageinfo.getOperationinfo();
-		command.add("\"" + operationinfo.getImsi() + "\"");
-		command.add("\"" + operationinfo.getContent() + "\"");
+		command.add(setQuotes(operationinfo.getImsi() + ""));
+		command.add(setQuotes(operationinfo.getContent()));
 
 		String cats = "";
 		APIAuth apiAuth = packageinfo.getAPIAuth();
 		for (String category : apiAuth.getCategory()) {
 			cats += category + " ";
 		}
-		command.add("\"" + cats.trim() + "\"");
+		command.add(setQuotes(cats.trim()));
 
 		switch (packageinfo.getOutput().getType().intValue()) {
 		case 0: // VXP(0),
@@ -320,8 +320,11 @@ public class LinkItProjectPackWrapper {
 		command.add("\"UnCompress\"");
 
 		// TODO deal with if its set or not
-		command.add("\"venus\"");
-		// command.add("\"novenus\"");
+		if (vxp.getVenus().intValue() > 0) {
+			command.add("\"venus\"");
+		} else {
+			 command.add("\"novenus\"");
+		}
 
 		command.add("\"Adaptable\"");
 
@@ -352,14 +355,14 @@ public class LinkItProjectPackWrapper {
 			command.add("\"UnAutoStart\"");
 		}
 
-		if (vxp.getVenus().intValue() > 0) {
+		if (isElementChecked(configList, "TransferImg")) {
 			command.add("\"TransferImg\"");
 		} else {
 			command.add("\"UnTransferImg\"");
 		}
 
 		command.add("\"NoIdleShortcut\"");
-		command.add("\"" + project.getFile(new Path(confName)).getLocation().toOSString() + "\"");
+		command.add(setQuotes(project.getFile(new Path(confName)).getLocation().toOSString()));
 
 		return command;
 	}
@@ -409,8 +412,9 @@ public class LinkItProjectPackWrapper {
 			// errorStream.println("Error reading config.xml file in project: " + project.getName());
 			return null;
 		}
-		String confName = getConfigurationName(project);
-		String axfFile = project.getFile(new Path(confName).append(project.getName() + ".axf")).getLocation().toOSString();
+		 String confName = getConfigurationName(project);
+//		String axfFile = project.getFile(new Path(confName).append(project.getName() + ".axf")).getLocation().toOSString();
+		String axfFile = project.getFile(new Path(/*confName).append(*/project.getName() + ".axf")).getLocation().toOSString();
 		String outFile = project.getFile(new Path(project.getName() + ".pkd")).getLocation().toOSString();
 
 		String endsWith = ".vcproj";
@@ -432,7 +436,7 @@ public class LinkItProjectPackWrapper {
 		// pack -resolution 128x160 -o "C:\dev\ws\runtime-EclipseApplication\test\Default\test.pkd" -e AXF -vom
 		// "C:\dev\ws\runtime-EclipseApplication\test\test.vcproj"
 		// "C:\dev\ws\runtime-EclipseApplication\test\Default\test.axf"
-		command.add(packCmd.toOSString());
+		command.add(setQuotes(packCmd.toOSString()));
 		command.add("pack");
 		command.add("-silent");
 		command.add("-resolution");
@@ -458,8 +462,30 @@ public class LinkItProjectPackWrapper {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
+					project.refreshLocal(1, monitor);
+					IFolder armDir = project.getFolder("arm");
+					if (!armDir.exists()) {
+						armDir.create(true, true, monitor);
+					}
+
+					String confName = getConfigurationName(project);
+					IFile axfFileOrg = project.getFile(new Path(confName).append(project.getName() + ".axf"));
+					IFile axfFile = project.getFile(new Path(project.getName() + ".axf"));
+					if (axfFile.exists()) {
+						axfFile.delete(true, monitor);
+					}
+					if (axfFileOrg.exists()) {
+						axfFileOrg.copy(axfFile.getFullPath(), true, monitor);
+					} else {
+						Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, jobName + ", Failed to find file " + axfFile.getFullPath()));
+						return Status.OK_STATUS;
+					}
+
 					List<String> command = buildPackResourceCommand(project);
 					int ret = runConsoledCommand(console, command, monitor, project);
+					if (axfFile.exists()) {
+						axfFile.delete(true, monitor);
+					}
 					if (ret != 0) {
 						Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Pack Resource, Command returned an error code: " + ret));
 					} else {
@@ -470,13 +496,21 @@ public class LinkItProjectPackWrapper {
 									+ ret));
 						}
 					}
+//					if (armDir.exists()) {
+//						armDir.delete(true, monitor);
+//					}
 				} catch (IOException e) {
 					Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, jobName + ", Problem while executing command.", e));
+					return Status.OK_STATUS;
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, jobName + ", Failed to copy file " + project.getName() + ".axf", e));
+					return Status.OK_STATUS;
 				}
 				try {
 					project.refreshLocal(1, monitor);
-					IFile defaultVxp = project.getFile(new Path("Defalut.vxp"));
-					if(defaultVxp.exists()){
+					IFile defaultVxp = project.getFile(new Path("Default.vxp"));
+					if (defaultVxp.exists()) {
 						defaultVxp.delete(true, monitor);
 						project.refreshLocal(1, monitor);
 					}
@@ -485,6 +519,7 @@ public class LinkItProjectPackWrapper {
 						projectVxp.move(defaultVxp.getFullPath(), true, monitor);
 
 					}
+					project.refreshLocal(2, monitor);
 				} catch (CoreException e) {
 					Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, jobName + ", Failed to rename file " + project.getName() + ".vxp", e));
 				}

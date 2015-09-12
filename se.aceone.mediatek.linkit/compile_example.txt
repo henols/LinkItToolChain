@@ -141,4 +141,10 @@ Total             47691
 
 
 Finished building target: test
- 
+
+
+
+
+
+"C:\Program Files (x86)\LinkIt SDK V1.0.00\tools\ResEditor\CmdShell.exe" pack -silent -resolution 128x160 -o "C:\dev\ws\ws-mtk_tracker_v1.3\tracker_tinitell\tracker_tinitell.pkd" -e AXF -vom "C:\dev\ws\ws-mtk_tracker_v1.3\tracker_tinitell\tracker_tinitell.vcproj" "C:\dev\ws\ws-mtk_tracker_v1.3\tracker_tinitell\tracker_tinitell.axf"
+ C:\Program Files (x86)\LinkIt SDK V1.0.00\tools\ResEditor\CmdShell.exe pack -silent -resolution 128x160 -o "C:\dev\ws\ws-mtk_tracker_v1.3\tracker_tinitell\tracker_tinitell.pkd" -e AXF -vom "C:\dev\ws\ws-mtk_tracker_v1.3\tracker_tinitell\tracker_tinitell.vcproj" "C:\dev\ws\ws-mtk_tracker_v1.3\tracker_tinitell\Default\tracker_tinitell.axf"  

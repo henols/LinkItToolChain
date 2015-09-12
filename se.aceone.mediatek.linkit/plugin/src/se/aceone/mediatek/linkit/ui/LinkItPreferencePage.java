@@ -30,7 +30,6 @@ public class LinkItPreferencePage extends FieldEditorPreferencePage implements L
 	 * field gets change. Then I use this flag in the PerformOK to decide to
 	 * call the super performOK or not.
 	 * 
-	 * @author Jan Baeyens
 	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
@@ -63,8 +62,6 @@ public class LinkItPreferencePage extends FieldEditorPreferencePage implements L
 	 * @see propertyChange
 	 * 
 	 * @see createFieldEditors
-	 * 
-	 * @author Jan Baeyens
 	 * 
 	 */
 	@Override
@@ -115,8 +112,6 @@ public class LinkItPreferencePage extends FieldEditorPreferencePage implements L
 
 	/**
 	 * createFieldEditors creates the fields to edit. <br/>
-	 * 
-	 * @author Jan Baeyens
 	 */
 	@Override
 	protected void createFieldEditors() {

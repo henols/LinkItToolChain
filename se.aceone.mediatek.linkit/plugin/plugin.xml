@@ -450,11 +450,11 @@
 			id="se.aceone.mediatek.linkit.ui.LinkItPreferencePage">
 		</page>
 		<page category="se.aceone.mediatek.linkit.ui.LinkItPreferencePage"
-			class="se.aceone.mediatek.linkit.ui.LinkItPreferencePage" id="se.aceone.mediatek.linkit.ui.Sdk20PreferencePage"
+			class="se.aceone.mediatek.linkit.ui.LinkItPreferencePageSDK20" id="se.aceone.mediatek.linkit.ui.Sdk20PreferencePage"
 			name="SDK 2.0 (Assist)">
 		</page>
 		<page category="se.aceone.mediatek.linkit.ui.LinkItPreferencePage"
-			class="se.aceone.mediatek.linkit.ui.LinkItPreferencePage" id="se.aceone.mediatek.linkit.ui.Sdk10PreferencePage"
+			class="se.aceone.mediatek.linkit.ui.LinkItPreferencePageSDK10" id="se.aceone.mediatek.linkit.ui.Sdk10PreferencePage"
 			name="SDK 1.0">
 		</page>
 	</extension>
@@ -535,6 +535,16 @@
 	<extension point="org.eclipse.ui.handlers">
 		<handler class="se.aceone.mediatek.linkit.handlers.LinkItProjectPackHandler"
 			commandId="se.aceone.mediatek.linkit.commands.pack">
+			<activeWhen>
+				<with variable="selection">
+					<iterate ifEmpty="true" operator="and">
+			           <adapt type="org.eclipse.core.resources.IResource">
+				            <test property="org.eclipse.core.resources.projectNature"
+				                  value="org.eclipse.cdt.managedbuilder.core.managedBuildNature"/>
+			           </adapt>
+					</iterate>
+				</with>
+				</activeWhen>
 		</handler>
 		<handler class="se.aceone.mediatek.linkit.handlers.UpdateProjectFile"
 			commandId="se.aceone.mediatek.linkit.commands.updateproj">
