@@ -1,6 +1,8 @@
 package se.aceone.mediatek.linkit.toolchain;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -16,13 +18,20 @@ import org.eclipse.cdt.managedbuilder.core.ManagedBuildManager;
 import org.eclipse.cdt.managedbuilder.internal.core.ManagedCommandLineInfo;
 import org.eclipse.cdt.managedbuilder.macros.IBuildMacro;
 import org.eclipse.cdt.managedbuilder.macros.IBuildMacroProvider;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import se.aceone.mediatek.linkit.common.LinkItConst;
 import se.aceone.mediatek.linkit.tools.Common;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo;
+import se.aceone.mediatek.linkit.xml.proj.VisualStudioProject;
+import se.aceone.mediatek.linkit.xml.proj.VisualStudioProject.Files;
 
 @SuppressWarnings("restriction")
 public class GCCLinkerCommadLineGenerator implements IManagedCommandLineGenerator, LinkItConst {
@@ -74,7 +83,7 @@ public class GCCLinkerCommadLineGenerator implements IManagedCommandLineGenerato
 		IConfiguration configuration = parent.getParent();
 		IManagedProject managedProject = configuration.getManagedProject();
 		IProject project = (IProject) managedProject.getOwner();
-		File file = new File(project.getFile("config.xml").getLocationURI());
+		File configFile = new File(project.getFile("config.xml").getLocationURI());
 
 		String aCommand = "";
 		JAXBContext jaxbContext;
@@ -83,7 +92,7 @@ public class GCCLinkerCommadLineGenerator implements IManagedCommandLineGenerato
 
 			jaxbContext = JAXBContext.newInstance(Packageinfo.class);
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			Packageinfo packageinfo = (Packageinfo) jaxbUnmarshaller.unmarshal(file);
+			Packageinfo packageinfo = (Packageinfo) jaxbUnmarshaller.unmarshal(configFile);
 			for (String mn : packageinfo.getAPIAuth().getCategory()) {
 				String macroName = mn.toUpperCase();
 				IBuildMacro macro = macroProvider.getMacro(macroName, IBuildMacroProvider.CONTEXT_CONFIGURATION, configuration, true);
@@ -97,6 +106,36 @@ public class GCCLinkerCommadLineGenerator implements IManagedCommandLineGenerato
 			System.out.println(aCommand);
 		} catch (JAXBException e) {
 			IStatus status = new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Error reading config.xml file", e);
+			Common.log(status);
+			return null;
+		}
+
+		List<IPath> vcprojs = getFilesWithExt(project, "vcproj");
+		if (vcprojs.isEmpty()) {
+			IStatus status = new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Did not find *.vcproj file");
+			Common.log(status);
+			return null;
+		}
+
+		File vcprojFile = new File(project.getFile(vcprojs.get(0)).getLocationURI());
+		try {
+			jaxbContext = JAXBContext.newInstance(VisualStudioProject.class);
+			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			VisualStudioProject vsProject = (VisualStudioProject) jaxbUnmarshaller.unmarshal(vcprojFile);
+			Files files = vsProject.getFiles();
+			for (VisualStudioProject.Files.File projfile : files.getFile()) {
+				String includeFile = projfile.getRelativePath();
+				IFile file = project.getFile(includeFile);
+				String path = file.getRawLocation().toOSString();
+				
+				System.out.println(path);
+				if(file.exists()){
+					commandLinePattern += WHITESPACE + DOUBLE_QUOTE + path + DOUBLE_QUOTE;
+				}
+			}
+
+		} catch (JAXBException e) {
+			IStatus status = new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Error reading *.vcproj file", e);
 			Common.log(status);
 			return null;
 		}
@@ -152,5 +191,21 @@ public class GCCLinkerCommadLineGenerator implements IManagedCommandLineGenerato
 			sb.append(array[i] + WHITESPACE);
 		return sb.toString().trim();
 	}
-
+	
+	protected List<IPath> getFilesWithExt(final IProject project, final String ext) {
+		final List<IPath> files = new ArrayList<IPath>();
+		try {
+			project.accept(new IResourceVisitor() {
+				public boolean visit(IResource resource) {
+					if (resource.getType() == IResource.FILE && resource.getName().endsWith(ext)) {
+						files.add(resource.getProjectRelativePath());
+						return true;
+					}
+					return true;
+				}
+			}, 1, false);
+		} catch (CoreException e) {
+		}
+		return files;
+	}
 }
