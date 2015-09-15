@@ -19,6 +19,7 @@ import org.eclipse.cdt.managedbuilder.internal.core.ManagedCommandLineInfo;
 import org.eclipse.cdt.managedbuilder.macros.IBuildMacro;
 import org.eclipse.cdt.managedbuilder.macros.IBuildMacroProvider;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
@@ -124,12 +125,12 @@ public class GCCLinkerCommadLineGenerator implements IManagedCommandLineGenerato
 			VisualStudioProject vsProject = (VisualStudioProject) jaxbUnmarshaller.unmarshal(vcprojFile);
 			Files files = vsProject.getFiles();
 			for (VisualStudioProject.Files.File projfile : files.getFile()) {
-				String includeFile = projfile.getRelativePath();
-				IFile file = project.getFile(includeFile);
+				String libFile = projfile.getRelativePath();
+				IFile file = project.getFile(libFile);
 				String path = file.getRawLocation().toOSString();
-				
+
 				System.out.println(path);
-				if(file.exists()){
+				if (libFile.endsWith(".a") && file.exists()) {
 					commandLinePattern += WHITESPACE + DOUBLE_QUOTE + path + DOUBLE_QUOTE;
 				}
 			}
@@ -140,7 +141,22 @@ public class GCCLinkerCommadLineGenerator implements IManagedCommandLineGenerato
 			return null;
 		}
 
-		// managedProject.
+		IFolder lib = project.getFolder("lib");
+		if (lib.exists()) {
+			try {
+				IResource[] members = lib.members();
+				for (IResource member : members) {
+					if (member.exists() && member instanceof IFile) {
+						if (member.getName().endsWith(".a")) {
+							String path = member.getLocation().toOSString();
+							commandLinePattern += WHITESPACE + DOUBLE_QUOTE + path + DOUBLE_QUOTE;
+						}
+					}
+
+				}
+			} catch (CoreException e) {
+			}
+		}
 
 		// if the output name isn't a variable then quote it
 		if (outputName.length() > 0 && outputName.indexOf("$(") != 0) //$NON-NLS-1$
@@ -191,7 +207,7 @@ public class GCCLinkerCommadLineGenerator implements IManagedCommandLineGenerato
 			sb.append(array[i] + WHITESPACE);
 		return sb.toString().trim();
 	}
-	
+
 	protected List<IPath> getFilesWithExt(final IProject project, final String ext) {
 		final List<IPath> files = new ArrayList<IPath>();
 		try {
