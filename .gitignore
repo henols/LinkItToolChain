@@ -11,3 +11,4 @@ se.aceone.mediatek.linkit/.settings/org.eclipse.wst.common.project.facet.core.pr
 *.location
 *.lock
 .metadata/.mylyn/repositories.xml.zip
+*.index

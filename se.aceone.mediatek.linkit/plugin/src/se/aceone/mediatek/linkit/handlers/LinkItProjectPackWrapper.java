@@ -3,6 +3,7 @@ package se.aceone.mediatek.linkit.handlers;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,7 @@ import se.aceone.mediatek.linkit.xml.config.Packageinfo;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.APIAuth;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Namelist;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Operationinfo;
+import se.aceone.mediatek.linkit.xml.config.Packageinfo.Output;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Resolution;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Targetconfig;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Userinfo;
@@ -323,7 +325,7 @@ public class LinkItProjectPackWrapper {
 		if (vxp.getVenus().intValue() > 0) {
 			command.add("\"venus\"");
 		} else {
-			 command.add("\"novenus\"");
+			command.add("\"novenus\"");
 		}
 
 		command.add("\"Adaptable\"");
@@ -395,26 +397,16 @@ public class LinkItProjectPackWrapper {
 		// warnStream.setColor(PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_DARK_MAGENTA));
 		List<String> command = new ArrayList<String>();
 
-		File file = new File(project.getFile("config.xml").getLocationURI());
-
 		// messageStream.println();
 		// messageStream.println("Starting packing resources");
 
-		String resulotion;
-		JAXBContext jaxbContext;
-		try {
-			jaxbContext = JAXBContext.newInstance(Packageinfo.class);
-			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			Packageinfo packageinfo = (Packageinfo) jaxbUnmarshaller.unmarshal(file);
-			Resolution res = packageinfo.getResolution();
-			resulotion = (res.getWidth() != null ? res.getWidth() : "0") + "x" + (res.getHeight() != null ? res.getHeight() : "0");
-		} catch (JAXBException e) {
-			// errorStream.println("Error reading config.xml file in project: " + project.getName());
-			return null;
-		}
-		 String confName = getConfigurationName(project);
-//		String axfFile = project.getFile(new Path(confName).append(project.getName() + ".axf")).getLocation().toOSString();
-		String axfFile = project.getFile(new Path(/*confName).append(*/project.getName() + ".axf")).getLocation().toOSString();
+		Packageinfo packageinfo = getConfig(project);
+		Resolution res = packageinfo.getResolution();
+		String resulotion = (res.getWidth() != null ? res.getWidth() : "0") + "x" + (res.getHeight() != null ? res.getHeight() : "0");
+		String confName = getConfigurationName(project);
+		// String axfFile = project.getFile(new Path(confName).append(project.getName() +
+		// ".axf")).getLocation().toOSString();
+		String axfFile = project.getFile(new Path(/* confName).append( */project.getName() + ".axf")).getLocation().toOSString();
 		String outFile = project.getFile(new Path(project.getName() + ".pkd")).getLocation().toOSString();
 
 		String endsWith = ".vcproj";
@@ -451,6 +443,21 @@ public class LinkItProjectPackWrapper {
 		return command;
 	}
 
+	protected Packageinfo getConfig(final IProject project) {
+		JAXBContext jaxbContext;
+		Packageinfo packageinfo;
+		File file = new File(project.getFile("config.xml").getLocationURI());
+		try {
+			jaxbContext = JAXBContext.newInstance(Packageinfo.class);
+			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			packageinfo = (Packageinfo) jaxbUnmarshaller.unmarshal(file);
+		} catch (JAXBException e) {
+			// errorStream.println("Error reading config.xml file in project: " + project.getName());
+			return null;
+		}
+		return packageinfo;
+	}
+
 	protected String setQuotes(String s) {
 		return '"' + s + '"';
 	}
@@ -463,9 +470,26 @@ public class LinkItProjectPackWrapper {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					project.refreshLocal(1, monitor);
-					IFolder armDir = project.getFolder("arm");
-					if (!armDir.exists()) {
-						armDir.create(true, true, monitor);
+
+					if (isStaticLib(project)) {
+						try {
+							project.refreshLocal(1, monitor);
+							IFile staticLib = project.getFile(new Path(project.getName()+".a"));
+							if (staticLib.exists()) {
+								staticLib.delete(true, monitor);
+								project.refreshLocal(1, monitor);
+							}
+							IFile defaultLib = project.getFile(new Path("Default").append(project.getName() ));
+							if (defaultLib.exists()) {
+								defaultLib.copy(staticLib.getFullPath(), true, monitor);
+
+							}
+							project.refreshLocal(2, monitor);
+						} catch (CoreException e) {
+							Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, jobName + ", Failed to rename file " + project.getName() + ".vxp", e));
+						}
+
+						return Status.OK_STATUS;
 					}
 
 					String confName = getConfigurationName(project);
@@ -496,9 +520,9 @@ public class LinkItProjectPackWrapper {
 									+ ret));
 						}
 					}
-//					if (armDir.exists()) {
-//						armDir.delete(true, monitor);
-//					}
+					// if (armDir.exists()) {
+					// armDir.delete(true, monitor);
+					// }
 				} catch (IOException e) {
 					Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, jobName + ", Problem while executing command.", e));
 					return Status.OK_STATUS;
@@ -527,11 +551,28 @@ public class LinkItProjectPackWrapper {
 				return Status.OK_STATUS;
 
 			}
+
 		};
 		job.setRule(null);
 		job.setPriority(Job.LONG);
 		job.setUser(true);
 		job.schedule();
+	}
+
+	private boolean isStaticLib(IProject project) {
+		Packageinfo packageinfo = getConfig(project);
+		if (packageinfo == null) {
+			return false;
+		}
+		Output output = packageinfo.getOutput();
+		if (output == null) {
+			return false;
+		}
+		BigInteger type = output.getType();
+		if (type == null) {
+			return false;
+		}
+		return type.intValue() == 3;
 	}
 
 	protected int runConsoledCommand(MessageConsole console, List<String> command, IProgressMonitor monitor, IProject project) throws IOException {

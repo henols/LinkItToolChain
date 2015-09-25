@@ -29,10 +29,12 @@ import se.aceone.mediatek.linkit.Activator;
 import se.aceone.mediatek.linkit.tools.Common;
 import se.aceone.mediatek.linkit.tools.LinkIt10HelperGCC;
 import se.aceone.mediatek.linkit.tools.LinkIt10HelperRVTC;
+import se.aceone.mediatek.linkit.tools.LinkIt10HelperRVTCLib;
 
-public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
+public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard {
 
-	
+	private ConfigureLinkIt10ProjectWizardPage configPage;
+
 	public NewLinkit10ProjectWizard() {
 		super();
 	}
@@ -59,6 +61,8 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
 		// /
 		addPage(mWizardPage);
 
+		configPage = new ConfigureLinkIt10ProjectWizardPage();
+		addPage(configPage);
 	}
 
 	/**
@@ -73,10 +77,14 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
 
 		monitor.beginTask("", 2000);
 		try {
-			
-			helper = new LinkIt10HelperRVTC(project);
-//			helper = new LinkIt10HelperRVTC(project);
-			
+			boolean staticLibrary = configPage.isStaticLibrary();
+			if (staticLibrary) {
+				System.out.println("Static Library");
+				helper = new LinkIt10HelperRVTCLib(project);
+			} else {
+				System.out.println("VXP");
+				helper = new LinkIt10HelperRVTC(project);
+			}
 			if (!helper.checkEnvironment()) {
 				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, "Enviroment for LinkIt SDK 1.0 are not configuerd."));
 				throw new OperationCanceledException("Enviroment for LinkIt SDK 1.0 are not configuerd.");
@@ -98,11 +106,11 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
 			// Creates the .cproject file with the configurations
 			ICProjectDescription projectDescription = helper.setCProjectDescription(project, true, monitor);
 
-			// Add the C C++ AVR and other needed Natures to the project 
+			// Add the C C++ AVR and other needed Natures to the project
 			helper.addTheNatures(project);
 
 			// Set the environment variables
-//			ICProjectDescription projectDescription = CoreModel.getDefault().getProjectDescription(project);
+			// ICProjectDescription projectDescription = CoreModel.getDefault().getProjectDescription(project);
 
 			ICConfigurationDescription defaultConfigDescription = projectDescription.getConfigurationByName(LINKIT_CONFIGURATION_NAME);
 			projectDescription.setActiveConfiguration(defaultConfigDescription);
@@ -111,7 +119,7 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
 
 			String devBoard = "__LINKIT_SDK__";
 			try {
-				helper.setEnvironmentVariables(resourceDescription, devBoard );
+				helper.setEnvironmentVariables(resourceDescription, devBoard);
 			} catch (IOException e) {
 				String message = "Failed to set environmet variables " + project.getName();
 				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, message, e));
@@ -120,16 +128,16 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
 
 			helper.buildPathVariables(project, resourceDescription);
 
-//			IPathVariableManager pathMan = project.getPathVariableManager();
-//			URI uri = pathMan.resolveURI(pathMan.getURIValue(LINKIT10));
-//			helper.createNewFolder(project, "LinkIt", URIUtil.toURI(new Path(uri.getPath()).append("src")));
-			helper.createNewFolder(project, "LinkIt", null);
+			// IPathVariableManager pathMan = project.getPathVariableManager();
+			// URI uri = pathMan.resolveURI(pathMan.getURIValue(LINKIT10));
+			// helper.createNewFolder(project, "LinkIt", URIUtil.toURI(new Path(uri.getPath()).append("src")));
 
 			helper.createNewFolder(project, "src", null);
-
-			helper.createNewFolder(project, "res", null);
-			helper.createNewFolder(project, "ResID", null);
-
+			if (!staticLibrary) {
+				helper.createNewFolder(project, "LinkIt", null);
+				helper.createNewFolder(project, "res", null);
+				helper.createNewFolder(project, "ResID", null);
+			}
 			helper.setIncludePaths(projectDescription, resourceDescription);
 
 			helper.setMacros(projectDescription, devBoard);
@@ -155,6 +163,5 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard  {
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 	}
-
 
 }

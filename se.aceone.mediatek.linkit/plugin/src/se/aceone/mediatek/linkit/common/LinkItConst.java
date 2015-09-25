@@ -45,6 +45,7 @@ public interface LinkItConst {
 	static final String LINKIT_CONFIGURATION_NAME = "Default";
 	static final String LINKIT_DEFAULT_TOOL_CHAIN_GCC = "se.aceone.mediatek.linkit.toolChain.default.gcc";
 	static final String LINKIT_DEFAULT_TOOL_CHAIN_RVCT = "se.aceone.mediatek.linkit.toolChain.default.rvct";
+	static final String LINKIT_DEFAULT_TOOL_CHAIN_STATIC_RVCT = "se.aceone.mediatek.linkit.toolChain.staticlib.rvct";
 
 	// natures
 	public static final String Cnatureid = "org.eclipse.cdt.core.cnature";

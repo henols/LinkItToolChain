@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.text.StyledEditorKit.BoldAction;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
@@ -37,7 +36,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -53,10 +51,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
-import org.eclipse.ui.internal.ide.IIDEHelpContextIds;
 import org.eclipse.ui.internal.wizards.datatransfer.DataTransferMessages;
 
 import se.aceone.mediatek.linkit.Activator;
@@ -64,7 +60,10 @@ import se.aceone.mediatek.linkit.common.LinkItConst;
 import se.aceone.mediatek.linkit.tools.Common;
 import se.aceone.mediatek.linkit.tools.LinkIt10HelperGCC;
 import se.aceone.mediatek.linkit.tools.LinkIt10HelperRVTC;
+import se.aceone.mediatek.linkit.tools.LinkIt10HelperRVTCLib;
 import se.aceone.mediatek.linkit.tools.LinkItHelper;
+import se.aceone.mediatek.linkit.xml.config.Packageinfo;
+import se.aceone.mediatek.linkit.xml.config.Packageinfo.Output;
 import se.aceone.mediatek.linkit.xml.proj.VisualStudioProject;
 
 public class ImportLinkIt10ProjectWizardPage extends WizardPage {
@@ -400,6 +399,30 @@ public class ImportLinkIt10ProjectWizardPage extends WizardPage {
 		}
 	}
 
+	private boolean isStaticLib(File projectFile) {
+
+		// If there is no file or the user has already specified forget it
+		if (projectFile == null) {
+			return false;
+		}
+		Packageinfo config = null;
+		try {
+			JAXBContext context = JAXBContext.newInstance(Packageinfo.class);
+			Unmarshaller nmarshaller = context.createUnmarshaller();
+			config = (Packageinfo) nmarshaller.unmarshal(projectFile);
+
+		} catch (Exception exception) {
+			// no good couldn't get the name
+			exception.printStackTrace();
+		}
+
+		if (config == null) {
+			return false;
+		}
+		Output output = config.getOutput();
+		return output != null && output.getType() != null && output.getType().intValue() == 3;
+	}
+
 	/**
 	 * Return a.project file from the specified location. If there isn't one return null.
 	 */
@@ -451,7 +474,14 @@ public class ImportLinkIt10ProjectWizardPage extends WizardPage {
 					throw new OperationCanceledException();
 				}
 
-				LinkItHelper helper = new LinkIt10HelperRVTC(project);
+				IPath configPath = locationPath.append("config.xml");
+				LinkItHelper helper; 
+				boolean staticLib = isStaticLib(new File(configPath.toOSString()));
+				if(staticLib){
+					helper = new LinkIt10HelperRVTCLib(project);
+				}else{
+					helper = new LinkIt10HelperRVTC(project);
+				}
 				// helper = new LinkIt10HelperRVTC(project);
 
 				if (!helper.checkEnvironment()) {
@@ -499,7 +529,7 @@ public class ImportLinkIt10ProjectWizardPage extends WizardPage {
 
 				helper.buildPathVariables(project, resourceDescription);
 
-				if (!project.getFolder("LinkIt").exists()) {
+				if (!staticLib &&!project.getFolder("LinkIt").exists()) {
 					helper.createNewFolder(project, "LinkIt", null);
 				}
 				helper.setIncludePaths(projectDescription, resourceDescription);

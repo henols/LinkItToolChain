@@ -131,5 +131,4 @@ public class LinkIt10HelperRVTC extends LinkIt10HelperGCC {
 		return "RVCTINCLUDE";
 	}
 
-
 }

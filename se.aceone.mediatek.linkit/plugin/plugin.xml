@@ -278,7 +278,7 @@
 					id="se.aceone.mediatek.linkit.toolChain.default.rvct" isAbstract="false"
 					name="LinkIt Tool Chain (RVCT)" osList="all"
 					targetTool="se.aceone.mediatek.linkit.tool.objcopy.dbgdata.rvct">
-					<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF"
+					<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF "
 						id="se.aceone.mediatek.linkit.targetplatform.rvct" name="LinkIt Target"
 						osList="all">
 					</targetPlatform>
@@ -294,7 +294,7 @@
 					</optionCategory>
 					<tool announcement="Starting C++ compile"
 						command="${COMPILERPATH}/${COMPILERTOOLPATH}/${CPPCOMPILER}"
-						commandLinePattern="&quot;${COMMAND}&quot; ${RVCTTCCCOMPILER} ${FLAGS} -o ${OUTPUT} -c ${INPUTS}"
+						commandLinePattern="&quot;${COMMAND}&quot; ${RVCTCOMPILER} ${FLAGS} -o ${OUTPUT} -c ${INPUTS}"
 						errorParsers="se.aceone.mediatek.linkit.rvct.compiler" id="se.aceone.mediatek.linkit.compiler.cpp.rvct"
 						name="C++ Compiler" natureFilter="both">
 						<optionCategory
@@ -397,6 +397,118 @@
 							id="se.aceone.mediatek.linkit.tool.objcopy.data.output.rvct"
 							multipleOfType="false" name="AXFdata file output" outputNames="${ProjName}.out.axf"
 							outputs="out.afx" primaryOutput="true">
+						</outputType>
+					</tool>
+				</toolChain>
+				<toolChain archList="all"
+					id="se.aceone.mediatek.linkit.toolChain.staticlib.rvct" isAbstract="false"
+					name="LinkIt Tool Chain Static Lib (RVCT)" osList="all"
+					targetTool="se.aceone.mediatek.linkit.tool.armar.rvct">
+					<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF "
+						id="se.aceone.mediatek.linkit.targetplatform.rvct.static" name="LinkIt Target"
+						osList="all">
+					</targetPlatform>
+					<builder
+						buildfileGenerator="se.aceone.mediatek.linkit.toolchain.LinkItGnuMakefileGenerator"
+						id="se.aceone.mediatek.linkit.builder.rvct.static"
+						isVariableCaseSensitive="false" name="LinkIt Static Builder"
+						reservedMacroNames="LinkItSDK10" superClass="se.aceone.mediatek.linkit.gnu.builder">
+					</builder>
+					<optionCategory
+						id="se.aceone.mediatek.linkit.optionCategory.includePaths.rvct.static"
+						name="Include Folders">
+					</optionCategory>
+					<tool announcement="Starting C++ compile"
+						command="${COMPILERPATH}/${COMPILERTOOLPATH}/${TCCPPCOMPILER}"
+						commandLinePattern="&quot;${COMMAND}&quot; ${RVCTTCCCOMPILER} ${FLAGS} -o ${OUTPUT} -c ${INPUTS}"
+						errorParsers="se.aceone.mediatek.linkit.rvct.compiler" id="se.aceone.mediatek.linkit.compiler.cpp.rvct.static"
+						name="C++ Compiler" natureFilter="both">
+						<optionCategory
+							id="se.aceone.mediatek.linkit.cpp.optionCategory.includePaths.rvct.static"
+							name="Include Path">
+						</optionCategory>
+						<option browseType="directory"
+							category="se.aceone.mediatek.linkit.cpp.optionCategory.includePaths.rvct.static"
+							command="-I"
+							id="se.aceone.mediatek.linkit.compiler.cpp.option.incpath.rvct.static"
+							name="C++ Include Path" resourceFilter="project" valueType="includePath">
+						</option>
+						<optionCategory
+							id="se.aceone.mediatek.linkit.cpp.optionCategory.macros.rvct.static"
+							name="Macros">
+						</optionCategory>
+						<option browseType="none"
+							category="se.aceone.mediatek.linkit.cpp.optionCategory.macros.rvct.static"
+							command="-D"
+							id="se.aceone.mediatek.linkit.compiler.cpp.option.macros.rvct.static"
+							name="C++ Macros" resourceFilter="project" valueType="definedSymbols">
+						</option>
+						<inputType buildVariable="CPP_SKETCH_FILES"
+							dependencyCalculator="se.aceone.mediatek.linkit.toolchain.LinkItDependencyCalculator"
+							dependencyContentType="org.eclipse.cdt.core.cxxHeader" id="se.aceone.mediatek.linkit.input.rvct.static"
+							name="C++ Source" primaryInput="true" sourceContentType="org.eclipse.cdt.core.cxxSource">
+						</inputType>
+						<outputType buildVariable="LINK_OBJ"
+							id="se.aceone.mediatek.linkit.link.output.rvct.static" name="C++ Link Object"
+							nameProvider="se.aceone.mediatek.linkit.toolchain.LinkNameProvider"
+							outputs="o" primaryOutput="true">
+						</outputType>
+					</tool>
+					<tool announcement="Starting C compile"
+						command="${COMPILERPATH}/${COMPILERTOOLPATH}/${TCCCOMPILER}"
+						commandLinePattern="&quot;${COMMAND}&quot; ${RVCTTCCCOMPILER} ${FLAGS} -o ${OUTPUT} -c ${INPUTS}"
+						errorParsers="se.aceone.mediatek.linkit.rvct.compiler" 
+						id="se.aceone.mediatek.linkit.compiler.c.rvct.static"
+						name="C Compiler" natureFilter="both">
+						<optionCategory
+							id="se.aceone.mediatek.linkit.c.optionCategory.includePaths.rvct.static"
+							name="Include Path">
+						</optionCategory>
+						<option browseType="directory"
+							category="se.aceone.mediatek.linkit.c.optionCategory.includePaths.rvct.static"
+							command="-I"
+							id="se.aceone.mediatek.linkit.compiler.c.option.incpath.rvct.static"
+							name="C Include Path" resourceFilter="project" valueType="includePath">
+						</option>
+						<optionCategory
+							id="se.aceone.mediatek.linkit.c.optionCategory.macros.rvct.static" name="Macros">
+						</optionCategory>
+						<option browseType="none"
+							category="se.aceone.mediatek.linkit.c.optionCategory.macros.rvct.static"
+							command="-D" id="se.aceone.mediatek.linkit.compiler.c.option.macros.rvct.static"
+							name="C Macros" resourceFilter="project" valueType="definedSymbols">
+						</option>
+						<inputType buildVariable="C_SKETCH_FILES"
+							dependencyCalculator="se.aceone.mediatek.linkit.toolchain.LinkItDependencyCalculator"
+							dependencyContentType="org.eclipse.cdt.core.cHeader"
+							id="se.aceone.mediatek.linkit.compiler.c.input.rvct.static"
+							multipleOfType="false" name="C Source" primaryInput="true"
+							sourceContentType="org.eclipse.cdt.core.cSource">
+						</inputType>
+						<outputType buildVariable="LINK_OBJ"
+							id="se.aceone.mediatek.linkit.compiler.c.link.output.rvct.static" name="C Object"
+							nameProvider="se.aceone.mediatek.linkit.toolchain.LinkNameProvider"
+							outputs="o" primaryOutput="true">
+						</outputType>
+					</tool>
+					<tool announcement="Starting ARMAR"
+						command="${COMPILERPATH}/${COMPILERTOOLPATH}/${ARMAR}"
+						commandLinePattern="&quot;${COMMAND}&quot; -r ${OUTPUT} ${INPUTS} "
+						errorParsers="se.aceone.mediatek.linkit.rvct.linker" 
+						id="se.aceone.mediatek.linkit.tool.armar.rvct"
+						name="ARMAR" natureFilter="both">
+						<inputType buildVariable="LINK_OBJ"
+							id="se.aceone.mediatek.linkit.tool.armar.ob.input.rvct"
+							multipleOfType="true" name="ARMAR input" primaryInput="true"
+							sources="o">
+						</inputType>
+						<outputType
+            buildVariable="AXF_DATA"
+            id="se.aceone.mediatek.linkit.tool.armar.data.output.rvct"
+            multipleOfType="false"
+            name="ARMAR output a"
+            outputs="a"
+            primaryOutput="true">
 						</outputType>
 					</tool>
 				</toolChain>
