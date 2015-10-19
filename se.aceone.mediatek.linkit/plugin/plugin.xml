@@ -419,7 +419,7 @@
 						name="Include Folders">
 					</optionCategory>
 					<tool announcement="Starting C++ compile"
-						command="${COMPILERPATH}/${COMPILERTOOLPATH}/${TCCPPCOMPILER}"
+						command="${COMPILERPATH}/${COMPILERTOOLPATH}/${CPPCOMPILER}"
 						commandLinePattern="&quot;${COMMAND}&quot; ${RVCTTCCCOMPILER} ${FLAGS} -o ${OUTPUT} -c ${INPUTS}"
 						errorParsers="se.aceone.mediatek.linkit.rvct.compiler" id="se.aceone.mediatek.linkit.compiler.cpp.rvct.static"
 						name="C++ Compiler" natureFilter="both">
