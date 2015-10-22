@@ -523,10 +523,19 @@ public class LinkItProjectPackWrapper {
 						return Status.OK_STATUS;
 					}
 
+					IFolder armFolder = project.getFolder("arm");
+					boolean createdArm = false;
+					if(!armFolder.exists()){
+						armFolder.create(true, true, monitor);
+						createdArm =true;
+					}
 					List<String> command = buildPackResourceCommand(project);
 					int ret = runConsoledCommand(console, command, monitor, project);
 					if (axfFile.exists()) {
 						axfFile.delete(true, monitor);
+					}
+					if(createdArm){
+						armFolder.delete(true, monitor);
 					}
 					if (ret != 0) {
 						Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Pack Resource, Command returned an error code: " + ret));

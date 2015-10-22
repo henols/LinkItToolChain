@@ -140,7 +140,7 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 		namelist.setCht(project.getName());
 
 		Output output = packageinfo.getOutput();
-		output.setType(BigInteger.valueOf(3));
+		output.setType(getOutputType());
 		output.setDevice(BigInteger.valueOf(0));
 
 		Vxp vxp = packageinfo.getVxp();
@@ -174,5 +174,9 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 		addResourceToProject(monitor, project, srcPath, outPath);
 
 	}
+	 protected BigInteger getOutputType() {
+		return BigInteger.valueOf(1);
+	}
+
 
 }

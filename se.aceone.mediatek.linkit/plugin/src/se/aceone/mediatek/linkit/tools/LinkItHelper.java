@@ -666,7 +666,7 @@ public abstract class LinkItHelper extends Common {
 		namelist.setCht(project.getName());
 
 		Output output = packageinfo.getOutput();
-		output.setType(BigInteger.valueOf(0));
+		output.setType(getOutputType());
 		output.setDevice(BigInteger.valueOf(0));
 
 		Vxp vxp = packageinfo.getVxp();
@@ -745,6 +745,10 @@ public abstract class LinkItHelper extends Common {
 
 	protected String getIncludeVar() {
 		return "GCCINCLUDE";
+	}
+
+	 protected BigInteger getOutputType() {
+		return BigInteger.valueOf(0);
 	}
 
 }
