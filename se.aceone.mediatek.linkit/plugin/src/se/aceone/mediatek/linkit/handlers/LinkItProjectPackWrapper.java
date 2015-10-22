@@ -523,19 +523,19 @@ public class LinkItProjectPackWrapper {
 						return Status.OK_STATUS;
 					}
 
-					IFolder armFolder = project.getFolder("arm");
-					boolean createdArm = false;
-					if(!armFolder.exists()){
-						armFolder.create(true, true, monitor);
-						createdArm =true;
+					IFolder armDir = project.getFolder("arm");
+					boolean createdArmDir = false;
+					if(!armDir.exists()){
+						armDir.create(true, true, monitor);
+						createdArmDir =true;
 					}
 					List<String> command = buildPackResourceCommand(project);
 					int ret = runConsoledCommand(console, command, monitor, project);
 					if (axfFile.exists()) {
 						axfFile.delete(true, monitor);
 					}
-					if(createdArm){
-						armFolder.delete(true, monitor);
+					if(createdArmDir){
+						armDir.delete(true, monitor);
 					}
 					if (ret != 0) {
 						Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, "Pack Resource, Command returned an error code: " + ret));
@@ -547,9 +547,6 @@ public class LinkItProjectPackWrapper {
 									+ ret));
 						}
 					}
-					// if (armDir.exists()) {
-					// armDir.delete(true, monitor);
-					// }
 				} catch (IOException e) {
 					Common.log(new Status(IStatus.ERROR, LinkItConst.CORE_PLUGIN_ID, jobName + ", Problem while executing command.", e));
 					return Status.OK_STATUS;
