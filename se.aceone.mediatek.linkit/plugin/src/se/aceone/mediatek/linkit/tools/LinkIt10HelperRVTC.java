@@ -40,24 +40,11 @@ import org.eclipse.core.runtime.Path;
 
 public class LinkIt10HelperRVTC extends LinkIt10HelperGCC {
 
-	static final String LINK_IT_SDK10_CAMMEL_CASE = "LinkItSDK10";
-	public static final String LINK_IT_SDK10 = LINK_IT_SDK10_CAMMEL_CASE.toUpperCase();
 
 	public static final String COMPILER_IT_SDK10_RTVC = "RVCT31BIN";
 
 	public LinkIt10HelperRVTC(IProject project) {
 		super(project);
-	}
-
-	public String getEnvironmentPath() {
-		String linkitEnv = System.getenv().get(LINK_IT_SDK10_CAMMEL_CASE);
-		if (linkitEnv == null) {
-			linkitEnv = System.getenv().get(LINK_IT_SDK10);
-		}
-		if (linkitEnv == null) {
-			linkitEnv = "C:\\Program Files (x86)\\LinkIt SDK V1.0.00";
-		}
-		return linkitEnv;
 	}
 
 	public String getCompilerPath() {

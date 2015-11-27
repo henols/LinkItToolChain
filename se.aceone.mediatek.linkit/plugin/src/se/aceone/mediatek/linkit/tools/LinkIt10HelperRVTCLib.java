@@ -54,11 +54,6 @@ import se.aceone.mediatek.linkit.xml.config.Packageinfo.Vxp;
 
 public class LinkIt10HelperRVTCLib extends LinkIt10HelperRVTC {
 
-	static final String LINK_IT_SDK10_CAMMEL_CASE = "LinkItSDK10";
-	public static final String LINK_IT_SDK10 = LINK_IT_SDK10_CAMMEL_CASE.toUpperCase();
-
-	public static final String COMPILER_IT_SDK10_RTVC = "RVCT31BIN";
-
 	public LinkIt10HelperRVTCLib(IProject project) {
 		super(project);
 	}

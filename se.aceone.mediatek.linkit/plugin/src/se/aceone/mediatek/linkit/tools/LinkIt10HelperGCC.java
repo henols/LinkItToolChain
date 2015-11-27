@@ -175,7 +175,7 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 
 	}
 	 protected BigInteger getOutputType() {
-		return BigInteger.valueOf(1);
+		return BigInteger.valueOf(0);
 	}
 
 

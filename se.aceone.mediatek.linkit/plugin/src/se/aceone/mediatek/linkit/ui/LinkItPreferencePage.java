@@ -166,6 +166,8 @@ public class LinkItPreferencePage extends FieldEditorPreferencePage implements L
 		preferenceStore.setDefault(APP_ID, -1);
 		preferenceStore.setDefault(DEFAULT_LIB_LIST, "Mediatek; Standard; Memory; Framework; Comman");
 		
+//		preferenceStore
+		
 		developer = new StringFieldEditor(LinkItConst.DEVELOPER, "Developer", parent);
 		addField(developer);
 		developer.setEnabled(true, parent);

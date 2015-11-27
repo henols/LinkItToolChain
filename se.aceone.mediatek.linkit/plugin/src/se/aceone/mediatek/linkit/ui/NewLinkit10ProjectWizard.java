@@ -31,6 +31,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
@@ -48,6 +49,7 @@ import se.aceone.mediatek.linkit.tools.Common;
 import se.aceone.mediatek.linkit.tools.LinkIt10HelperGCC;
 import se.aceone.mediatek.linkit.tools.LinkIt10HelperRVTC;
 import se.aceone.mediatek.linkit.tools.LinkIt10HelperRVTCLib;
+import se.aceone.mediatek.linkit.tools.LinkItHelper;
 
 public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard {
 
@@ -104,8 +106,13 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard {
 				helper = new LinkIt10HelperRVTC(project);
 			}
 			if (!helper.checkEnvironment()) {
-				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, "Enviroment for LinkIt SDK 1.0 are not configuerd."));
-				throw new OperationCanceledException("Enviroment for LinkIt SDK 1.0 are not configuerd.");
+				MultiStatus status = new MultiStatus(CORE_PLUGIN_ID, IStatus.ERROR, "Enviroment for LinkIt SDK 1.0 are not configuerd.", null);
+				String envPath = helper.getEnvironmentPath();
+				status.add( new Status(IStatus.ERROR ,CORE_PLUGIN_ID,"Environment Path: "+  envPath));
+				status.add( new Status(IStatus.ERROR ,CORE_PLUGIN_ID,"Found sys.ini file: "+  LinkItHelper.checkSysIni(envPath)));
+				Common.log(status);
+				OperationCanceledException exception = new OperationCanceledException("Enviroment for LinkIt SDK 1.0 are not configuerd.");
+				throw exception;
 			}
 
 			IPathVariableManager manager = project.getWorkspace().getPathVariableManager();
