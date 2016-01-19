@@ -22,12 +22,16 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
@@ -40,6 +44,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 import se.aceone.mediatek.linkit.common.LinkItPreferences;
+import se.aceone.mediatek.linkit.xml.config.ObjectFactory;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.APIAuth;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Namelist;
@@ -47,15 +52,13 @@ import se.aceone.mediatek.linkit.xml.config.Packageinfo.Output;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Userinfo;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Vxp;
 
-public class LinkIt10HelperGCC extends LinkItHelper {
+public class LinkIt10Helper extends LinkItHelper {
 
 	static final String LINK_IT_SDK10_CAMMEL_CASE = "LinkItSDK10";
 	public static final String LINK_IT_SDK10 = LINK_IT_SDK10_CAMMEL_CASE.toUpperCase();
 
-	public static final String COMPILER_IT_SDK10 = "ARMCOMPILER";
-
-	public LinkIt10HelperGCC(IProject project) {
-		super(project);
+	public LinkIt10Helper(IProject project, Compiler compiler) {
+		super(project, compiler);
 	}
 
 	public String getEnvironmentPath() {
@@ -67,14 +70,6 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 			linkitEnv = "C:\\Program Files (x86)\\LinkIt SDK V1.0.00";
 		}
 		return linkitEnv;
-	}
-
-	public String getCompilerPath() {
-		String compiler = System.getenv().get(COMPILER_IT_SDK10);
-		if (compiler == null) {
-			compiler = "C:\\dev\\eclipseMTK\\LINKIT_ASSIST_SDK\\tools\\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\\";
-		}
-		return compiler;
 	}
 
 	@Override
@@ -91,8 +86,9 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 
 		linkFileToFolder(project, gccInclude, linkit);
 	}
-	
+
 	public void copyProjectResources(ICProjectDescription projectDescriptor, IProgressMonitor monitor) throws CoreException, IOException, JAXBException {
+
 		ICConfigurationDescription configurationDescription = projectDescriptor.getDefaultSettingConfiguration();
 		IPath toolPath = new Path(getBuildEnvironmentVariable(configurationDescription, TOOL_PATH, null));
 		IProject project = projectDescriptor.getProject();
@@ -120,42 +116,7 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 		outPath = new Path("src/" + project.getName() + ".h");
 		addResourceToProject(monitor, project, projType.append("LINKITWIZARDVS2008.h"), outPath, replacements);
 
-		JAXBContext jaxbContext = JAXBContext.newInstance(Packageinfo.class);
-
-		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-		Packageinfo packageinfo = (Packageinfo) jaxbUnmarshaller.unmarshal(new File(projType.append("config.xml").toOSString()));
-		Userinfo userinfo = packageinfo.getUserinfo();
-		userinfo.setDeveloper(LinkItPreferences.getDeveloper());
-		userinfo.setAppname(LinkItPreferences.getAppName());
-		userinfo.setAppversion(LinkItPreferences.getAppVersion());
-
-		BigInteger appid = BigInteger.valueOf(LinkItPreferences.getAppId());
-		userinfo.setAppid(appid);
-		APIAuth apiAuth = packageinfo.getAPIAuth();
-		apiAuth.setDefaultliblist(LinkItPreferences.getDefaultLibraryList());
-
-		Namelist namelist = packageinfo.getNamelist();
-		namelist.setEnglish(project.getName());
-		namelist.setChinese(project.getName());
-		namelist.setCht(project.getName());
-
-		Output output = packageinfo.getOutput();
-		output.setType(getOutputType());
-		output.setDevice(BigInteger.valueOf(0));
-
-		Vxp vxp = packageinfo.getVxp();
-		vxp.setVenus(BigInteger.valueOf(1));
-		vxp.setSdkversion(BigInteger.valueOf(10));
-		vxp.setIotWearable(BigInteger.valueOf(2));
-		
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		javax.xml.bind.Marshaller marshaller = jaxbContext.createMarshaller();
-		marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); // NOI18N
-		marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-		marshaller.marshal(packageinfo, os);
-
-		outPath = new Path("config.xml");
-		addResourceToProject(project, outPath, new ByteArrayInputStream(os.toByteArray()), monitor);
+		createConfig(project, projType, monitor);
 
 		IPath res = projType.append("res");
 
@@ -174,9 +135,15 @@ public class LinkIt10HelperGCC extends LinkItHelper {
 		addResourceToProject(monitor, project, srcPath, outPath);
 
 	}
-	 protected BigInteger getOutputType() {
-		return BigInteger.valueOf(0);
-	}
 
+	protected String getIncludeVar() {
+		if (compiler instanceof CompilerGCC) {
+			return "GCCINCLUDE";
+		}
+		if (compiler instanceof CompilerRVCT) {
+			return "RVCTINCLUDE";
+		}
+		return "NULL_INCLUDE";
+	}
 
 }

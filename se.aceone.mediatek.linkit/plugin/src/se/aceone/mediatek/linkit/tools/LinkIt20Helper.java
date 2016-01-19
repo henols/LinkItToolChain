@@ -51,8 +51,8 @@ public class LinkIt20Helper extends LinkItHelper {
 	static final String LINK_IT_SDK20_CAMMEL_CASE = "LinkItSDK20";
 	public static final String LINK_IT_SDK20 = LINK_IT_SDK20_CAMMEL_CASE.toUpperCase();
 
-	public LinkIt20Helper(IProject project) {
-		super(project);
+	public LinkIt20Helper(IProject project, Compiler compiler) {
+		super(project, compiler);
 	}
 	
 	public String getEnvironmentPath() {
@@ -63,10 +63,10 @@ public class LinkIt20Helper extends LinkItHelper {
 		return linkitEnv;
 	}
 	
-	@Override
-	public String getCompilerPath() {
-		return new Path(getEnvironmentPath()).append(getGccLocation()).toPortableString();
-	}
+//	@Override
+//	public String getCompilerPath() {
+//		return new Path(getEnvironmentPath()).append(getGccLocation()).toPortableString();
+//	}
 
 	public void copyProjectResources(ICProjectDescription projectDescriptor, IProgressMonitor monitor) throws CoreException, IOException, JAXBException {
 		ICConfigurationDescription configurationDescription = projectDescriptor.getDefaultSettingConfiguration();
@@ -128,6 +128,7 @@ public class LinkIt20Helper extends LinkItHelper {
 		outPath = new Path("config.xml");
 		addResourceToProject(project, outPath, new ByteArrayInputStream(os.toByteArray()), monitor);
 
+		
 		IPath res = projType.append("res");
 
 		srcPath = res.append("ref_list_LINKIT20TEMPLATE.txt");

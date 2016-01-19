@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
@@ -37,7 +38,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 
 import org.eclipse.cdt.core.CCorePlugin;
@@ -95,6 +98,7 @@ import org.eclipse.ui.console.MessageConsole;
 
 import se.aceone.mediatek.linkit.common.LinkItConst;
 import se.aceone.mediatek.linkit.common.LinkItPreferences;
+import se.aceone.mediatek.linkit.xml.config.ObjectFactory;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.APIAuth;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Namelist;
@@ -106,10 +110,14 @@ import se.aceone.mediatek.linkit.xml.config.Packageinfo.Vxp;
 public abstract class LinkItHelper extends Common {
 
 	private IProject project;
-	private String gccLocation;
+	protected Compiler compiler;
 
-	public LinkItHelper(IProject project) {
+	// private String gccLocation;
+
+	public LinkItHelper(IProject project, Compiler compiler) {
 		this.project = project;
+		this.compiler = compiler;
+		compiler.setLinkItHelper(this);
 	}
 
 	public abstract String getEnvironmentPath();
@@ -123,7 +131,9 @@ public abstract class LinkItHelper extends Common {
 		return checkSysIni(envPath);
 	}
 
-	public abstract String getCompilerPath();
+	public final String getCompilerPath() {
+		return compiler.getCompilerPath();
+	}
 
 	public static boolean checkSysIni(String envPath) {
 		IPath linkitEnv = new Path(envPath).append("tools");
@@ -381,8 +391,8 @@ public abstract class LinkItHelper extends Common {
 		return des;
 	}
 
-	protected String getToolChainId() {
-		return LINKIT_DEFAULT_TOOL_CHAIN_GCC;
+	protected final String getToolChainId() {
+		return compiler.getToolChainId();
 	}
 
 	private void setDefaultLanguageSettingsProviders(IProject project, String toolChainId, IConfiguration cfg, ICConfigurationDescription cfgDescription) {
@@ -425,8 +435,12 @@ public abstract class LinkItHelper extends Common {
 		return providers;
 	}
 
-	public void setMacros(ICProjectDescription projectDescription, String devBoard) {
-		addMacro(projectDescription, "__GNUC__", null, ICSettingEntry.BUILTIN);
+	public final void setMacros(ICProjectDescription projectDescription, String devBoard) {
+		compiler.setMacros(projectDescription);
+		setHelperMacros(projectDescription, devBoard);
+	}
+
+	void setHelperMacros(ICProjectDescription projectDescription, String devBoard) {
 		addMacro(projectDescription, devBoard, null);
 	}
 
@@ -465,7 +479,7 @@ public abstract class LinkItHelper extends Common {
 		contribEnv.addVariable(new EnvironmentVariable(DEV_BOARD, devBoard), configuration);
 		contribEnv.addVariable(new EnvironmentVariable(SIZETOOL, ARM_NONE_EABI_SIZE), configuration);
 
-		contribEnv.addVariable(new EnvironmentVariable(COMPILER_TOOL_PATH, new Path(COMPILER_TOOL_PATH_GCC).toPortableString()), configuration);
+		contribEnv.addVariable(new EnvironmentVariable(COMPILER_TOOL_PATH, compiler.getToolPath()), configuration);
 
 		Path linkitEnv = new Path(getEnvironmentPath());
 		System.out.println(LINK_IT_SDK + "=" + linkitEnv);
@@ -475,24 +489,42 @@ public abstract class LinkItHelper extends Common {
 		File sysini = new File(toolPath.toOSString(), "sys.ini");
 		LineNumberReader numberReader = new LineNumberReader(new FileReader(sysini));
 		String line;
+		Map<String, String> envVars = new HashMap<String, String>();
 		while ((line = numberReader.readLine()) != null) {
 			if (!line.trim().isEmpty() && !line.startsWith("[")) {
 				int i = line.indexOf("=");
 				if (i > 0) {
 					String key = line.substring(0, i).trim().toUpperCase();
-					if (!key.startsWith("RVCT") && !key.startsWith("ADS") && !key.startsWith("VTP")) {
-						String value = line.substring(i + 1).trim();
-						if (value.startsWith("\"") && value.endsWith("\"")) {
-							value = value.substring(1, value.length() - 1).trim();
-						}
-						value = value.replace('\\', '/');
-						System.out.println(key + "=" + value);
-						if (key.equals(GCCLOCATION)) {
-							setGccLocation(value);
-						}
-						contribEnv.addVariable(new EnvironmentVariable(key, value), configuration);
+					String value = line.substring(i + 1).trim();
+					if (value.startsWith("\"") && value.endsWith("\"")) {
+						value = value.substring(1, value.length() - 1).trim();
 					}
+					value = value.replace('\\', '/');
+					envVars.put(key, value);
 				}
+			}
+		}
+
+		String name = compiler.getName();
+		List<String> names = new ArrayList<String>();
+		names.add("RVCT");
+		names.add("ADS");
+		names.add("VTP");
+		names.add("GCC");
+		names.remove(name);
+
+		for (String key : envVars.keySet()) {
+			boolean ignore = false;
+			for (String string : names) {
+				if(key.startsWith(string)){
+					ignore = true;
+					break;
+				}
+			}
+			if (!ignore) {
+				String value = envVars.get(key);
+				System.out.println(key + "=" + value);
+				contribEnv.addVariable(new EnvironmentVariable(key, value), configuration);
 			}
 		}
 		numberReader.close();
@@ -585,24 +617,7 @@ public abstract class LinkItHelper extends Common {
 		IPath envInclude = toolPath.append(getBuildEnvironmentVariable(configurationDescription, INCLUDE, null));
 		addIncludeFolder(projectDescriptor, envInclude);
 
-		setCompilerIncludePaths(projectDescriptor, contribEnv, configuration);
-	}
-
-	protected void setCompilerIncludePaths(ICProjectDescription projectDescriptor, IContributedEnvironment contribEnv, ICConfigurationDescription configuration) {
-		IPath compilerLocation = new Path(getCompilerPath());
-		IPath armIncl = compilerLocation.append("arm-none-eabi/include");
-		addIncludeFolder(projectDescriptor, armIncl);
-		armIncl = armIncl.append("c++/4.9.3");
-		addIncludeFolder(projectDescriptor, armIncl);
-		IPath armThumb = armIncl.append("arm-none-eabi/thumb");
-		addIncludeFolder(projectDescriptor, armThumb);
-
-		contribEnv.addVariable(new EnvironmentVariable(ARM_NONE_EABI_THUMB, armThumb.toPortableString()), configuration);
-
-		addIncludeFolder(projectDescriptor, armIncl.append("backward"));
-		IPath libGcc = compilerLocation.append("lib/gcc/arm-none-eabi/4.9.3");
-		addIncludeFolder(projectDescriptor, libGcc.append("include"));
-		addIncludeFolder(projectDescriptor, libGcc.append("include-fixed"));
+		compiler.setIncludePaths(projectDescriptor, contribEnv, configuration);
 	}
 
 	public void setSourcePaths(ICProjectDescription projectDescriptor) throws WriteAccessException, CoreException {
@@ -623,7 +638,8 @@ public abstract class LinkItHelper extends Common {
 		addSourceFolder(configuration, project.getFolder("LinkIt").getFullPath());
 	}
 
-	abstract public void copyProjectResources(ICProjectDescription projectDescriptor, IProgressMonitor monitor) throws CoreException, IOException, JAXBException;
+	abstract public void copyProjectResources(ICProjectDescription projectDescriptor, IProgressMonitor monitor) throws CoreException, IOException,
+			JAXBException;
 
 	protected void addResourceToProject(IProgressMonitor monitor, IProject project, IPath srcPath, IPath outPath, Map<String, String> replace)
 			throws CoreException, IOException {
@@ -651,6 +667,60 @@ public abstract class LinkItHelper extends Common {
 		addResourceToProject(project, outPath, contentStream, monitor);
 	}
 
+	protected void createConfig(IProject project, IPath projType, IProgressMonitor monitor) throws JAXBException, PropertyException, CoreException {
+		IPath outPath;
+		JAXBContext jaxbContext = JAXBContext.newInstance(Packageinfo.class);
+
+		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+		Packageinfo packageinfo = (Packageinfo) jaxbUnmarshaller.unmarshal(new File(projType.append("config.xml").toOSString()));
+		Userinfo userinfo = packageinfo.getUserinfo();
+		userinfo.setDeveloper(LinkItPreferences.getDeveloper());
+		userinfo.setAppname(LinkItPreferences.getAppName());
+		userinfo.setAppversion(LinkItPreferences.getAppVersion());
+
+		BigInteger appid = BigInteger.valueOf(LinkItPreferences.getAppId());
+		userinfo.setAppid(appid);
+		APIAuth apiAuth = packageinfo.getAPIAuth();
+		apiAuth.setDefaultliblist(LinkItPreferences.getDefaultLibraryList());
+
+		Namelist namelist = packageinfo.getNamelist();
+		namelist.setEnglish(project.getName());
+		namelist.setChinese(project.getName());
+		namelist.setCht(project.getName());
+
+		Output output = packageinfo.getOutput();
+		output.setType(getOutputType());
+		output.setDevice(BigInteger.valueOf(0));
+
+		ObjectFactory config = new ObjectFactory();
+
+		Vxp vxp = packageinfo.getVxp();
+		vxp.setVenus(BigInteger.valueOf(1));
+		vxp.setSdkversion(BigInteger.valueOf(10));
+		vxp.setIotWearable(BigInteger.valueOf(2));
+
+		List<JAXBElement<? extends Serializable>> targetConfig = packageinfo.getTargetconfig().getMemOrSupportbgOrUserfont();
+		targetConfig.add(config.createPackageinfoTargetconfigAutoadaptable("checked" ));
+		
+		createConfigExtraArgs(packageinfo, config);
+
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		javax.xml.bind.Marshaller marshaller = jaxbContext.createMarshaller();
+		marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); // NOI18N
+		marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+		marshaller.marshal(packageinfo, os);
+
+		outPath = new Path("config.xml");
+		addResourceToProject(project, outPath, new ByteArrayInputStream(os.toByteArray()), monitor);
+	}
+
+	protected void createConfigExtraArgs(Packageinfo packageinfo, ObjectFactory config) {
+		boolean autostart = false;
+		// TODO: Ask the question to set auto start
+		List<JAXBElement<? extends Serializable>> targetConfig = packageinfo.getTargetconfig().getMemOrSupportbgOrUserfont();
+		targetConfig.add(config.createPackageinfoTargetconfigAutostart(autostart ? "checked" : "unchecked"));
+	}
+
 	protected void addResourceToProject(IProgressMonitor monitor, IProject project, IPath srcPath, IPath outPath) throws CoreException, IOException {
 		addResourceToProject(monitor, project, srcPath, outPath, null);
 	}
@@ -659,17 +729,13 @@ public abstract class LinkItHelper extends Common {
 		return project;
 	}
 
-	public void setGccLocation(String gccLocation) {
-		this.gccLocation = gccLocation;
-	}
-
-	public String getGccLocation() {
-		return gccLocation;
-	}
-
-	protected String getIncludeVar() {
-		return "GCCINCLUDE";
-	}
+	// public void setGccLocation(String gccLocation) {
+	// this.gccLocation = gccLocation;
+	// }
+	//
+	// public String getGccLocation() {
+	// return gccLocation;
+	// }
 
 	protected BigInteger getOutputType() {
 		return BigInteger.valueOf(0);

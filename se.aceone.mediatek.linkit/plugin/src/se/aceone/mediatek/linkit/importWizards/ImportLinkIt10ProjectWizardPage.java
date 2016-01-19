@@ -76,9 +76,9 @@ import org.eclipse.ui.internal.wizards.datatransfer.DataTransferMessages;
 import se.aceone.mediatek.linkit.Activator;
 import se.aceone.mediatek.linkit.common.LinkItConst;
 import se.aceone.mediatek.linkit.tools.Common;
-import se.aceone.mediatek.linkit.tools.LinkIt10HelperGCC;
-import se.aceone.mediatek.linkit.tools.LinkIt10HelperRVTC;
-import se.aceone.mediatek.linkit.tools.LinkIt10HelperRVTCLib;
+import se.aceone.mediatek.linkit.tools.CompilerRVCT;
+import se.aceone.mediatek.linkit.tools.LinkIt10Helper;
+import se.aceone.mediatek.linkit.tools.LinkIt10HelperLib;
 import se.aceone.mediatek.linkit.tools.LinkItHelper;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo;
 import se.aceone.mediatek.linkit.xml.config.Packageinfo.Output;
@@ -494,11 +494,12 @@ public class ImportLinkIt10ProjectWizardPage extends WizardPage {
 
 				IPath configPath = locationPath.append("config.xml");
 				LinkItHelper helper; 
+				se.aceone.mediatek.linkit.tools.Compiler compiler = new CompilerRVCT();
 				boolean staticLib = isStaticLib(new File(configPath.toOSString()));
 				if(staticLib){
-					helper = new LinkIt10HelperRVTCLib(project);
+					helper = new LinkIt10HelperLib(project, compiler);
 				}else{
-					helper = new LinkIt10HelperRVTC(project);
+					helper = new LinkIt10Helper(project, compiler);
 				}
 				// helper = new LinkIt10HelperRVTC(project);
 
@@ -512,8 +513,8 @@ public class ImportLinkIt10ProjectWizardPage extends WizardPage {
 					copyProjectToWorkspace(project, locationPath, monitor);
 				}
 				IPathVariableManager manager = project.getWorkspace().getPathVariableManager();
-				if (manager.getURIValue(LinkIt10HelperGCC.LINK_IT_SDK10) == null) {
-					manager.setURIValue(LinkIt10HelperGCC.LINK_IT_SDK10, URIUtil.toURI(helper.getEnvironmentPath()));
+				if (manager.getURIValue(LinkIt10Helper.LINK_IT_SDK10) == null) {
+					manager.setURIValue(LinkIt10Helper.LINK_IT_SDK10, URIUtil.toURI(helper.getEnvironmentPath()));
 				}
 
 				if (monitor.isCanceled()) {

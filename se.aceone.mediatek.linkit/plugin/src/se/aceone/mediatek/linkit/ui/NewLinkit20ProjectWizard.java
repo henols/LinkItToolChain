@@ -50,6 +50,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import se.aceone.mediatek.linkit.Activator;
 import se.aceone.mediatek.linkit.tools.Common;
+import se.aceone.mediatek.linkit.tools.CompilerGCC;
 import se.aceone.mediatek.linkit.tools.LinkIt20Helper;
 
 public class NewLinkit20ProjectWizard extends NewLinkitProjectWizard {
@@ -95,7 +96,7 @@ public class NewLinkit20ProjectWizard extends NewLinkitProjectWizard {
 		monitor.beginTask("", 2000);
 		try {
 
-			helper = new LinkIt20Helper(project);
+			helper = new LinkIt20Helper(project, new CompilerGCC());
 
 			if (!helper.checkEnvironment()) {
 				Common.log(new Status(IStatus.ERROR, CORE_PLUGIN_ID, "Enviroment for LinkIt SDK 2.0 are not configuerd."));

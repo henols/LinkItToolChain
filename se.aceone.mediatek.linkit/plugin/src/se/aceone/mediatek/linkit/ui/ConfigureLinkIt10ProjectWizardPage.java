@@ -76,4 +76,8 @@ public class ConfigureLinkIt10ProjectWizardPage extends WizardPage {
 		return staticLib.getSelection();
 	}
 
+	public se.aceone.mediatek.linkit.tools.Compiler getCompiler() {
+		return null;
+	}
+
 }

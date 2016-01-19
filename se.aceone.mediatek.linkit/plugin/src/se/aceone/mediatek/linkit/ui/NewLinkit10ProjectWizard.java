@@ -46,9 +46,10 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import se.aceone.mediatek.linkit.Activator;
 import se.aceone.mediatek.linkit.tools.Common;
-import se.aceone.mediatek.linkit.tools.LinkIt10HelperGCC;
-import se.aceone.mediatek.linkit.tools.LinkIt10HelperRVTC;
-import se.aceone.mediatek.linkit.tools.LinkIt10HelperRVTCLib;
+import se.aceone.mediatek.linkit.tools.CompilerGCC;
+import se.aceone.mediatek.linkit.tools.CompilerRVCT;
+import se.aceone.mediatek.linkit.tools.LinkIt10Helper;
+import se.aceone.mediatek.linkit.tools.LinkIt10HelperLib;
 import se.aceone.mediatek.linkit.tools.LinkItHelper;
 
 public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard {
@@ -98,26 +99,32 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard {
 		monitor.beginTask("", 2000);
 		try {
 			boolean staticLibrary = configPage.isStaticLibrary();
+
+			// TODO Get compiler selection from config page
+			// se.aceone.mediatek.linkit.tools.Compiler compiler configPage.getCompiler();
+			se.aceone.mediatek.linkit.tools.Compiler compiler = new CompilerRVCT();
+//			se.aceone.mediatek.linkit.tools.Compiler compiler = new CompilerGCC();
+			
 			if (staticLibrary) {
 				System.out.println("Static Library");
-				helper = new LinkIt10HelperRVTCLib(project);
+				helper = new LinkIt10HelperLib(project, compiler);
 			} else {
 				System.out.println("VXP");
-				helper = new LinkIt10HelperRVTC(project);
+				helper = new LinkIt10Helper(project, compiler);
 			}
 			if (!helper.checkEnvironment()) {
 				MultiStatus status = new MultiStatus(CORE_PLUGIN_ID, IStatus.ERROR, "Enviroment for LinkIt SDK 1.0 are not configuerd.", null);
 				String envPath = helper.getEnvironmentPath();
-				status.add( new Status(IStatus.ERROR ,CORE_PLUGIN_ID,"Environment Path: "+  envPath));
-				status.add( new Status(IStatus.ERROR ,CORE_PLUGIN_ID,"Found sys.ini file: "+  LinkItHelper.checkSysIni(envPath)));
+				status.add(new Status(IStatus.ERROR, CORE_PLUGIN_ID, "Environment Path: " + envPath));
+				status.add(new Status(IStatus.ERROR, CORE_PLUGIN_ID, "Found sys.ini file: " + LinkItHelper.checkSysIni(envPath)));
 				Common.log(status);
 				OperationCanceledException exception = new OperationCanceledException("Enviroment for LinkIt SDK 1.0 are not configuerd.");
 				throw exception;
 			}
 
 			IPathVariableManager manager = project.getWorkspace().getPathVariableManager();
-			if (manager.getURIValue(LinkIt10HelperGCC.LINK_IT_SDK10) == null) {
-				manager.setURIValue(LinkIt10HelperGCC.LINK_IT_SDK10, URIUtil.toURI(helper.getEnvironmentPath()));
+			if (manager.getURIValue(LinkIt10Helper.LINK_IT_SDK10) == null) {
+				manager.setURIValue(LinkIt10Helper.LINK_IT_SDK10, URIUtil.toURI(helper.getEnvironmentPath()));
 			}
 
 			project.create(description, new SubProgressMonitor(monitor, 1000));
@@ -173,7 +180,7 @@ public class NewLinkit10ProjectWizard extends NewLinkitProjectWizard {
 
 			projectDescription.setActiveConfiguration(defaultConfigDescription);
 			projectDescription.setCdtProjectCreated();
-			CoreModel.getDefault().getProjectDescriptionManager().setProjectDescription(project, projectDescription, true, null);
+			CoreModel.getDefault().getProjectDescriptionManager().setProjectDescription(project, projectDescription, true, monitor);
 
 			monitor.done();
 

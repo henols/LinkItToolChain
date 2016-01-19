@@ -31,6 +31,7 @@
 				%wizard.description
 			</description>
 		</wizard>
+		<!--
 		<wizard canFinishEarly="false" category="se.aceone.mediatek.linkit.newWizards"
 			class="se.aceone.mediatek.linkit.ui.NewLinkit20ProjectWizard"
 			finalPerspective="org.eclipse.cdt.ui.CPerspective" icon="icons/16px-Nuvola_devices_ksim_cpu.png"
@@ -40,6 +41,7 @@
 				%wizard.description
 			</description>
 		</wizard>
+		-->
 	</extension>
 	   <extension
          point="org.eclipse.ui.importWizards">
@@ -82,14 +84,18 @@
 				<toolChain archList="all"
 					id="se.aceone.mediatek.linkit.toolChain.default.gcc" isAbstract="false"
 					name="LinkIt Tool Chain (GCC)" osList="all"
-					targetTool="se.aceone.mediatek.linkit.tool.size">
+					targetTool="se.aceone.mediatek.linkit.tool.objcopy.dbgdata">
 					<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF"
 						id="se.aceone.mediatek.linkit.targetplatform" name="LinkIt Target"
 						osList="all">
 					</targetPlatform>
-					<builder id="se.aceone.mediatek.linkit.builder"
-						isVariableCaseSensitive="false" name="LinkIt Builder"
-						reservedMacroNames="LinkItSDK20" superClass="se.aceone.mediatek.linkit.gnu.builder">
+					<builder
+           buildfileGenerator="se.aceone.mediatek.linkit.toolchain.LinkItGnuMakefileGenerator"
+           id="se.aceone.mediatek.linkit.builder"
+           isVariableCaseSensitive="false"
+           name="LinkIt Builder"
+           reservedMacroNames="LinkItSDK20,LinkItSDK10"
+           superClass="se.aceone.mediatek.linkit.gnu.builder">
 					</builder>
 					<optionCategory
 						id="se.aceone.mediatek.linkit.optionCategory.includePaths" name="Include Folders">
@@ -116,9 +122,13 @@
 							command="-D" id="se.aceone.mediatek.linkit.compiler.cpp.option.macros"
 							name="C++ Macros" resourceFilter="project" valueType="definedSymbols">
 						</option>
-						<inputType buildVariable="CPP_SKETCH_FILES"
-							dependencyContentType="org.eclipse.cdt.core.cxxHeader" id="se.aceone.mediatek.linkit.input"
-							name="C++ Source" primaryInput="true" sourceContentType="org.eclipse.cdt.core.cxxSource">
+						<inputType
+            buildVariable="CPP_SKETCH_FILES"
+            dependencyContentType="org.eclipse.cdt.core.cxxHeader"
+            id="se.aceone.mediatek.linkit.input"
+            name="C++ Source"
+            primaryInput="true"
+            sourceContentType="org.eclipse.cdt.core.cxxSource">
 						</inputType>
 						<outputType buildVariable="LINK_OBJ"
 							id="se.aceone.mediatek.linkit.link.output" name="C++ Link Object"
@@ -151,10 +161,14 @@
 							command="-D" id="se.aceone.mediatek.linkit.compiler.c.option.macros"
 							name="C Macros" resourceFilter="project" valueType="definedSymbols">
 						</option>
-						<inputType buildVariable="C_SKETCH_FILES"
-							dependencyContentType="org.eclipse.cdt.core.cHeader"
-							id="se.aceone.mediatek.linkit.compiler.c.input" multipleOfType="false"
-							name="C Source" primaryInput="true" sourceContentType="org.eclipse.cdt.core.cSource">
+						<inputType
+            buildVariable="C_SKETCH_FILES"
+            dependencyContentType="org.eclipse.cdt.core.cHeader"
+            id="se.aceone.mediatek.linkit.compiler.c.input"
+            multipleOfType="false"
+            name="C Source"
+            primaryInput="true"
+            sourceContentType="org.eclipse.cdt.core.cSource">
 						</inputType>
 						<outputType buildVariable="LINK_OBJ"
 							id="se.aceone.mediatek.linkit.compiler.c.link.output" name="C Link Object"
@@ -188,7 +202,7 @@
 					<tool announcement="Starting Linker"
 						command="${COMPILERPATH}/${COMPILERTOOLPATH}/${GCCLINK}"
 						commandLineGenerator="se.aceone.mediatek.linkit.toolchain.GCCLinkerCommadLineGenerator"
-						commandLinePattern="&quot;${COMMAND}&quot; ${GCCTLINKER} -B ${ARMNONEEABITHUMB} -T &quot;${LINKIT10}/${GCCTCCLIB}/scat.ld&quot; -o ${OUTPUT} ${INPUTS} &quot;${LINKIT10}/${GCCLIB}/${COMMONLIB}&quot; "
+						commandLinePattern="&quot;${COMMAND}&quot; ${GCCLINKER} -B ${ARMNONEEABITHUMB} -T &quot;${LINKIT10}/${GCCTCCLIB}/scat.ld&quot; -o ${OUTPUT} ${INPUTS} &quot;${LINKIT10}/${GCCLIB}/${COMMONLIB}&quot; "
 						errorParsers="org.eclipse.cdt.core.GLDErrorParser" id="se.aceone.mediatek.linkit.tool.linker"
 						name="Linker" natureFilter="both">
 						<inputType buildVariable="LINK_OBJ"
@@ -200,11 +214,6 @@
 							id="se.aceone.mediatek.linkit.tool.linker.data.output"
 							multipleOfType="false" name="Linker output axf" outputNames="${ProjName}.axf"
 							outputs="axf" primaryOutput="true">
-						</outputType>
-						<outputType buildVariable="DBG"
-							id="se.aceone.mediatek.linkit.tool.linker.dbg.output"
-							multipleOfType="false" name="Linker output debug" outputNames="${ProjName}.axf"
-							outputs="axf" primaryOutput="false">
 						</outputType>
 						<!-- <outputType buildVariable="ELF" id="se.aceone.mediatek.linkit.tool.linker.output" 
 							name="Linker output" outputNames="${ProjName}.axf" outputs="elf" primaryOutput="true"> 
@@ -228,23 +237,6 @@
 							outputs="out.afx" primaryOutput="true">
 						</outputType>
 					</tool>
-					<tool announcement="Creating debug data only"
-						command="${COMPILERPATH}/${COMPILERTOOLPATH}/${OBJCOPY}"
-						commandLinePattern="&quot;${COMMAND}&quot; --only-keep-debug ${INPUTS}  ${OUTPUT} "
-						id="se.aceone.mediatek.linkit.tool.objcopy.dbg" isAbstract="false"
-						name="Debug only data file" natureFilter="both">
-						<inputType buildVariable="DBG" dependencyExtensions="axf"
-							id="se.aceone.mediatek.linkit.tool.objcopy.dbg.input"
-							multipleOfType="true" name="Debug data file input" primaryInput="true"
-							sourceContentType="se.aceone.mediatek.linkit.tool.linker.dbg.output"
-							sources="axf">
-						</inputType>
-						<outputType buildVariable="DBG_DATA"
-							id="se.aceone.mediatek.linkit.tool.objcopy.dbg.output"
-							multipleOfType="false" name="Debug data file output" outputNames="${ProjName}.dbg"
-							outputs="dbg">
-						</outputType>
-					</tool>
 					<!-- <tool announcement="Resource Packer" command="${TOOLPATH}/${RESEDITOR}" 
 						commandLinePattern="${COMMAND} pack -silent -resolution 128x160 -o ${OUTPUT} 
 						-e AXF -vom ${workspace_loc}/${ProjName}/${ProjName}.proj ${INPUTS}" id="se.aceone.mediatek.linkit.tool.packer" 
@@ -254,25 +246,6 @@
 						sources="eep"> </inputType> <outputType buildVariable="RES_PKD" id="se.aceone.mediatek.linkit.tool.packer.output" 
 						multipleOfType="false" name="Resource Packer output" namePattern="${ProjName}.pkd" 
 						outputNames="${ProjName}.pkd" outputs="pkd"> </outputType> </tool> -->
-					<tool announcement="Size command"
-						command="${COMPILERPATH}/${COMPILERTOOLPATH}/${SIZETOOL}"
-						commandLinePattern="&quot;${COMMAND}&quot; -A ${INPUTS}" id="se.aceone.mediatek.linkit.tool.size"
-						name="Size">
-						<inputType buildVariable="AXF_DATA_OUT"
-							id="se.aceone.mediatek.linkit.tool.size.input" multipleOfType="false"
-							name="Size input" primaryInput="true" sources="out.axf">
-						</inputType>
-						<inputType buildVariable="DBG_DATA"
-							dependencyExtensions="dbg"
-							id="se.aceone.mediatek.linkit.tool.size.input.dbg"
-							multipleOfType="true" name="Size debug input" primaryInput="false">
-						</inputType>
-						<outputType buildVariable="SIZEDUMMY"
-							id="se.aceone.mediatek.linkit.tool.size.output" multipleOfType="false"
-							name="Size output" outputNames="sizedummy" outputs="${project}.size"
-							primaryOutput="true">
-						</outputType>
-					</tool>
 				</toolChain>
 				<toolChain archList="all"
 					id="se.aceone.mediatek.linkit.toolChain.default.rvct" isAbstract="false"
@@ -536,6 +509,7 @@
 				</or>
 			</enablement>
 		</commonWizard>
+	<!--
 		<commonWizard associatedExtensionId="org.eclipse.cdt.ui.navigator.content"
 			menuGroupId="org.eclipse.cdt.ui.newProject" type="new"
 			wizardId="se.aceone.mediatek.linkit.NewLinkit20ProjectWizard">
@@ -555,7 +529,7 @@
 				</or>
 			</enablement>
 		</commonWizard>
-
+-->
 	</extension>
 	<extension point="org.eclipse.ui.preferencePages">
 		<page name="LinkIt" class="se.aceone.mediatek.linkit.ui.LinkItPreferencePage"
@@ -576,6 +550,9 @@
 		</category>
 		<command categoryId="se.aceone.mediatek.linkit.commands.category"
 			id="se.aceone.mediatek.linkit.commands.pack" name="Pack Command">
+		</command>
+		<command categoryId="se.aceone.mediatek.linkit.commands.category"
+			id="se.aceone.mediatek.linkit.commands.resource" name="Resource Editor">
 		</command>
 		<command categoryId="se.aceone.mediatek.linkit.commands.category"
 			id="se.aceone.mediatek.linkit.commands.updateproj" name="Update project file">
@@ -605,6 +582,9 @@
 				<command commandId="se.aceone.mediatek.linkit.commands.pack"
 					id="se.aceone.mediatek.linkit.menus.pack" mnemonic="P">
 				</command>
+				<command commandId="se.aceone.mediatek.linkit.commands.resource"
+					id="se.aceone.mediatek.linkit.menus.resource">
+				</command>
 				<command commandId="se.aceone.mediatek.linkit.commands.updateproj"
 					id="se.aceone.mediatek.linkit.menus.updateproj">
 				</command>
@@ -612,7 +592,7 @@
 		</menuContribution>
 		<menuContribution
 			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-			<toolbar id="se.aceone.mediatek.linkit.toolbars.pack">
+			<toolbar id="se.aceone.mediatek.linkit.toolbars.tools">
 				<command commandId="se.aceone.mediatek.linkit.commands.pack"
 					icon="icons/App-package-icon16px.png" id="se.aceone.mediatek.linkit.toolbars.pack"
 					tooltip="LinkIt vpx packer">
@@ -635,13 +615,34 @@
 
 					</visibleWhen>
 				</command>
+				<command commandId="se.aceone.mediatek.linkit.commands.resource"
+					icon="icons/resource-editor.png" id="se.aceone.mediatek.linkit.toolbars.rescource"
+					tooltip="Resource Editor">
+					<visibleWhen checkEnabled="true">
+						<or>
+							<with variable="activeWorkbenchWindow.activePerspective">
+								<equals value="org.eclipse.cdt.ui.CPerspective">
+								</equals>
+							</with>
+							<instanceof value="org.eclipse.cdt.core.model.ICElement">
+							</instanceof>
+							<and>
+								<instanceof value="org.eclipse.core.resources.IProject">
+								</instanceof>
+								<test property="org.eclipse.core.resources.projectNature"
+									value="org.eclipse.cdt.core.cnature">
+								</test>
+							</and>
+						</or>
+					</visibleWhen>
+				</command>
 			</toolbar>
 		</menuContribution>
 	</extension>
 	<extension point="org.eclipse.ui.bindings">
 		<key commandId="se.aceone.mediatek.linkit.commands.pack"
 			contextId="org.eclipse.ui.contexts.window" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-			sequence="M1 + P">
+			sequence="Ctrl+P">
 		</key>
 	</extension>
 	<extension point="org.eclipse.ui.handlers">
@@ -658,6 +659,19 @@
 				</with>
 				</activeWhen>
 		</handler>
+		<handler class="se.aceone.mediatek.linkit.handlers.LinkItResourceHandler"
+			commandId="se.aceone.mediatek.linkit.commands.resource">
+			<activeWhen>
+				<with variable="selection">
+					<iterate ifEmpty="true" operator="and">
+			           <adapt type="org.eclipse.core.resources.IResource">
+				            <test property="org.eclipse.core.resources.projectNature"
+				                  value="org.eclipse.cdt.managedbuilder.core.managedBuildNature"/>
+			           </adapt>
+					</iterate>
+				</with>
+				</activeWhen>
+			</handler>
 		<handler class="se.aceone.mediatek.linkit.handlers.UpdateProjectFile"
 			commandId="se.aceone.mediatek.linkit.commands.updateproj">
 			<activeWhen>
@@ -677,7 +691,6 @@
 				</with>
 			</activeWhen>
 		</handler>
-
 	</extension>
 	<extension id="se.aceone.mediatek.linkit.errorparser.compiler"
 		name="LinkIt Error parser Compiler" point="org.eclipse.cdt.core.ErrorParser">
